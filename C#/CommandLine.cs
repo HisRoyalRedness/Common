@@ -30,7 +30,6 @@ namespace fletcher.org
             _cancelTokenSource = new CancellationTokenSource();
             _taskFactory = new TaskFactory(_cancelTokenSource.Token);
             _resetEvent = new ManualResetEventSlim();
-            _mainTask = _taskFactory.StartNew(() => _resetEvent.Wait());
             _tasks = new List<Task>();
         }
 
@@ -81,15 +80,16 @@ namespace fletcher.org
 
         static bool OnShutdown(ShutdownType type)
         {
-            if (_shutdownHandler != null)
+            if (_shutdownHandler != null && !_shutdownTaskLaunched)
             {
-                var args = new ShutdownEventArgs(type);
-                _shutdownHandler(null, args);
-                //if (!args.Cancel)
+                _shutdownTaskLaunched = true;
+                AddTask(() =>
                 {
-                    Cancel();
-                    Task.Delay(TimeSpan.FromMilliseconds(100)).ContinueWith(_ => _resetEvent.Set());
-                }
+                    var args = new ShutdownEventArgs(type);
+                    _shutdownHandler(null, args);
+                    //if (!args.Cancel)
+                        Cancel();
+                });
             }
             return true;
         }
@@ -120,38 +120,38 @@ namespace fletcher.org
         }
         #endregion NativeMethods
 
+        static bool _shutdownTaskLaunched = false;
         static NativeMethods.EventHandler _handler = null;
         #endregion Shutdown event handling
 
-
-        //static void Main(string[] args)
-        //{
-        //    // Some biolerplate to react to close window event, CTRL-C, kill, etc
-        //    _handler += new NativeMethods.EventHandler(Handler);
-        //    if (!NativeMethods.SetConsoleCtrlHandler(_handler, true))
-        //        throw new ApplicationException("Could not set attach to the SetConsoleCtrlHandler event.");
-
-        //    // Expects there to be an OnStart method with this signature:
-        //    // Task OnStart(CancellationToken)
-        //    AddTask(Task.Run(() => OnStart(_cancelTokenSource.Token), _cancelTokenSource.Token));
-
-
-        //    _resetEvent.Wait();
-        //    Console.WriteLine("Exit");
-        //}
-
-        public static void AddTask(Task task)
+        public static Task AddTask(Task task)
         {
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            if (task.IsCompleted)
-                return;
-            lock(_tasks)
+            if (!task.IsCompleted)
             {
-                task.ContinueWith(t => RemoveTask(t));
-                _tasks.Add(task);
+                lock (_tasks)
+                {
+                    task.ContinueWith(t => RemoveTask(t));
+                    _tasks.Add(task);
+                }
             }
+            return task;
+        }
+
+        public static Task AddTask(Action<CancellationToken> action)
+        {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+            return AddTask(_taskFactory.StartNew(() => action(_cancelTokenSource.Token)));
+        }
+
+        public static Task AddTask(Action action)
+        {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+            return AddTask(_taskFactory.StartNew(() => action()));
         }
 
         static void RemoveTask(Task task)
@@ -178,14 +178,15 @@ namespace fletcher.org
 
         public static void Wait()
         {
+            // Force a check for completed tasks
             RemoveTask(null);
+
+            // ..  and then wait for them all to complete
             _resetEvent.Wait();
-            //_mainTask.Wait();
         }
 
         static readonly CancellationTokenSource _cancelTokenSource;
         static readonly TaskFactory _taskFactory;
-        static readonly Task _mainTask;
         static readonly ManualResetEventSlim _resetEvent;
         static readonly List<Task> _tasks;
 
