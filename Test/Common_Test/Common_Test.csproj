@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{724031D2-E99F-436D-B3EF-1ADBA86B9265}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>fletcher.org.Tests</RootNamespace>
     <AssemblyName>Common_Test</AssemblyName>
@@ -79,6 +79,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>fletcher.org.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
@@ -98,7 +101,11 @@
     <Compile Include="..\..\C#\CircularBuffer.cs">
       <Link>CircularBuffer.cs</Link>
     </Compile>
+    <Compile Include="..\..\C#\CommandLine.cs">
+      <Link>CommandLine.cs</Link>
+    </Compile>
     <Compile Include="CircularBuffer_Test.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Choose>

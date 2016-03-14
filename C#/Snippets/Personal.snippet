@@ -1,5 +1,34 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>comment</Title>
+      <Shortcut>comment</Shortcut>
+      <Description>Insert the standard file comment header</Description>
+      <Author>Keith Fletcher</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+        <SnippetType>SurroundsWith</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Code Language="csharp">
+        <![CDATA[/*
+    File description (short)    
+
+        File description (long)
+
+    Keith Fletcher
+    Mar 2016
+
+    This file is Unlicensed.
+    See the foot of the file, or refer to <http://unlicense.org>
+*/]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>  
+  
 	<CodeSnippet Format="1.0.0">
 		<Header>
 			<Title>unlicense</Title>
@@ -13,7 +42,8 @@
 		</Header>
 		<Snippet>
 			<Code Language="csharp">
-        <![CDATA[/*This is free and unencumbered software released into the public domain.
+        <![CDATA[/*
+This is free and unencumbered software released into the public domain.
 
 Anyone is free to copy, modify, publish, use, compile, sell, or
 distribute this software, either in source code form or as a compiled
@@ -36,7 +66,8 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
-For more information, please refer to <http://unlicense.org>*/]]>
+For more information, please refer to <http://unlicense.org>
+*/]]>
 			</Code>
 		</Snippet>
 	</CodeSnippet>
