@@ -13,7 +13,7 @@ using System.Linq;
         will simply drop as many elements off the back as needed in order
         to stay within the capacity limit.
 
-        Data is added singularly with Add() and removed singulary with
+        Data is added singularly with Add() and removed singularly with
         Remove(). The usual ICollection methods all work as expected.
 
         Read() and Write() have been provided to extract or add blocks
@@ -106,6 +106,7 @@ namespace fletcher.org
         {
             _readIndex = 0;
             _writeIndex = 0;
+            _isFull = false;
         }
 
         /// <summary>
@@ -155,7 +156,8 @@ namespace fletcher.org
         /// <param name="length">The number of elements to copy.</param>
         /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is negative.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">There is not enough space in <paramref name="data"/> 
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is negative.</exception>
+        /// <exception cref="InvalidOperationException">There is not enough space in <paramref name="data"/> 
         /// (starting from <paramref name="offset"/>) to hold all the data.</exception>
         public void CopyTo(T[] data, int offset, int length)
         {
@@ -165,10 +167,12 @@ namespace fletcher.org
                 throw new ArgumentNullException(nameof(data));
             if (offset < 0)
                 throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} must be larger or equal to zero.");
+            if (length < 0)
+                throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} must be larger or equal to zero.");
             if (data.Length < length)
-                throw new ArgumentException($"Not enough space in {nameof(data)}.");
+                throw new InvalidOperationException($"Not enough space in {nameof(data)}.");
             if (data.Length - offset < length)
-                throw new ArgumentException($"Not enough space in {nameof(data)} with the provided {nameof(offset)}.");
+                throw new InvalidOperationException($"Not enough space in {nameof(data)} with the provided {nameof(offset)}.");
 
             if (_readIndex < _writeIndex)
                 Array.Copy(_buffer, _readIndex, data, offset, length);
@@ -242,6 +246,7 @@ namespace fletcher.org
         /// Remove a single <typeparamref name="T"/> instance from the buffer and return it.
         /// </summary>
         /// <returns>The top-most <typeparamref name="T"/> instance in the buffer </returns>
+        /// <exception cref="InvalidOperationException">The <see cref="CircularBuffer{T}"/> is empty.</exception>
         public T Remove()
         {
             if (Count == 0)
