@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 /*
@@ -28,7 +29,11 @@ using System.Linq;
 
 namespace fletcher.org
 {
-    public class CircularBuffer<T> : ICollection<T>, IEnumerable<T>
+    /// <summary>
+    /// A circular buffer implementation for C#
+    /// </summary>
+    /// <typeparam name="T">The type of element held by the buffer.</typeparam>
+    public class CircularBuffer<T> : ICollection<T>
     {
         #region Constructors
         /// <summary>
@@ -37,6 +42,7 @@ namespace fletcher.org
         /// <see cref="Overwrite"/> defaults to false.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is not larger than 0.</exception>
+        [DebuggerStepThrough]
         public CircularBuffer()
             : this(DEFAULT_CAPACITY, false)
         { }
@@ -49,6 +55,7 @@ namespace fletcher.org
         /// <param name="capacity">The maximum number of elements that the
         /// <see cref="CircularBuffer{T}"/> can hold</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is not larger than 0.</exception>
+        [DebuggerStepThrough]
         public CircularBuffer(int capacity)
             : this(capacity, false)
         { }
@@ -63,6 +70,7 @@ namespace fletcher.org
         /// is thrown if you exceed the buffer size. When <paramref name="overwrite"/>
         /// is false, newer data overwrites the older elements in the buffer.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is not larger than 0.</exception>
+        [DebuggerStepThrough]
         public CircularBuffer(int capacity, bool overwrite = false)
         {
             if (capacity <= 0)
@@ -78,7 +86,7 @@ namespace fletcher.org
         /// <summary>
         /// Returns the actual number of elements in the <see cref="CircularBuffer{T}"/>
         /// </summary>
-        /// <returns>The actual number of elements in the <see cref="CircularBuffer{T}"/></returns>
+        /// <returns>The actual number of elements in the <see cref="CircularBuffer{T}"/></returns>        
         public int Count =>
             _readIndex == _writeIndex
                 ? (_isFull ? _capacity : 0)
@@ -97,11 +105,13 @@ namespace fletcher.org
         /// <param name="item">The item to be added.</param>
         /// <exception cref="InvalidOperationException">The buffer is already full
         /// and <see cref="Overwrite"/> is false.</exception>
+        [DebuggerStepThrough]
         public void Add(T item) => Add(item, Overwrite);
 
         /// <summary>
         /// Removes all elements from the buffer.
         /// </summary>
+        [DebuggerStepThrough]
         public void Clear()
         {
             _readIndex = 0;
@@ -115,6 +125,7 @@ namespace fletcher.org
         /// <param name="item">The item to search for.</param>
         /// <returns>Returns true if an item was found that equals <paramref name="item"/>.
         /// Returns false otherwise, or if <paramref name="item"/> is null.</returns>
+        [DebuggerStepThrough]
         public bool Contains(T item)
         {
             if (item == null)
@@ -128,6 +139,7 @@ namespace fletcher.org
         /// <summary>
         /// Not supported
         /// </summary>
+        [DebuggerStepThrough]
         bool ICollection<T>.Remove(T item)
         { throw new NotSupportedException(); }
 
@@ -143,6 +155,7 @@ namespace fletcher.org
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is negative.</exception>
         /// <exception cref="ArgumentOutOfRangeException">There is not enough space in <paramref name="data"/> 
         /// (starting from <paramref name="offset"/>) to hold all the data.</exception>
+        [DebuggerStepThrough]
         public void CopyTo(T[] data, int offset) => CopyTo(data, offset, Count);
 
         /// <summary>
@@ -159,6 +172,7 @@ namespace fletcher.org
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is negative.</exception>
         /// <exception cref="InvalidOperationException">There is not enough space in <paramref name="data"/> 
         /// (starting from <paramref name="offset"/>) to hold all the data.</exception>
+        [DebuggerStepThrough]
         public void CopyTo(T[] data, int offset, int length)
         {
             if (length == 0)
@@ -193,6 +207,7 @@ namespace fletcher.org
         /// or Clear) will invalidate the enumerator.
         /// </summary>
         /// <returns>An <see cref="IEnumerator{T}"/> for the <see cref="CircularBuffer{T}"/>.</returns>
+        [DebuggerStepThrough]
         public IEnumerator<T> GetEnumerator()
         {
             for (var i = 0; i < Count; ++i)
@@ -205,6 +220,7 @@ namespace fletcher.org
         /// or Clear) will invalidate the enumerator.
         /// </summary>
         /// <returns>An <see cref="IEnumerator"/> for the <see cref="CircularBuffer{T}"/>.</returns>
+        [DebuggerStepThrough]
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         #endregion ICollection<T> implementation
 
@@ -230,6 +246,7 @@ namespace fletcher.org
         /// result in an <see cref="InvalidOperationException"/>.</param>
         /// <exception cref="InvalidOperationException">The buffer is already full and <paramref name="overwrite"/> 
         /// is false.</exception>
+        [DebuggerStepThrough]
         public void Add(T item, bool overwrite)
         {
             if (_isFull && !overwrite)
@@ -247,6 +264,7 @@ namespace fletcher.org
         /// </summary>
         /// <returns>The top-most <typeparamref name="T"/> instance in the buffer </returns>
         /// <exception cref="InvalidOperationException">The <see cref="CircularBuffer{T}"/> is empty.</exception>
+        [DebuggerStepThrough]
         public T Remove()
         {
             if (Count == 0)
@@ -296,6 +314,7 @@ namespace fletcher.org
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is negative.</exception>
         /// <exception cref="ArgumentOutOfRangeException">There is not enough space in <paramref name="data"/> 
         /// (starting from <paramref name="offset"/>) to hold all the data.</exception>
+        [DebuggerStepThrough]
         public int Read(T[] data, int offset, int length)
         {
             var len = length > Count ? Count : length;
@@ -318,6 +337,7 @@ namespace fletcher.org
         /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="offset"/> is negative.</exception>
         /// <exception cref="System.ArgumentException"><paramref name="data"/> is smaller than <paramref name="length"/> considering the <paramref name="offset"/> given.</exception>
         /// <exception cref="System.ArgumentException">There is not enough space to for <paramref name="length"/>  items and overwriting is not permitted.</exception>
+        [DebuggerStepThrough]
         public void Write(T[] data, int offset, int length)
         {
             if (length == 0)

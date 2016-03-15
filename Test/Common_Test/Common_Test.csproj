@@ -104,6 +104,9 @@
     <Compile Include="..\..\C#\CommandLine.cs">
       <Link>CommandLine.cs</Link>
     </Compile>
+    <Compile Include="..\..\C#\FragmentBuffer.cs">
+      <Link>FragmentBuffer.cs</Link>
+    </Compile>
     <Compile Include="CircularBuffer_Test.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
