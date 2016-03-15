@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CSharp", "CSharp", "{AD68E6
 		C#\CircularBuffer.cs = C#\CircularBuffer.cs
 		C#\CommandLine.cs = C#\CommandLine.cs
 		C#\FragmentBuffer.cs = C#\FragmentBuffer.cs
+		C#\README.md = C#\README.md
 	EndProjectSection
 EndProject
 Global
