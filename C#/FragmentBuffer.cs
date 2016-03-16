@@ -33,6 +33,7 @@ namespace fletcher.org
         /// <summary>
         /// Create an empty buffer
         /// </summary>
+        [DebuggerStepThrough]
         public FragmentBuffer()
         {
             _buffer = new T[0];
@@ -41,66 +42,94 @@ namespace fletcher.org
         }
 
         /// <summary>
-        /// Create a buffer around <paramref name="baseBuffer"/>.
+        /// Create a wrapper around <paramref name="baseBuffer"/>.
         /// Buffer[0] points to <paramref name="baseBuffer"/>[<paramref name="offset"/>].
         /// </summary>
-        public FragmentBuffer(T[] baseBuffer, int offset, int count)
+        /// <exception cref="ArgumentNullException"><param name="baseBuffer" /> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><param name="offset" /> is negative.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><param name="length" /> is negative.</exception>
+        /// <exception cref="InvalidOperationException">The sum of <param name="length" /> and <param name="offset" /> 
+        /// exceed the size of <param name="baseBuffer" />.</exception>
+        [DebuggerStepThrough]
+        public FragmentBuffer(T[] baseBuffer, int offset, int length)
         {
             if (baseBuffer == null)
                 throw new ArgumentNullException(nameof(baseBuffer));
-            if (offset < 0 || offset > baseBuffer.Length)
-                throw new ArgumentOutOfRangeException(nameof(offset));
-            if (count < 0 || count > baseBuffer.Length)
-                throw new ArgumentOutOfRangeException(nameof(count));
-            if (count + offset > baseBuffer.Length)
-                throw new ArgumentOutOfRangeException($"The sum of {nameof(offset)} and {nameof(count)} exceed the size of {nameof(baseBuffer)}.");
-
+            if (offset < 0)
+                throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} cannot be negative.");
+            if (length < 0)
+                throw new ArgumentOutOfRangeException(nameof(length), $"{nameof(length)} cannot be negative.");
+            if (length + offset > baseBuffer.Length)
+                throw new InvalidOperationException($"The sum of {nameof(offset)} and {nameof(length)} exceed the size of {nameof(baseBuffer)}.");
             _buffer = baseBuffer;
             _offset = offset;
-            _count = count;
+            _count = length;
         }
 
         /// <summary>
         /// Wrap a fragment of another <see cref="FragmentBuffer{T}"/>. The original
         /// array is not copied.
+        /// Buffer[0] points to <paramref name="buffer"/>[<paramref name="offset"/>].
         /// </summary>
-        public FragmentBuffer(FragmentBuffer<T> buffer, int offset, int count)
+        /// <exception cref="ArgumentNullException"><param name="buffer" /> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><param name="offset" /> is negative.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><param name="length" /> is negative.</exception>
+        /// <exception cref="InvalidOperationException">The sum of <param name="length" /> and <param name="offset" /> 
+        /// exceed the size of <param name="buffer" />.</exception>
+        [DebuggerStepThrough]
+        public FragmentBuffer(FragmentBuffer<T> buffer, int offset, int length)
         {
             if (buffer == null)
                 throw new ArgumentNullException(nameof(buffer));
-            if (offset < 0 || offset > buffer.Count)
-                throw new ArgumentOutOfRangeException(nameof(offset));
-            if (count < 0 || count > buffer.Count)
-                throw new ArgumentOutOfRangeException(nameof(count));
-            if (count + offset > buffer.Count)
-                throw new ArgumentOutOfRangeException($"The sum of {nameof(offset)} and {nameof(count)} exceed the size of {nameof(buffer)}.");
+            if (offset < 0)
+                throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} cannot be negative." );
+            if (length < 0)
+                throw new ArgumentOutOfRangeException(nameof(length), $"{nameof(length)} cannot be negative.");
+            if (length + offset > buffer.Count)
+                throw new InvalidOperationException($"The sum of {nameof(offset)} and {nameof(length)} exceed the size of {nameof(buffer)}.");
 
             _buffer = buffer._buffer;
             _offset = buffer._offset + offset;
-            _count = count;
-            CreateCachedString();
+            _count = length;
         }
         #endregion Constructors
 
-        public static FragmentBuffer<T> CreateCopy(T[] baseBuffer, int offset, int count) => new FragmentBuffer<T>(baseBuffer, offset, count, true);
-        public static FragmentBuffer<T> CreateCopy(IEnumerable<T> buffer) => new FragmentBuffer<T>(buffer);
-
-        public T[] ToArray()
-        {
-            var output = new T[Count];
-            CopyTo(output, 0);
-            return output;
-        }
-
+        /// <summary>
+        /// The offset into the original array when this instance was constructed.
+        /// </summary>
         public int Offset => _offset;
 
-        #region IReadOnlyList implementation
-        public T this[int index] => _buffer[index + _offset];
-
+        #region IReadOnlyList<T> implementation
+        /// <summary>
+        /// Returns the actual number of elements in the <see cref="FragmentBuffer{T}"/>
+        /// </summary>
+        /// <returns>The actual number of elements in the <see cref="FragmentBuffer{T}"/></returns>        
         public int Count => _count;
-        #endregion IReadOnlyList implementation
 
-        #region IEnumerable implementation
+        /// <summary>
+        /// Return a single item from the <see cref="FragmentBuffer{T}"/>.
+        /// </summary>
+        /// <param name="index">The zero-based index of the item.</param>
+        /// <returns>The item at the zero-based index in the <see cref="FragmentBuffer{T}"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is negative.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> exceeds <see cref="Count"/>.</exception>
+        public T this[int index]
+        {
+            get
+            {
+                if (index < 0)
+                    throw new ArgumentOutOfRangeException(nameof(index), $"{nameof(index)} must not be negative.");
+                if (index > Count)
+                    throw new ArgumentOutOfRangeException(nameof(index), $"{nameof(index)} cannot exceed {nameof(Count)}.");
+
+                return _buffer[index + _offset];
+            }
+        }
+
+        /// <summary>
+        /// Iterate over the elements in the <see cref="FragmentBuffer{T}"/>.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> for the <see cref="FragmentBuffer{T}"/>.</returns>
         [DebuggerStepThrough]
         public IEnumerator<T> GetEnumerator()
         {
@@ -108,79 +137,75 @@ namespace fletcher.org
                 yield return this[i];
         }
 
+        /// <summary>
+        /// Iterate over the elements in the <see cref="FragmentBuffer{T}"/>.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{T}"/> for the <see cref="FragmentBuffer{T}"/>.</returns>
         [DebuggerStepThrough]
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            for (var i = 0; i < _count; ++i)
-                yield return this[i];
-        }
-        #endregion IEnumerable implementation
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        #endregion IReadOnlyList<T> implementation
 
-        #region IList Implementation
-        public bool IsReadOnly => true;
-
+        /// <summary>
+        /// Copy data from the <see cref="FragmentBuffer{T}"/> to an array.
+        /// </summary>
+        /// <param name="data">The array to copy into.</param>
+        /// <param name="offset">The offset in <paramref name="data"/> at which to begin copying.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is negative.</exception>
+        /// <exception cref="InvalidOperationException">There is not enough space in <paramref name="data"/> 
+        /// (starting from <paramref name="offset"/>) to hold all the data.</exception>
         [DebuggerStepThrough]
-        public int IndexOf(T item)
+        public void CopyTo(T[] data, int offset) => CopyTo(data, offset, Count);
+
+        /// <summary>
+        /// Copy data from the <see cref="FragmentBuffer{T}"/> to an array.
+        /// </summary>
+        /// <param name="data">The array to copy into.</param>
+        /// <param name="offset">The offset in <paramref name="data"/> at which to begin copying.</param>
+        /// <param name="length">The number of elements to copy.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is negative.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is negative.</exception>
+        /// <exception cref="InvalidOperationException">There is not enough space in <paramref name="data"/> 
+        /// (starting from <paramref name="offset"/>) to hold all the data.</exception>
+        [DebuggerStepThrough]
+        public void CopyTo(T[] data, int offset, int length)
         {
+            if (length == 0)
+                return;
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+            if (offset < 0)
+                throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} must be larger or equal to zero.");
+            if (length < 0)
+                throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} must be larger or equal to zero.");
+            if (data.Length < length)
+                throw new InvalidOperationException($"Not enough space in {nameof(data)}.");
+            if (data.Length - offset < length)
+                throw new InvalidOperationException($"Not enough space in {nameof(data)} with the provided {nameof(offset)}.");
             for (int i = 0; i < Count; ++i)
-                if (this[i].Equals(item))
-                    return i;
-            return -1;
+                data[offset + i] = this[i];
         }
 
+        /// <summary>
+        /// Creates an array from a <see cref="CircularBuffer{T}"/>.
+        /// </summary>
+        /// <returns>An array that contains the elements of the <see cref="CircularBuffer{T}"/> instance.</returns>
         [DebuggerStepThrough]
-        public bool Contains(T item) => IndexOf(item) != -1;
-
-        [DebuggerStepThrough]
-        public void CopyTo(T[] array, int arrayIndex)
+        public T[] ToArray()
         {
-            for (int i = 0; i < Count; ++i)
-                array[arrayIndex + i] = this[i];
+            var output = new T[Count];
+            if (Count > 0)
+                CopyTo(output, 0);
+            return output;
         }
 
-        T IList<T>.this[int index]
-        {
-            get { return _buffer[index + _offset]; }
-            set { throw new NotSupportedException(); }
-        }
-
-        [DebuggerStepThrough]
-        public void Insert(int index, T item)
-        { throw new NotSupportedException(); }
-
-        [DebuggerStepThrough]
-        public void RemoveAt(int index)
-        { throw new NotSupportedException(); }
-
-        [DebuggerStepThrough]
-        public void Add(T item)
-        { throw new NotSupportedException(); }
-
-        [DebuggerStepThrough]
-        public void Clear()
-        { throw new NotSupportedException(); }
-
-        [DebuggerStepThrough]
-        public bool Remove(T item)
-        { throw new NotSupportedException(); }
-        #endregion IList Implementation
-
-        public override string ToString() => _cachedString;
-
-        void CreateCachedString()
-        {
-            //if (typeof(T) == typeof(byte))
-            //    _cachedString = $"[{Count}]: {(this as Buffer<byte>).ToHexString()}";
-            //else
-            //    _cachedString = _buffer.ToString();
-        }
-
+        #region Private fields
         readonly protected T[] _buffer;
         readonly protected int _offset;
         readonly protected int _count;
-
-        string _cachedString = null;
-    }    
+        #endregion Private fields
+    }
 }
 
 /*

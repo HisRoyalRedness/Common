@@ -44,7 +44,7 @@ namespace fletcher.org
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is not larger than 0.</exception>
         [DebuggerStepThrough]
         public CircularBuffer()
-            : this(DEFAULT_CAPACITY, false)
+            : this(DEFAULT_CAPACITY, DEFAULT_OVERWRITE)
         { }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace fletcher.org
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is not larger than 0.</exception>
         [DebuggerStepThrough]
         public CircularBuffer(int capacity)
-            : this(capacity, false)
+            : this(capacity, DEFAULT_OVERWRITE)
         { }
 
         /// <summary>
@@ -382,6 +382,19 @@ namespace fletcher.org
                 _readIndex = _writeIndex;
         }
 
+        /// <summary>
+        /// Creates an array from a <see cref="CircularBuffer{T}"/>.
+        /// </summary>
+        /// <returns>An array that contains the elements of the <see cref="CircularBuffer{T}"/> instance.</returns>
+        [DebuggerStepThrough]
+        public T[] ToArray()
+        {
+            var output = new T[Count];
+            if (Count > 0)
+                CopyTo(output, 0);
+            return output;
+        }
+
         #region Internal index manipulation
         /// <summary>
         /// ++index
@@ -405,13 +418,16 @@ namespace fletcher.org
         }
         #endregion Internal index manipulation
 
-        const int DEFAULT_CAPACITY = 1024;
+        #region Private fields
+        public const int DEFAULT_CAPACITY = 1024;
+        public const bool DEFAULT_OVERWRITE = false;
 
         bool _isFull = false;
         int _capacity;
         T[] _buffer;
         int _readIndex = 0;
         int _writeIndex = 0;
+        #endregion Private fields
     }
 }
 

@@ -1,38 +1,55 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using fletcher.org;
 using System.Collections.Generic;
+using FluentAssertions;
 
 namespace fletcher.org.Tests
 {
     [TestClass]
-    public class CircularBuffer_Test
+    public class CircularBuffer_Test 
     {
         #region TestConstruction
         [TestMethod]
         public void TestConstruction()
         {
-            var capacity = 1024;
-            var overwrite = false;
-            var cb = new CircularBuffer<int>();
-            Assert.AreEqual(capacity, cb.Capacity, $"Default Capacity should be {capacity}.");
-            Assert.AreEqual(overwrite, cb.Overwrite, $"Default Overwrite should be {overwrite}.");
+            // Test each of the 3 supported constructors, i.e.
+            // 1.   CircularBuffer<int>();
+            // 2.   CircularBuffer<int>(capacity);
+            // 3.   CircularBuffer<int>(capacity, overwrite);
 
-            capacity = 100;
-            cb = new CircularBuffer<int>(capacity);
-            Assert.AreEqual(capacity, cb.Capacity, "Specified Capacity should be {capacity}.");
-            Assert.AreEqual(overwrite, cb.Overwrite, $"Default Overwrite should be {overwrite}.");
+            // 1.
+            {
+                var capacity = CircularBuffer<int>.DEFAULT_CAPACITY;
+                var overwrite = CircularBuffer<int>.DEFAULT_OVERWRITE;
+                var cb = new CircularBuffer<int>();
+                cb.Capacity.Should().Be(capacity, $"default Capacity is {capacity}");
+                cb.Overwrite.Should().Be(overwrite, $"default Overwrite is {overwrite}");
+            }
 
-            capacity = 200;
-            overwrite = true;
-            cb = new CircularBuffer<int>(capacity, overwrite);
-            Assert.AreEqual(capacity, cb.Capacity, "Specified Capacity should be {capacity}.");
-            Assert.AreEqual(overwrite, cb.Overwrite, $"Specified Overwrite should be {overwrite}.");
+
+            // 2.
+            {
+                var capacity = 100;
+                var overwrite = CircularBuffer<int>.DEFAULT_OVERWRITE;
+                var cb = new CircularBuffer<int>(capacity);
+                cb.Capacity.Should().Be(capacity, $"specified Capacity is {capacity}");
+                cb.Overwrite.Should().Be(overwrite, $"default Overwrite is {overwrite}");
+            }
+
+            // 3.
+            {
+                var capacity = 200;
+                var overwrite = true;
+                var cb = new CircularBuffer<int>(capacity, overwrite);
+                cb.Capacity.Should().Be(capacity, $"specified Capacity is {capacity}");
+                cb.Overwrite.Should().Be(overwrite, $"specified Overwrite is {overwrite}");
+            }
 
             // Test Exceptions
-            AssertExt.MustThrow<ArgumentOutOfRangeException>(() => new CircularBuffer<int>(-1));
-            AssertExt.MustThrow<ArgumentOutOfRangeException>(() => new CircularBuffer<int>(0));
+            Action<int> construct = capacity => new CircularBuffer<int>(capacity);
+            construct.ShouldThrow<ArgumentOutOfRangeException, int>(-1, "negatives are not allowed");
+            construct.ShouldThrow<ArgumentOutOfRangeException, int>(0, "0 is not allowed");
         }
         #endregion TestConstruction
 
@@ -45,57 +62,54 @@ namespace fletcher.org.Tests
             var overwrite = true;
             var expectedCount = 0;
             var cb = new CircularBuffer<int>(capacity, overwrite);
-            Assert.AreEqual(0, cb.Count, $"Count should start off at 0.");
+            cb.Count.Should().Be(0, $"Count should start off at 0");
 
             cb.Add(1);
-            expectedCount = 1;
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should be {expectedCount}.");
+            ++expectedCount;
+            cb.Count.Should().Be(expectedCount);
 
             expectedCount = 5;
             Enumerable.Range(2, expectedCount - 1).ForEach(i => cb.Add(i));
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should be {expectedCount}.");
-            var items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("1.2.3.4.5", items, "Checking the elements in the buffer");
+            cb.Count.Should().Be(expectedCount);
+            cb.Should().Equal(1, 2, 3, 4, 5);
 
             // Overwrite should be allowed
             cb.Add(6);
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should not have increased from {expectedCount}.");
-            items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("2.3.4.5.6", items, "Checking the elements in the buffer");
+            cb.Count.Should().Be(expectedCount, "Count should not have exceeded the Capacity");
+            cb.Should().Equal(2, 3, 4, 5, 6);
+
+            Action<int> add1 = i => cb.Add(i);
+            Action<int, bool> add2 = (i, o) => cb.Add(i, o);
 
             // Overwrite should not be allowed
-            AssertExt.MustThrow<InvalidOperationException>(() => cb.Add(7, false));
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should not have increased from {expectedCount}.");
-            items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("2.3.4.5.6", items, "Checking the elements in the buffer");
+            add2.ShouldThrow<InvalidOperationException, int, bool>(7, false);
+            cb.Count.Should().Be(expectedCount, "Count should not have increased");
+            cb.Should().Equal(new[] { 2, 3, 4, 5, 6 }, "the collection should not have changed");
 
             // Now try with overwrite defaulted to false
             overwrite = false;
             cb = new CircularBuffer<int>(capacity, overwrite);
-
             expectedCount = 5;
+
             Enumerable.Range(1, expectedCount).ForEach(i => cb.Add(i));
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should be {expectedCount}.");
-            items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("1.2.3.4.5", items, "Checking the elements in the buffer");
+            cb.Count.Should().Be(expectedCount);
+            cb.Should().Equal(1, 2, 3, 4, 5);
 
             // Overwrite should not be allowed
-            AssertExt.MustThrow<InvalidOperationException>(() => cb.Add(6));
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should not have increased from {expectedCount}.");
-            items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("1.2.3.4.5", items, "Checking the elements in the buffer");
+            add1.ShouldThrow<InvalidOperationException, int>(6);
+            cb.Count.Should().Be(expectedCount, "Count should not have increased");
+            cb.Should().Equal(new[] { 1, 2, 3, 4, 5 }, "the collection should not have changed");
 
             // Overwrite should be allowed
             cb.Add(7, true);
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should not have increased from {expectedCount}.");
-            items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("2.3.4.5.7", items, "Checking the elements in the buffer");
+            cb.Count.Should().Be(expectedCount, "Count should not have increased");
+            cb.Should().Equal(new[] { 2, 3, 4, 5, 7 }, "the collection should not have changed");
 
+            // Set overwrite manually
             cb.Overwrite = true;
             cb.Add(8);
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should not have increased from {expectedCount}.");
-            items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("3.4.5.7.8", items, "Checking the elements in the buffer");
+            cb.Count.Should().Be(expectedCount, "Count should not have increased");
+            cb.Should().Equal(new[] { 3, 4, 5, 7, 8 }, "the collection should not have changed");
         }
         #endregion Test_Add
 
@@ -104,34 +118,25 @@ namespace fletcher.org.Tests
         public void Test_Contains()
         {
             var capacity = 5;
+            var count = capacity;
             var overwrite = true;
-            var expectedCount = 5;
-            var cb = new CircularBuffer<int>(capacity, overwrite);
 
             // Test with value types
             {
-                Enumerable.Range(1, expectedCount).ForEach(i => cb.Add(i));
-                Assert.AreEqual(expectedCount, cb.Count, $"Count should be {expectedCount}.");
-                var items = string.Join(".", cb.Select(i => i.ToString()));
-                Assert.AreEqual("1.2.3.4.5", items, "Checking the elements in the buffer");
-
-                var itemToFind = 2;
-                Assert.IsTrue(cb.Contains(itemToFind), $"Should find {itemToFind} in the buffer.");
-                itemToFind = 22;
-                Assert.IsFalse(cb.Contains(itemToFind), $"Should NOT find {itemToFind} in the buffer.");
+                var cb = CreatePopulated(count, capacity, overwrite);
+                var itemToFind = count / 2;
+                cb.Contains(itemToFind).Should().BeTrue($"{itemToFind} is expected to be in the collection");
+                itemToFind = count + 2;
+                cb.Contains(itemToFind).Should().BeFalse($"{itemToFind} is NOT expected to be in the collection");
             }
 
             // Repeat the test with a reference type
             {
-                var cbr = new CircularBuffer<RefType>(capacity, overwrite);
-
-                Enumerable.Range(1, expectedCount).ForEach(i => cbr.Add(new RefType() { Data = i.ToString() }));
-                Assert.AreEqual(expectedCount, cbr.Count, $"Count should be {expectedCount}.");
-
-                var itemToFind = cbr[1];
-                Assert.IsTrue(cbr.Contains(itemToFind), $"Should find {itemToFind} in the buffer.");
-                itemToFind = new RefType() { Data = "2" };
-                Assert.IsFalse(cbr.Contains(itemToFind), $"Should NOT find {itemToFind} in the buffer.");
+                var cb = CreatePopulated<RefType>(count, i => new RefType() { Data = i.ToString() }, capacity, overwrite);
+                var itemToFind = cb[capacity / 2];
+                cb.Contains(itemToFind).Should().BeTrue($"{itemToFind} is expected to be in the collection");
+                itemToFind = new RefType() { Data = (count / 2).ToString() };
+                cb.Contains(itemToFind).Should().BeFalse($"{itemToFind} is NOT expected to be in the collection");
             }
 
         }
@@ -144,28 +149,29 @@ namespace fletcher.org.Tests
             var capacity = 5;
             var overwrite = true;
             var expectedCount = 5;
-            var cb = new CircularBuffer<int>(capacity, overwrite);
-            Enumerable.Range(1, expectedCount).ForEach(i => cb.Add(i));
+            var cb = CreatePopulated(expectedCount, capacity, overwrite);
 
-            // Test the ICollection implementation
-            AssertExt.MustThrow<NotSupportedException>(() => ((ICollection<int>)cb).Remove(2), "Remove() shouldn't be supported.");
+            // Test the ICollection implementation.
+            Action remove = () => ((ICollection<int>)cb).Remove(2);
+            remove.ShouldThrow<NotSupportedException>();
 
+            // Test the regular implementation
             var item = cb.Remove();
-            Assert.AreEqual(1, item, "Should have removed the first item");
-            Assert.AreEqual(expectedCount - 1, cb.Count, "Count should have decremented by 1.");
-            var items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("2.3.4.5", items, "Checking the elements in the buffer");
+            item.Should().Be(1, "item should be the first element");
+            cb.Count.Should().Be(expectedCount - 1, "Count should have decreased by 1");
+            cb.Should().Equal(2, 3, 4, 5);
 
             for(var i = 0; i < expectedCount - 2; ++i)
                 cb.Remove();
             item = cb.Remove();
-            Assert.AreEqual(5, item, "Should have removed the last item");
-            Assert.AreEqual(0, cb.Count, "Count should be 0.");
-            items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("", items, "Checking the elements in the buffer");
+
+            item.Should().Be(5, "item should be the last element");
+            cb.Count.Should().Be(0, "the buffer should be empty");
+            cb.Should().Equal(new int[] { });
 
             // Test exceptions
-            AssertExt.MustThrow<InvalidOperationException>(() => cb.Remove(), "Shouldn't be able to Remove from an empty buffer.");
+            remove = () => cb.Remove();
+            remove.ShouldThrow<InvalidOperationException>("you shouldn't be able to remove from an empty buffer");
         }
         #endregion Test_Remove
 
@@ -176,24 +182,24 @@ namespace fletcher.org.Tests
             var capacity = 5;
             var overwrite = true;
             var expectedCount = 5;
-            var cb = new CircularBuffer<int>(capacity, overwrite);
-            Enumerable.Range(1, expectedCount).ForEach(i => cb.Add(i));
+            var cb = CreatePopulated(expectedCount, capacity, overwrite);
 
             for (var i = 0; i < expectedCount; ++i)
-                Assert.AreEqual(i + 1, cb[i], "Indexed items should match");
+                cb[i].Should().Be(i + 1, "indexed items appear in the order they were added");
 
             cb.Add(expectedCount + 1);
             for (var i = 0; i < expectedCount; ++i)
-                Assert.AreEqual(i + 2, cb[i], "Index still works after Add");
+                cb[i].Should().Be(i + 2, "indexing should reflect the newly added item");
 
             cb.Remove();
             for (var i = 0; i < expectedCount - 1; ++i)
-                Assert.AreEqual(i + 3, cb[i], "Index still works after Remove");
+                cb[i].Should().Be(i + 3, "indexing should reflect the newly removed item");
 
             // Test exceptions
-            int ii;
-            AssertExt.MustThrow<ArgumentOutOfRangeException>(() => ii = cb[-1], "No negative indexes");
-            AssertExt.MustThrow<ArgumentOutOfRangeException>(() => ii = cb[capacity], "No out-of-range");
+            int iTemp;
+            Action<int> indexing = i => iTemp = cb[i];
+            indexing.ShouldThrow<ArgumentOutOfRangeException, int>(-1, "negatives not allowed");
+            indexing.ShouldThrow<ArgumentOutOfRangeException, int>(capacity, "index must be in range");
         }
         #endregion Test_Indexing
 
@@ -202,7 +208,7 @@ namespace fletcher.org.Tests
         public void Test_ReadOnly()
         {
             var cb = new CircularBuffer<int>();
-            Assert.AreEqual(false, cb.IsReadOnly, $"ReadOnly should always be false.");
+            cb.IsReadOnly.Should().BeFalse("ReadOnly should always be false");
         }
         #endregion Test_ReadOnly
 
@@ -211,15 +217,14 @@ namespace fletcher.org.Tests
         public void Test_Clear()
         {
             var capacity = 5;
+            var overwrite = true;
 
             Action<int> testClear = size =>
             {
                 var expectedSize = size > capacity ? capacity : size;
-                var cb = new CircularBuffer<int>(capacity, true);
-                Enumerable.Range(1, expectedSize).ForEach(i => cb.Add(i));
-                Assert.AreEqual(expectedSize, cb.Count, $"Count should be {expectedSize}.");
+                var cb = CreatePopulated(expectedSize, capacity, overwrite);
                 cb.Clear();
-                Assert.AreEqual(0, cb.Count, $"Count should be 0.");
+                cb.Count.Should().Be(0);
             };
 
             // Test on an empty buffer
@@ -244,58 +249,56 @@ namespace fletcher.org.Tests
             var capacity = 5;
             var overwrite = true;
             var expectedCount = 4;
-
-            // Buffer set up
-            var cb = new CircularBuffer<int>(capacity, overwrite);
-            Enumerable.Range(1, expectedCount).ForEach(i => cb.Add(i));
-            var items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should be {expectedCount}.");
-            Assert.AreEqual("1.2.3.4", items, "Checking the elements in the buffer");
+            var cb = CreatePopulated(expectedCount, capacity, overwrite);
 
             // Basic CopyTo check
             var data = new int[capacity];
             cb.CopyTo(data, offset);
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should not have changed from {expectedCount}.");
-            items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("1.2.3.4", items, "Elements should not have changed");
-            items = string.Join(".", data.Skip(offset).Take(expectedCount).Select(i => i.ToString()));
-            Assert.AreEqual("1.2.3.4", items, "Array should match buffer");
+            cb.Count.Should().Be(expectedCount, "Count should not change after a copy");
+            cb.Should().Equal(new[] { 1, 2, 3, 4 }, "elements should not have changed");
+            cb.Should().Equal(data.Skip(offset).Take(expectedCount), "the buffer should match the array");
 
             // CopyTo with offset
             offset = 1;
             cb.CopyTo(data, offset);
-            items = string.Join(".", data.Skip(offset).Take(expectedCount).Select(i => i.ToString()));
-            Assert.AreEqual("1.2.3.4", items, "Array should match buffer");
+            cb.Count.Should().Be(expectedCount, "Count should not change after a copy");
+            cb.Should().Equal(new[] { 1, 2, 3, 4 }, "elements should not have changed");
+            cb.Should().Equal(data.Skip(offset).Take(expectedCount), "the buffer should match the array");
 
             // CopyTo with length
             var length = 3;
             offset = 1;
             cb.CopyTo(data, offset, length);
-            items = string.Join(".", data.Skip(offset).Take(length).Select(i => i.ToString()));
-            Assert.AreEqual("1.2.3", items, "Array should match buffer");
+            cb.Count.Should().Be(expectedCount, "Count should not change after a copy");
+            cb.Should().Equal(new[] { 1, 2, 3, 4 }, "elements should not have changed");
+            cb.Should().Equal(data.Skip(offset).Take(expectedCount), "the buffer should match the array");
 
             // CopyTo with Remove()
             cb.Remove();
             --expectedCount;
             cb.CopyTo(data, offset);
-            items = string.Join(".", data.Skip(offset).Take(expectedCount).Select(i => i.ToString()));
-            Assert.AreEqual("2.3.4", items, "Array should match buffer");
+            cb.Count.Should().Be(expectedCount, "Count should not change after a copy");
+            cb.Should().Equal(new[] { 2, 3, 4 }, "elements should not have changed");
+            cb.Should().Equal(data.Skip(offset).Take(expectedCount), "the buffer should match the array");
 
             // CopyTo with Add()
             cb.Add(5);
             ++expectedCount;
             cb.CopyTo(data, offset);
-            items = string.Join(".", data.Skip(offset).Take(expectedCount).Select(i => i.ToString()));
-            Assert.AreEqual("2.3.4.5", items, "Array should match buffer");
+            cb.Count.Should().Be(expectedCount, "Count should not change after a copy");
+            cb.Should().Equal(new[] { 2, 3, 4, 5 }, "elements should not have changed");
+            cb.Should().Equal(data.Skip(offset).Take(expectedCount), "the buffer should match the array");
 
             // Test exception
-            AssertExt.MustThrow<ArgumentNullException>(() => cb.CopyTo(null, offset, length));
-            AssertExt.MustThrow<ArgumentOutOfRangeException>(() => cb.CopyTo(data, -1, length));
-            AssertExt.MustThrow<ArgumentOutOfRangeException>(() => cb.CopyTo(data, offset, -1));
+            Action<int[], int, int> copy = (d, o, l) => cb.CopyTo(d, o, l);
+            Action<int[], int> copy2 = (d, o) => cb.CopyTo(d, o);
 
-            data = new int[2];
-            AssertExt.MustThrow<InvalidOperationException>(() => cb.CopyTo(data, 0, 3));
-            AssertExt.MustThrow<InvalidOperationException>(() => cb.CopyTo(data, 4));
+            copy.ShouldThrow<ArgumentNullException, int[], int, int>(null, offset, length, "the array can't be null");
+            copy.ShouldThrow<ArgumentOutOfRangeException, int[], int, int>(data, -1, length, "offset can't be negative");
+            copy.ShouldThrow<ArgumentOutOfRangeException, int[], int, int>(data, offset, -1, "length can't be negative");
+
+            copy.ShouldThrow<InvalidOperationException, int[], int, int>(new int[2], 0, 3, "the array must be big enough for offset and length");
+            copy2.ShouldThrow<InvalidOperationException, int[], int>(new int[2], 4, "the array must be big enough for offset and length");
         }
         #endregion Test_CopyTo
 
@@ -308,11 +311,41 @@ namespace fletcher.org.Tests
             var expectedCount = 4;
 
             // Buffer set up
-            var cb = new CircularBuffer<int>(capacity, overwrite);
-            Enumerable.Range(1, expectedCount).ForEach(i => cb.Add(i));
-            Assert.AreEqual(expectedCount, cb.Count, $"Count should be {expectedCount}.");
-            var items = string.Join(".", cb.Select(i => i.ToString()));
-            Assert.AreEqual("1.2.3.4", items, "Checking the elements in the buffer");
+            var cb = CreatePopulated(expectedCount, capacity, overwrite);
+            var items = string.Join(".", cb.Select(i => i.ToString())); // Join them up to test enumeration
+            items.Should().Be("1.2.3.4");
+
+            var en = cb.GetEnumerator();
+            en.MoveNext();
+            en.Current.Should().Be(1);
+            en.MoveNext();
+            en.Current.Should().Be(2);
+            en.MoveNext();
+            en.Current.Should().Be(3);
+            en.MoveNext();
+            en.Current.Should().Be(4);
+
+        }
+        #endregion Test_Enumeration
+
+        #region Test_ToArray
+        [TestMethod]
+        public void Test_ToArray()
+        {
+            var capacity = 5;
+            var overwrite = true;
+            var expectedCount = 5;
+
+            // Buffer set up
+            var cb = CreatePopulated(expectedCount, capacity, overwrite);
+            cb.ToArray().Should().Equal(1,2,3,4,5);
+            cb.ToArray().Should().Equal(cb);
+
+            cb.Remove();
+            cb.Add(6);
+            cb.ToArray().Should().Equal(2, 3, 4, 5, 6);
+            cb.ToArray().Should().Equal(cb);
+
         }
         #endregion Test_Enumeration
 
@@ -323,39 +356,20 @@ namespace fletcher.org.Tests
         {
             public string Data;
         }
-    }
 
-    #region IEnumerableExtensions
-    public static class IEnumerableExtensions
-    {
-        public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
+        static CircularBuffer<int> CreatePopulated(int count, int capacity = CircularBuffer<int>.DEFAULT_CAPACITY, bool overwrite = CircularBuffer<int>.DEFAULT_OVERWRITE)
+            => CreatePopulated<int>(count, i => i, capacity, overwrite);
+
+        static CircularBuffer<T> CreatePopulated<T>(int count, Func<int, T> itemCreator, int capacity = CircularBuffer<T>.DEFAULT_CAPACITY, bool overwrite = CircularBuffer<T>.DEFAULT_OVERWRITE)
         {
-            foreach (T item in items)
-                action(item);
+            var checkList = new List<T>();
+            var cb = new CircularBuffer<T>(capacity, overwrite);
+            Enumerable.Range(1, count)
+                .Select(i => itemCreator(i))
+                .ForEach(i => { cb.Add(i); checkList.Add(i); });
+            cb.Count.Should().Be(count > capacity ? capacity : count);
+            cb.Should().Equal(checkList);
+            return cb;
         }
     }
-    #endregion IEnumerableExtensions
-
-    #region Test Extensions
-    public static class AssertExt
-    {
-        public static void MustThrow<TException>(Action action, string message = "")
-            where TException : Exception
-        {
-            try
-            {
-                action();
-                Assert.Fail($"Expected a {typeof(TException).Name} to be thrown.");
-            }
-            catch(TException)
-            {
-                // All good!
-            }
-            catch(Exception ex)
-            {
-                Assert.Fail($"Caught an unexpected {ex.GetType().Name}. {ex}");
-            }
-        }
-    }
-    #endregion Test Extensions
 }
