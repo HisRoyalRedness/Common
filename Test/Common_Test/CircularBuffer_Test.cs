@@ -349,7 +349,26 @@ namespace fletcher.org.Tests
         }
         #endregion Test_Enumeration
 
-        // Read
+        [TestMethod]
+        public void Test_Read()
+        {
+            var capacity = 30;
+            var overwrite = true;
+            var expectedCount = 10;
+            var offset = 0;
+            var toRead = 5;
+
+            // Buffer set up
+            var cb = CreatePopulated(expectedCount, capacity, overwrite);
+            var data = new int[expectedCount];
+            var itemsRead = cb.Read(data, offset, toRead);
+
+            itemsRead.Should().Be(toRead);
+            cb.Count.Should().Be(expectedCount - toRead);
+
+        }
+
+        // Read - incomplete
         // Write
 
         class RefType

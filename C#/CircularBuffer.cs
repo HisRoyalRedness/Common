@@ -318,12 +318,15 @@ namespace fletcher.org
         public int Read(T[] data, int offset, int length)
         {
             var len = length > Count ? Count : length;
-            CopyTo(data, offset, len);
-            _readIndex += len;
+            CopyTo(data, offset, len);            
             if (len == Count)
                 _readIndex = _writeIndex;
-            else if (_readIndex >= _capacity)
-                _readIndex -= _capacity;
+            else
+            {
+                _readIndex += len;
+                if (_readIndex >= _capacity)
+                    _readIndex -= _capacity;
+            }
             _isFull = false;
             return len;
         }
