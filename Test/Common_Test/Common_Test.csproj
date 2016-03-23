@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{724031D2-E99F-436D-B3EF-1ADBA86B9265}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>fletcher.org.Tests</RootNamespace>
     <AssemblyName>Common_Test</AssemblyName>
@@ -111,12 +111,6 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="..\..\C#\CircularBuffer.cs">
-      <Link>Implementation\CircularBuffer.cs</Link>
-    </Compile>
-    <Compile Include="..\..\C#\FragmentBuffer.cs">
-      <Link>Implementation\FragmentBuffer.cs</Link>
-    </Compile>
     <Compile Include="CircularBuffer_Test.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FragmentBuffer_Test.cs" />
@@ -143,6 +137,7 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Import Project="..\..\C#\CSharpCommon.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

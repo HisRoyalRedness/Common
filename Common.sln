@@ -18,13 +18,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Snippets", "Snippets", "{F4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CSharp", "CSharp", "{AD68E645-1495-4129-8207-E660C2945C84}"
 	ProjectSection(SolutionItems) = preProject
-		C#\CircularBuffer.cs = C#\CircularBuffer.cs
 		C#\CommandLine.cs = C#\CommandLine.cs
-		C#\FragmentBuffer.cs = C#\FragmentBuffer.cs
-		C#\README.md = C#\README.md
 	EndProjectSection
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CSharpCommon", "C#\CSharpCommon.shproj", "{78A169B1-D3FF-429D-B081-FB65DC11C637}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		C#\CSharpCommon.projitems*{724031d2-e99f-436d-b3ef-1adba86b9265}*SharedItemsImports = 4
+		C#\CSharpCommon.projitems*{78a169b1-d3ff-429d-b081-fb65dc11c637}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
