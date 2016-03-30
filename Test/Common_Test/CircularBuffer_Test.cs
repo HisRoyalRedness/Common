@@ -3,55 +3,75 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using FluentAssertions;
+using FluentAssertions.Execution;
 
 namespace fletcher.org.Tests
 {
     [TestClass]
-    public class CircularBuffer_Test 
+    public class CircularBuffer 
     {
-        #region TestConstruction
+        #region Construction
         [TestMethod]
-        public void TestConstruction()
+        public void Create_an_empty_collection()
         {
-            // Test each of the 3 supported constructors, i.e.
-            // 1.   CircularBuffer<int>();
-            // 2.   CircularBuffer<int>(capacity);
-            // 3.   CircularBuffer<int>(capacity, overwrite);
+            // Arrange
+            var defaultCapacity = CircularBuffer<int>.DEFAULT_CAPACITY;
+            var defaultOverwrite = CircularBuffer<int>.DEFAULT_OVERWRITE;
 
-            // 1.
-            {
-                var capacity = CircularBuffer<int>.DEFAULT_CAPACITY;
-                var overwrite = CircularBuffer<int>.DEFAULT_OVERWRITE;
-                var cb = new CircularBuffer<int>();
-                cb.Capacity.Should().Be(capacity, $"default Capacity is {capacity}");
-                cb.Overwrite.Should().Be(overwrite, $"default Overwrite is {overwrite}");
-            }
+            // Act
+            var cb = new CircularBuffer<int>();
 
-
-            // 2.
-            {
-                var capacity = 100;
-                var overwrite = CircularBuffer<int>.DEFAULT_OVERWRITE;
-                var cb = new CircularBuffer<int>(capacity);
-                cb.Capacity.Should().Be(capacity, $"specified Capacity is {capacity}");
-                cb.Overwrite.Should().Be(overwrite, $"default Overwrite is {overwrite}");
-            }
-
-            // 3.
-            {
-                var capacity = 200;
-                var overwrite = true;
-                var cb = new CircularBuffer<int>(capacity, overwrite);
-                cb.Capacity.Should().Be(capacity, $"specified Capacity is {capacity}");
-                cb.Overwrite.Should().Be(overwrite, $"specified Overwrite is {overwrite}");
-            }
-
-            // Test Exceptions
-            Action<int> construct = capacity => new CircularBuffer<int>(capacity);
-            construct.ShouldThrow<ArgumentOutOfRangeException, int>(-1, "negatives are not allowed");
-            construct.ShouldThrow<ArgumentOutOfRangeException, int>(0, "0 is not allowed");
+            // Assert
+            cb.Capacity.Should().Be(defaultCapacity, $"the default Capacity after creating an empty collection should be {defaultCapacity}");
+            cb.Overwrite.Should().Be(defaultOverwrite, $"the default Overwrite after creating an empty collection should be {defaultOverwrite}");
+            cb.Count.Should().Be(0, "the collection should be empty as we've not added anything.");
         }
-        #endregion TestConstruction
+
+        [TestMethod]
+        public void Create_a_collection_with_a_specific_capacity()
+        {
+            // Arrange
+            var capacity = 100;
+            var overwrite = CircularBuffer<int>.DEFAULT_OVERWRITE;
+            
+
+            // Act
+            var cb = new CircularBuffer<int>(capacity);
+
+            // Assert
+            cb.Capacity.Should().Be(capacity, $"the specified Capacity was {capacity}");
+            cb.Overwrite.Should().Be(overwrite, $"default Overwrite after construction should be {overwrite}");
+            cb.Count.Should().Be(0, "the collection should be empty as we've not added anything.");
+        }
+
+        [TestMethod]
+        public void Create_a_collection_with_a_secific_capacity_and_overwrite()
+        {
+            // Arrange
+            var capacity = 200;
+            var overwrite = true;
+
+            // Act
+            var cb = new CircularBuffer<int>(capacity, overwrite);
+
+            // Assert
+            cb.Capacity.Should().Be(capacity, $"the specified Capacity was {capacity}");
+            cb.Overwrite.Should().Be(overwrite, $"the specified Overwrite was {overwrite}");
+            cb.Count.Should().Be(0, "the collection should be empty as we've not added anything.");
+        }
+
+        [TestMethod]
+        public void Create_a_collection_with_out_of_range_capacity()
+        {
+            // Arrange
+            Action<int> construct = capacity => new CircularBuffer<int>(capacity);
+
+            // Act
+            // Assert
+            construct.ShouldThrow<ArgumentOutOfRangeException, int>(-1, "a negative Capacity is invalid");
+            construct.ShouldThrow<ArgumentOutOfRangeException, int>(0, "a 0 Capacity is invalid");
+        }
+        #endregion Construction
 
         #region Test_Add
         [TestMethod]
