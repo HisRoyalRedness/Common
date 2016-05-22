@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 
-namespace fletcher.org.Tests
+namespace HisRoyalRedness.com.Tests
 {
     #region IEnumerableExtensions
     public static class IEnumerableExtensions

@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
 
-namespace fletcher.org.Tests
+namespace HisRoyalRedness.com.Tests
 {
     [TestClass]
     public class FragmentBuffer_Test

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using FluentAssertions.Execution;
 
-namespace fletcher.org.Tests
+namespace HisRoyalRedness.com.Tests
 {
     [TestClass]
     public class CircularBuffer 

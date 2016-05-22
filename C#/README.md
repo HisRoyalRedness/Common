@@ -18,3 +18,9 @@ Remove(). The usual ICollection&lt;T&gt; methods all work as expected.
 of data respectively. These are most useful when reading or writing
 into the buffer from a stream, for example.
 
+## NotifyBase
+
+A base class inherited by WPF view models. It implements ```INotifyPropertyChanged```
+and provides a few convenience methods for change notification.
+
+A simple Command base class is also provided. 

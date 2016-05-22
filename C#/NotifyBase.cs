@@ -13,7 +13,7 @@ using System.Reactive.Subjects;
 using System.Reactive.Linq;
 #endif
 
-namespace fletcher.org
+namespace HisRoyalRedness.com
 {
     public abstract class NotifyBase : INotifyPropertyChanged
     {

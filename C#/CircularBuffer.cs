@@ -27,7 +27,7 @@ using System.Linq;
     See the foot of the file, or refer to <http://unlicense.org>
 */
 
-namespace fletcher.org
+namespace HisRoyalRedness.com
 {
     /// <summary>
     /// A circular buffer implementation for C#

@@ -11,8 +11,6 @@ using System.Threading.Tasks;
     A read-only wrapper around an array, that allows us to create fragments of the original
     without having to make copies. All derived fragments still point to the one original.
 
-        File description (long)
-
     Keith Fletcher
     Mar 2016
 
@@ -20,7 +18,7 @@ using System.Threading.Tasks;
     See the foot of the file, or refer to <http://unlicense.org>
 */
 
-namespace fletcher.org
+namespace HisRoyalRedness.com
 {
     /// <summary>
     /// A read-only wrapper around an array, that allows us to create fragments of the original
