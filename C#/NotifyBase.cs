@@ -7,16 +7,32 @@ using System.Linq.Expressions;
 using System.Collections;
 using System.Windows.Input;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Windows.Threading;
+using System.Threading.Tasks;
 
 #if REACTIVE
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
 #endif
 
-namespace HisRoyalRedness.com
+namespace fletcher.org
 {
-    public abstract class NotifyBase : INotifyPropertyChanged
+    public abstract class NotifyBase : NotifyBase<object>
     {
+        protected NotifyBase(object propertyLock = null)
+            : base(propertyLock)
+        { }
+    }
+
+    public abstract class NotifyBase<TLock> : INotifyPropertyChanged
+        where TLock : class
+    {
+        protected NotifyBase(TLock propertyLock = null)
+        {
+            _propertyLock = propertyLock;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
 #if REACTIVE
@@ -35,65 +51,124 @@ namespace HisRoyalRedness.com
         }
 #endif
 
+        protected TValue GetProperty<TValue>(ref TValue propertyMember)
+        {
+            if (_propertyLock == null)
+                return propertyMember;
+
+            TValue value;
+            lock (_propertyLock)
+                value = propertyMember;
+            return value;
+        }
+
+        //[DebuggerStepThrough]
+        protected bool SetProperty<TValue>(ref TValue propertyMember, TValue newValue, Action<TValue> actionIfChanged = null, [CallerMemberName]string propertyName = "")
+            => SetProperty(ref propertyMember, newValue, null, actionIfChanged, propertyName);
+
+
         /// <summary>
         /// Attempt to set the property. If the given value is different from the current value,
         /// a PropertyChanged event will be raised.
         /// </summary>
-        [DebuggerStepThrough]
-        protected bool SetProperty<T>(string propertyName, T newValue, ref T propertyMember)
+        protected bool SetProperty<TValue>(ref TValue propertyMember, TValue newValue, Dispatcher dispatcher, Action<TValue> actionIfChanged = null, [CallerMemberName]string propertyName = "")
         {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName));
 
-            if ((propertyMember == null && newValue == null) ||
-                (propertyMember != null && propertyMember.Equals(newValue)))
-                return false;
+            var hasChanged = false;
+            if (_propertyLock == null)
+            {
+                hasChanged = HasChanged(ref propertyMember, newValue);
+                if (hasChanged)
+                    propertyMember = newValue;
+            }
             else
             {
-                propertyMember = newValue;
-                NotifyPropertyChanged(propertyName);
-                return true;
+                lock (_propertyLock)
+                {
+                    hasChanged = HasChanged(ref propertyMember, newValue);
+                    if (hasChanged)
+                        propertyMember = newValue;
+                }
             }
+
+            if (hasChanged)
+            {
+                if (dispatcher == null || dispatcher == Dispatcher.CurrentDispatcher)
+                {
+                    NotifyPropertyChanged(propertyName);
+                    if (actionIfChanged != null)
+                        actionIfChanged(newValue);
+                }
+                else
+                {
+                    dispatcher.InvokeAsync(() =>
+                    {
+                        NotifyPropertyChanged(propertyName);
+                        if (actionIfChanged != null)
+                            actionIfChanged(newValue);
+                    });
+                }
+            }
+
+            return hasChanged;
         }
 
-        /// <summary>
-        /// Attempt to set the property. If the given value is different from the current value,
-        /// a PropertyChanged event will be raised, and the actionIfChanged Action will be run.
-        /// </summary>
-        [DebuggerStepThrough]
-        protected bool SetProperty<T>(string propertyName, T newValue, ref T propertyMember, Action<T> actionIfChanged)
+
+        protected Task<bool> SetPropertyAsync<TValue>(ref TValue propertyMember, TValue newValue, Dispatcher dispatcher, Action<TValue> actionIfChanged = null, [CallerMemberName]string propertyName = "")
         {
-            if (actionIfChanged == null)
-                throw new ArgumentNullException(nameof(actionIfChanged));
-            var res = SetProperty<T>(propertyName, newValue, ref propertyMember);
-            if (res)
-                actionIfChanged(newValue);
-            return res;
+            if (propertyName == null)
+                throw new ArgumentNullException(nameof(propertyName));
+
+            var hasChanged = false;
+            if (_propertyLock == null)
+            {
+                hasChanged = HasChanged(ref propertyMember, newValue);
+                if (hasChanged)
+                    propertyMember = newValue;
+            }
+            else
+            {
+                lock (_propertyLock)
+                {
+                    hasChanged = HasChanged(ref propertyMember, newValue);
+                    if (hasChanged)
+                        propertyMember = newValue;
+                }
+            }
+
+            if (hasChanged)
+            {
+                if (dispatcher == null || dispatcher == Dispatcher.CurrentDispatcher)
+                {
+                    NotifyPropertyChanged(propertyName);
+                    if (actionIfChanged != null)
+                        actionIfChanged(newValue);
+                }
+                else
+                {
+                    return dispatcher.InvokeAsync(() =>
+                    {
+                        NotifyPropertyChanged(propertyName);
+                        if (actionIfChanged != null)
+                            actionIfChanged(newValue);
+                        return true;
+                    }).Task;
+                }
+            }
+
+            return Task.FromResult(hasChanged);
         }
 
-        [DebuggerStepThrough]
-        protected bool SetProperty<T>(Expression<Func<T>> property, T newValue, ref T propertyMember)
-        {
-            if (property == null)
-                throw new ArgumentNullException(nameof(property));
-            return SetProperty(GetPropertyName(property), newValue, ref propertyMember); 
-        }
+        bool HasChanged<TValue>(ref TValue propertyMember, TValue newValue)
+            => !(((propertyMember == null && newValue == null) ||
+                (propertyMember != null && propertyMember.Equals(newValue))));
 
-        /// <summary>
-        /// Attempt to set the property. If the given value is different from the current value,
-        /// a PropertyChanged event will be raised, and the actionIfChanged Action will be run.
-        /// </summary>
-		[DebuggerStepThrough]
-        protected bool SetProperty<T>(Expression<Func<T>> property, T newValue, ref T propertyMember, Action<T> actionIfChanged)
-        {
-            if (property == null)
-                throw new ArgumentNullException(nameof(property));
-            return SetProperty<T>(GetPropertyName(property), newValue, ref propertyMember, actionIfChanged);
-        }
 
         /// <summary>
         /// Raise a PropertyChanged event for this given properties
-        /// </summary>        
+        /// </summary>
         protected void NotifyPropertyChanged(params string[] properties)
         {
             foreach (var property in properties)
@@ -106,57 +181,46 @@ namespace HisRoyalRedness.com
             }
         }
 
-        /// <summary>
-        /// An overloaded method to use an expression tree to create our PropertyChangedEventArgs,
-        /// meaning we can be a bit lazy and not use a static string. Usage would be NotifyPropertyChanged(() => NameOfProperty);
-        /// </summary>
-        /// <param name="property">The changed property we want to notify.</param>
-        protected virtual void NotifyPropertyChanged<T>(params Expression<Func<T>>[] properties)
-        {
-            if (properties == null)
-                throw new ArgumentNullException(nameof(properties));
-            NotifyPropertyChanged(properties.Select(p => GetPropertyName(p)).ToArray());
-        }
 
-        private string GetPropertyName<T>(Expression<Func<T>> property)
-        {
-            if (property == null)
-                throw new ArgumentNullException(nameof(property));
-            
-            var body = property.Body as MemberExpression;
-            if (body == null)
-                throw new ArgumentException("Lambda must return a property.");
+        protected readonly TLock _propertyLock = null;
 
-            return body.Member.Name;
-        }
+        //public class RelayCommand : ICommand
+        //{
+        //    #region Fields
 
-        public class RelayCommand : ICommand
-        {
-            public RelayCommand(Action<object> execute)
-                : this(execute, null)
-            { }
+        //    readonly Action<object> ExecuteAction;
+        //    readonly Predicate<object> CanExecutePredicate;
 
-            public RelayCommand(Action<object> execute, Predicate<object> canExecute)
-            {
-                if (execute == null)
-                    throw new ArgumentNullException(nameof(execute));
-                _executeAction = execute;
-                _canExecutePredicate = canExecute;
-            }
+        //    #endregion // Fields
 
-            [DebuggerStepThrough]
-            public bool CanExecute(object parameter) => (_canExecutePredicate == null ? true : _canExecutePredicate(parameter));
+        //    #region Constructors
 
-            public event EventHandler CanExecuteChanged
-            {
-                add { CommandManager.RequerySuggested += value; }
-                remove { CommandManager.RequerySuggested -= value; }
-            }
+        //    public RelayCommand(Action<object> execute)
+        //        : this(execute, null)
+        //    { }
 
-            public void Execute(object parameter) => _executeAction(parameter);
+        //    public RelayCommand(Action<object> execute, Predicate<object> canExecute)
+        //    {
+        //        Verify.ArgNotNull(execute, nameof(execute));
+        //        ExecuteAction = execute;
+        //        CanExecutePredicate = canExecute;
+        //    }
+        //    #endregion // Constructors
 
-            readonly Action<object> _executeAction;
-            readonly Predicate<object> _canExecutePredicate;
-        }
+        //    #region ICommand Members
+
+        //    [DebuggerStepThrough]
+        //    public bool CanExecute(object parameter) => (CanExecutePredicate == null ? true : CanExecutePredicate(parameter));
+
+        //    public event EventHandler CanExecuteChanged
+        //    {
+        //        add { CommandManager.RequerySuggested += value; }
+        //        remove { CommandManager.RequerySuggested -= value; }
+        //    }
+
+        //    public void Execute(object parameter) => ExecuteAction(parameter);
+
+        //    #endregion // ICommand Members
+        //}
     }
 }
