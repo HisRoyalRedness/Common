@@ -6,11 +6,12 @@
     <SharedGUID>78a169b1-d3ff-429d-b081-fb65dc11c637</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>CSharpCommon</Import_RootNamespace>
+    <Import_RootNamespace>fletcher.org</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CircularBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FragmentBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NotifyBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" />
