@@ -10,13 +10,14 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 #if REACTIVE
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
 #endif
 
-namespace fletcher.org
+namespace HisRoyalRedness.com
 {
     public abstract class NotifyBase : NotifyBase<object>
     {
@@ -181,6 +182,7 @@ namespace fletcher.org
             }
         }
 
+        public bool IsInDesigner => DesignerProperties.GetIsInDesignMode(new DependencyObject());
 
         protected readonly TLock _propertyLock = null;
 
