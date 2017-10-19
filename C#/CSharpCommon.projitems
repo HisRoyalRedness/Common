@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CircularBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FragmentBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NotifyBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RollableLogWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" />
