@@ -10,7 +10,9 @@ namespace HisRoyalRedness.com.Tests
     {
         public static void Main()
         {
-
+            RollableLogWriter writer = new RollableLogWriter("Test.txt");
+            writer.WriteLine("Sync");
+            writer.WriteLineAsync("Async").Wait();
         }
     }
 }

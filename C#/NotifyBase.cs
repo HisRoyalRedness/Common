@@ -21,16 +21,41 @@ namespace HisRoyalRedness.com
 {
     public abstract class NotifyBase : NotifyBase<object>
     {
-        protected NotifyBase(object propertyLock = null)
-            : base(propertyLock)
+        protected NotifyBase()
+            : base(null, null)
+        { }
+
+        protected NotifyBase(object propertyLock)
+            : base(null, propertyLock)
+        { }
+
+        protected NotifyBase(Dispatcher dispatcher)
+            : base(dispatcher, null)
+        { }
+
+        protected NotifyBase(Dispatcher dispatcher, object propertyLock)
+            : base(dispatcher, propertyLock)
         { }
     }
 
     public abstract class NotifyBase<TLock> : INotifyPropertyChanged
         where TLock : class
     {
-        protected NotifyBase(TLock propertyLock = null)
+        protected NotifyBase()
+            : this(null, null)
+        { }
+
+        protected NotifyBase(TLock propertyLock)
+            : this(null, propertyLock)
+        { }
+
+        protected NotifyBase(Dispatcher dispatcher)
+            : this(dispatcher, null)
+        { }
+
+        protected NotifyBase(Dispatcher dispatcher, TLock propertyLock)
         {
+            _dispatcher = dispatcher;
             _propertyLock = propertyLock;
         }
 
@@ -65,7 +90,7 @@ namespace HisRoyalRedness.com
 
         //[DebuggerStepThrough]
         protected bool SetProperty<TValue>(ref TValue propertyMember, TValue newValue, Action<TValue> actionIfChanged = null, [CallerMemberName]string propertyName = "")
-            => SetProperty(ref propertyMember, newValue, null, actionIfChanged, propertyName);
+            => SetProperty(ref propertyMember, newValue, _dispatcher, actionIfChanged, propertyName);
 
 
         /// <summary>
@@ -185,44 +210,46 @@ namespace HisRoyalRedness.com
         public bool IsInDesigner => DesignerProperties.GetIsInDesignMode(new DependencyObject());
 
         protected readonly TLock _propertyLock = null;
+        protected readonly Dispatcher _dispatcher;
 
-        //public class RelayCommand : ICommand
-        //{
-        //    #region Fields
+        public class RelayCommand : ICommand
+        {
+            #region Fields
 
-        //    readonly Action<object> ExecuteAction;
-        //    readonly Predicate<object> CanExecutePredicate;
+            readonly Action<object> ExecuteAction;
+            readonly Predicate<object> CanExecutePredicate;
 
-        //    #endregion // Fields
+            #endregion // Fields
 
-        //    #region Constructors
+            #region Constructors
 
-        //    public RelayCommand(Action<object> execute)
-        //        : this(execute, null)
-        //    { }
+            public RelayCommand(Action<object> execute)
+                : this(execute, null)
+            { }
 
-        //    public RelayCommand(Action<object> execute, Predicate<object> canExecute)
-        //    {
-        //        Verify.ArgNotNull(execute, nameof(execute));
-        //        ExecuteAction = execute;
-        //        CanExecutePredicate = canExecute;
-        //    }
-        //    #endregion // Constructors
+            public RelayCommand(Action<object> execute, Predicate<object> canExecute)
+            {
+                if (execute == null)
+                    throw new ArgumentNullException(nameof(execute));
+                ExecuteAction = execute;
+                CanExecutePredicate = canExecute;
+            }
+            #endregion // Constructors
 
-        //    #region ICommand Members
+            #region ICommand Members
 
-        //    [DebuggerStepThrough]
-        //    public bool CanExecute(object parameter) => (CanExecutePredicate == null ? true : CanExecutePredicate(parameter));
+            [DebuggerStepThrough]
+            public bool CanExecute(object parameter) => (CanExecutePredicate == null ? true : CanExecutePredicate(parameter));
 
-        //    public event EventHandler CanExecuteChanged
-        //    {
-        //        add { CommandManager.RequerySuggested += value; }
-        //        remove { CommandManager.RequerySuggested -= value; }
-        //    }
+            public event EventHandler CanExecuteChanged
+            {
+                add { CommandManager.RequerySuggested += value; }
+                remove { CommandManager.RequerySuggested -= value; }
+            }
 
-        //    public void Execute(object parameter) => ExecuteAction(parameter);
+            public void Execute(object parameter) => ExecuteAction(parameter);
 
-        //    #endregion // ICommand Members
-        //}
+            #endregion // ICommand Members
+        }
     }
 }
