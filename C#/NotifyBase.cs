@@ -124,16 +124,14 @@ namespace HisRoyalRedness.com
                 if (dispatcher == null || dispatcher == Dispatcher.CurrentDispatcher)
                 {
                     NotifyPropertyChanged(propertyName);
-                    if (actionIfChanged != null)
-                        actionIfChanged(newValue);
+                    actionIfChanged?.Invoke(newValue);
                 }
                 else
                 {
                     dispatcher.InvokeAsync(() =>
                     {
                         NotifyPropertyChanged(propertyName);
-                        if (actionIfChanged != null)
-                            actionIfChanged(newValue);
+                        actionIfChanged?.Invoke(newValue);
                     });
                 }
             }
@@ -169,16 +167,14 @@ namespace HisRoyalRedness.com
                 if (dispatcher == null || dispatcher == Dispatcher.CurrentDispatcher)
                 {
                     NotifyPropertyChanged(propertyName);
-                    if (actionIfChanged != null)
-                        actionIfChanged(newValue);
+                    actionIfChanged?.Invoke(newValue);
                 }
                 else
                 {
                     return dispatcher.InvokeAsync(() =>
                     {
                         NotifyPropertyChanged(propertyName);
-                        if (actionIfChanged != null)
-                            actionIfChanged(newValue);
+                        actionIfChanged?.Invoke(newValue);
                         return true;
                     }).Task;
                 }
@@ -202,8 +198,7 @@ namespace HisRoyalRedness.com
 #if REACTIVE
                 _changes.OnNext(property);
 #endif
-                if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs(property));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
             }
         }
 
@@ -229,9 +224,7 @@ namespace HisRoyalRedness.com
 
             public RelayCommand(Action<object> execute, Predicate<object> canExecute)
             {
-                if (execute == null)
-                    throw new ArgumentNullException(nameof(execute));
-                ExecuteAction = execute;
+                ExecuteAction = execute ?? throw new ArgumentNullException(nameof(execute));
                 CanExecutePredicate = canExecute;
             }
             #endregion // Constructors
