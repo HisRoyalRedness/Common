@@ -71,4 +71,101 @@ For more information, please refer to <http://unlicense.org>
 			</Code>
 		</Snippet>
 	</CodeSnippet>
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>setprop</Title>
+			<Shortcut>setprop</Shortcut>
+			<Description>Code snippet to create a NotifyBase property that calls on SetProperty</Description>
+			<Author>Keith Fletcher</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+				<SnippetType>SurroundsWith</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>type</ID>
+					<ToolTip>Property type</ToolTip>
+					<Default>int</Default>
+				</Literal>							
+				<Literal>
+					<ID>propname</ID>
+					<ToolTip>Property name</ToolTip>
+					<Default>MyProperty</Default>
+				</Literal>
+				<Literal>
+					<ID>backingfield</ID>
+					<ToolTip>Backing field</ToolTip>
+					<Default>_myProperty</Default>
+				</Literal>			
+				<Literal>
+					<ID>defaultvalue</ID>
+					<ToolTip>Default value</ToolTip>
+					<Default>default($type$)</Default>
+				</Literal>			
+		    </Declarations>
+			<Code Language="csharp"><![CDATA[
+	public $type$ $propname$
+	{
+	    get { return $backingfield$; }
+	    set { SetProperty(value, ref $backingfield$); }
+	}
+	$type$ $backingfield$ = default($type$);
+]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>regex</Title>
+			<Shortcut>regex</Shortcut>
+			<Description>Code snippet for regular expression extension class</Description>
+			<Author>Keith Fletcher</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+				<SnippetType>SurroundsWith</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>name</ID>
+					<ToolTip>Class name</ToolTip>
+					<Default>RegexExt</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[
+	#region Regular expression extension methods
+	internal static class $name$
+	{
+		internal static IEnumerable<Match> GetMatches(this Regex regex, string input)
+		{
+			foreach (Match match in regex.Matches(input))
+				yield return match;
+		}
+
+		internal static IEnumerable<Group> GetGroups(this Match match)
+		{
+			foreach (Group group in match.Groups)
+				yield return group;
+		}
+
+		internal static IEnumerable<Capture> GetCaptures(this Match match)
+		{
+			foreach (Capture capture in match.Captures)
+				yield return capture;
+		}
+
+		internal static IEnumerable<Capture> GetCaptures(this Group group)
+		{
+			foreach (Capture capture in group.Captures)
+				yield return capture;
+		}
+	}
+	#endregion // Regular expression extension methods
+]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>	
 </CodeSnippets>
