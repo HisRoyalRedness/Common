@@ -23,7 +23,7 @@ namespace HisRoyalRedness.com
     /// <summary>
     /// A TextWriter that automatically starts logging to a new
     /// log file once the current log file exceeds a specified
-    /// maximum size. 
+    /// maximum size.
     /// </summary>
     public class RollableLogWriter : TextWriter
     {
@@ -114,7 +114,7 @@ namespace HisRoyalRedness.com
                         : Path.Combine(BasePath, fileName + FileExtension));
                 } while (File.Exists(path));
                 return path;
-            });            
+            });
         }
         #endregion Constructors
 
@@ -125,7 +125,7 @@ namespace HisRoyalRedness.com
         /// </summary>
         public int MaxLogFileSize
         {
-            get { return _maxLogSize; }
+            get => _maxLogSize;
             set
             {
                 if (MaxLogFileSize < 0)

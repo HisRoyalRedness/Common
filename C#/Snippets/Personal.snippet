@@ -20,7 +20,7 @@
         File description (long)
 
     Keith Fletcher
-    Nov 2017
+    Dec 2017
 
     This file is Unlicensed.
     See the foot of the file, or refer to <http://unlicense.org>
@@ -108,7 +108,7 @@ For more information, please refer to <http://unlicense.org>
 			<Code Language="csharp"><![CDATA[
 	public $type$ $propname$
 	{
-	    get { return $backingfield$; }
+	    get => $backingfield$;
 	    set { SetProperty(value, ref $backingfield$); }
 	}
 	$type$ $backingfield$ = default($type$);
