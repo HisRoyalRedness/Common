@@ -140,7 +140,7 @@ namespace HisRoyalRedness.com
         /// with be calculated relative to <see cref="BasePath"/>.
         /// </summary>
         public string BasePath => _basePath;
-        public override Encoding Encoding { get { return _encoding; } }
+        public override Encoding Encoding => _encoding;
         /// <summary>
         /// Returns the absolute file name of the current log file
         /// </summary>
