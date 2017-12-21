@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CircularBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ColourSpaces.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EnumerableExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FragmentBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NotifyBase.cs" />
