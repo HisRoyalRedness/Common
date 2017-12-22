@@ -3,56 +3,98 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.Windows.Media;
+using System.ComponentModel;
+
+/*
+    Some additional colour space definitions (other than the built-in sRGB)
+
+    Keith Fletcher
+    Nov 2017
+
+    This file is Unlicensed.
+    See the foot of the file, or refer to <http://unlicense.org>
+*/
 
 namespace HisRoyalRedness.com
 {
     using ColourPrimitive = Double;
 
-    [DebuggerDisplay("{X}, {Y}, {Z}: {Illuminant}")]
+    [DebuggerDisplay("X: {X}, Y: {Y}, Z: {Z}, Illum: {Illuminant}")]
     public struct CIEXYZColour
     {
         // https://en.wikipedia.org/wiki/CIE_1931_color_space
 
-        public CIEXYZColour(ColourPrimitive x, ColourPrimitive y, ColourPrimitive z)
-            : this(x, y, z, Illuminants.D65)
+        public CIEXYZColour(ColourPrimitive x, ColourPrimitive y, ColourPrimitive z, bool isLimited = true)
+            : this(x, y, z, Illuminants.D65, isLimited)
         { }
 
-        public CIEXYZColour(ColourPrimitive x, ColourPrimitive y, ColourPrimitive z, Illuminants illuminant)
+        public CIEXYZColour(ColourPrimitive x, ColourPrimitive y, ColourPrimitive z, Illuminants illuminant, bool isLimited = true)
         {
+            if (isLimited)
+            {
+                if (x > 1.0 || x < 0.0)
+                    throw new ArgumentOutOfRangeException(nameof(x));
+                if (y > 1.0 || y < 0.0)
+                    throw new ArgumentOutOfRangeException(nameof(y));
+                if (z > 1.0 || z < 0.0)
+                    throw new ArgumentOutOfRangeException(nameof(z));
+            }
             X = x;
             Y = y;
             Z = z;
             Illuminant = illuminant;
+            IsLimited = isLimited;
         }
 
         public ColourPrimitive X { get; private set; }
         public ColourPrimitive Y { get; private set; }
         public ColourPrimitive Z { get; private set; }
         public Illuminants Illuminant { get; private set; }
+        public bool IsLimited { get; private set; }
     }
 
     public enum Illuminants
     {
-        A = 0,              // Incandescent/tungsten
-        B,                  // Old direct sunlight at noon
-        C,                  // Old daylight
-        D50,                // ICC profile PCS
-        D55,                // Mid-morning daylight
-        D65,                // Daylight, sRGB, Adobe-RGB
-        D75,                // North sky daylight
-        E,                  // Equal energy
-        F1,                 // Daylight Fluorescent
-        F2,                 // Cool fluorescent
-        F3,                 // White Fluorescent
-        F4,                 // Warm White Fluorescent
-        F5,                 // Daylight Fluorescent
-        F6,                 // Lite White Fluorescent
-        F7,                 // Daylight fluorescent, D65 simulator
-        F8,                 // Sylvania F40, D50 simulator
-        F9,                 // Cool White Fluorescent
-        F10,                // Ultralume 50, Philips TL85
-        F11,                // Ultralume 40, Philips TL84
-        F12                 // Ultralume 30, Philips TL83
+        [Description("Incandescent/tungsten")]
+        A = 0,
+        [Description("Old direct sunlight at noon")]
+        B,
+        [Description("Old daylight")]
+        C,
+        [Description("ICC profile PCS")]
+        D50,
+        [Description("Mid-morning daylight")]
+        D55,
+        [Description("Daylight, sRGB, Adobe-RGB")]
+        D65,
+        [Description("North sky daylight")]
+        D75,
+        [Description("Equal energy")]
+        E,
+        [Description("Daylight Fluorescent")]
+        F1,
+        [Description("Cool fluorescent")]
+        F2,
+        [Description("White Fluorescent")]
+        F3,
+        [Description("Warm White Fluorescent")]
+        F4,
+        [Description("Daylight Fluorescent")]
+        F5,
+        [Description("Lite White Fluorescent")]
+        F6,
+        [Description("Daylight fluorescent, D65 simulator")]
+        F7,
+        [Description("Sylvania F40, D50 simulator")]
+        F8,
+        [Description("Cool White Fluorescent")]
+        F9,
+        [Description("Ultralume 50, Philips TL85")]
+        F10,
+        [Description("Ultralume 40, Philips TL84")]
+        F11,
+        [Description("Ultralume 30, Philips TL83")]
+        F12
     }
 
     #region ColourMatrix
@@ -102,7 +144,8 @@ namespace HisRoyalRedness.com
             => new CIEXYZColour(
                 m.M11 * v.X + m.M12 * v.Y + m.M13 * v.Z,
                 m.M21 * v.X + m.M22 * v.Y + m.M23 * v.Z,
-                m.M31 * v.X + m.M32 * v.Y + m.M33 * v.Z);
+                m.M31 * v.X + m.M32 * v.Y + m.M33 * v.Z,
+                v.IsLimited);
 
         public static ColourMatrix operator *(ColourMatrix m, ColourPrimitive value)
             => new ColourMatrix(
@@ -135,7 +178,7 @@ namespace HisRoyalRedness.com
             var d65_xyz = xyz;
             if (d65_xyz.Illuminant != Illuminants.D65)
             {
-                // Todo: Convert to D65 white
+                // Todo: Convert to D65
 
             }
 
@@ -159,7 +202,7 @@ namespace HisRoyalRedness.com
             var xyz = _CIEXYZ2sRGB_D65_2deg * linear_rgb;
             if (xyz.Illuminant != illuminant)
             {
-                // Todo: Convert from D65 white
+                // Todo: Convert from D65
             }
             return xyz;
         }
@@ -200,3 +243,30 @@ namespace HisRoyalRedness.com
         #endregion Conversion matrices
     }
 }
+
+/*
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/

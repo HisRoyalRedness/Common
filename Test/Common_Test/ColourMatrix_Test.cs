@@ -17,7 +17,7 @@ namespace HisRoyalRedness.com.Tests
     public class ColourMatrix_Test
     {
         [TestMethod]
-        public void Test_Construction()
+        public void Test_ColourMatrix_construction()
         {
             var m = new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9);
             m.M11.Should().Be(1);
@@ -64,8 +64,8 @@ namespace HisRoyalRedness.com.Tests
         [TestMethod]
         public void Test_VectorMultiplication()
         {
-            (new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9) * new CIEXYZColour(1, 1, 1)).Should().Be(new CIEXYZColour(6, 15, 24));
-            (new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9) * new CIEXYZColour(3, 2, 1)).Should().Be(new CIEXYZColour(10, 28, 46));
+            (new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9) * new CIEXYZColour(1, 1, 1, false)).Should().Be(new CIEXYZColour(6, 15, 24, false));
+            (new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9) * new CIEXYZColour(3, 2, 1, false)).Should().Be(new CIEXYZColour(10, 28, 46, false));
         }
     }
 
@@ -112,47 +112,28 @@ namespace HisRoyalRedness.com.Tests
         }
     }
 
-    public class CIEXYZColourAssertions : ReferenceTypeAssertions<CIEXYZColour, CIEXYZColourAssertions>
-    {
-        public CIEXYZColourAssertions(CIEXYZColour value)
-        {
-            Subject = value;
-        }
-
-        protected override string Context => nameof(CIEXYZColour);
-
-        public AndConstraint<CIEXYZColourAssertions> Be(CIEXYZColour expected, double precision = (double)(float.Epsilon), string because = "", params object[] becauseArgs)
-        {
-            Execute.Assertion
-                .BecauseOf(because, becauseArgs)
-                .ForCondition(expected.X == Subject.X)
-                .FailWith($"Expected X to be {expected.X}, but it is {Subject.X}.")
-                .Then
-                .ForCondition(expected.Y == Subject.Y)
-                .FailWith($"Expected Y to be {expected.Y}, but it is {Subject.Y}.")
-                .Then
-                .ForCondition(expected.Z == Subject.Z)
-                .FailWith($"Expected Z to be {expected.Z}, but it is {Subject.Z}.");
-            return new AndConstraint<CIEXYZColourAssertions>(this);
-        }
-    }
-
     internal static class ColourMatrix_Test_Extensions
     {
         public static ColourMatrixAssertions Should(this ColourMatrix matrix)
             => new ColourMatrixAssertions(matrix);
-        public static CIEXYZColourAssertions Should(this CIEXYZColour colour)
-            => new CIEXYZColourAssertions(colour);
 
         public static Continuation TestElement(this Continuation continuation, ColourPrimitive expected, string expectedName, ColourPrimitive actual)
             => continuation.Then.TestElement(expected, expectedName, actual);
         public static Continuation TestElement(this AssertionScope scope, ColourPrimitive expected, string expectedName, ColourPrimitive actual)
             => scope.ForCondition(expected == actual).FailWith($"Expected {expectedName} to be {expected}, but it is {actual}.");
+        public static Continuation TestElement(this Continuation continuation, int expected, string expectedName, int actual)
+            => continuation.Then.TestElement(expected, expectedName, actual);
+        public static Continuation TestElement(this AssertionScope scope, int expected, string expectedName, int actual)
+            => scope.ForCondition(expected == actual).FailWith($"Expected {expectedName} to be {expected}, but it is {actual}.");
 
         public static Continuation TestElementApprox(this Continuation continuation, ColourPrimitive expected, string expectedName, ColourPrimitive actual, ColourPrimitive precision)
             => continuation.Then.TestElementApprox(expected, expectedName, actual, precision);
         public static Continuation TestElementApprox(this AssertionScope scope, ColourPrimitive expected, string expectedName, ColourPrimitive actual, ColourPrimitive precision)
-            => scope.ForCondition(Math.Abs(expected - actual) < precision).FailWith($"Expected {expectedName} to approximate {expected} +/-{precision}, but it differed by {Math.Abs(expected - actual)}.");
+            => scope.ForCondition(Math.Abs(expected - actual) <= precision).FailWith($"Expected {expectedName} to approximate {expected} +/-{precision}, but it differed by {Math.Abs(expected - actual)}.");
+        public static Continuation TestElementApprox(this Continuation continuation, int expected, string expectedName, int actual, int precision)
+            => continuation.Then.TestElementApprox(expected, expectedName, actual, precision);
+        public static Continuation TestElementApprox(this AssertionScope scope, int expected, string expectedName, int actual, int precision)
+            => scope.ForCondition(Math.Abs(expected - actual) <= precision).FailWith($"Expected {expectedName} to approximate {expected} +/-{precision}, but it differed by {Math.Abs(expected - actual)}.");
     }
     #endregion Custom assertions
 }

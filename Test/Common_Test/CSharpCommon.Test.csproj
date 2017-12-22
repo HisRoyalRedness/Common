@@ -115,6 +115,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CIEXYZ_Test.cs" />
     <Compile Include="CircularBuffer_Test.cs" />
     <Compile Include="ColourMatrix_Test.cs" />
     <Compile Include="Extensions.cs" />
