@@ -116,12 +116,15 @@
   <ItemGroup>
     <Compile Include="CIEXYZ_Test.cs" />
     <Compile Include="CircularBuffer_Test.cs" />
-    <Compile Include="ColourMatrix_Test.cs" />
+    <Compile Include="Colour\ColourAssertions.cs" />
+    <Compile Include="Colour\ColourMatrix_Test.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FragmentBuffer_Test.cs" />
     <Compile Include="NotifyBase_Tests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Colour\ColourVector_Test.cs" />
+    <Compile Include="Colour\ColourConversion_Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
