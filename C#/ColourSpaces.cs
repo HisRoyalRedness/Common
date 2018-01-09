@@ -19,13 +19,220 @@ namespace HisRoyalRedness.com
 {
     using ColourPrimitive = Double;
 
+    #region BaseColourComponent
+    public abstract class BaseColourComponent<TType, TComponent>
+        where TType : struct, IComparable<TType>
+        where TComponent : BaseColourComponent<TType, TComponent>, new()
+    {
+        public BaseColourComponent()
+        { }
+
+        public BaseColourComponent(TType value)
+        {
+            _value = value;
+        }
+
+        public TType Value
+        {
+            get { return _value; }
+            set { _value = Normalise(value); }
+        }
+        TType _value = default(TType);
+
+        protected virtual TType Normalise(TType value)
+        {
+            if (value.CompareTo(MinValue) < 0)
+                return MinValue;
+            else if (value.CompareTo(MaxValue) > 0)
+                return MaxValue;
+            else
+                return value;
+        }
+
+        protected const ColourPrimitive ZERO = (ColourPrimitive)0.0;
+        protected const ColourPrimitive ONE = (ColourPrimitive)0.0;
+        protected const ColourPrimitive THREE_SIXTY = (ColourPrimitive)360.0;
+
+        public abstract TType MinValue { get; }
+        public abstract TType MaxValue { get; }
+
+        public override string ToString() => Value.ToString();
+
+        public static implicit operator TType(BaseColourComponent<TType, TComponent> colour) => colour.Value;
+        public static implicit operator BaseColourComponent<TType, TComponent>(TType colour) => new TComponent { Value = colour };
+    }
+    #endregion BaseColourComponent
+
+    #region RGBColourComponent
+    public sealed class RGBColourComponent : BaseColourComponent<byte, RGBColourComponent>
+    {
+        public RGBColourComponent()
+            : base(0)
+        { }
+
+        public RGBColourComponent(byte value)
+            : base(value)
+        { }
+
+        public override byte MinValue => 0;
+        public override byte MaxValue => 255;
+    }
+    #endregion RGBColourComponent
+
+    #region UnitColourComponent
+    public sealed class UnitColourComponent : BaseColourComponent<ColourPrimitive, UnitColourComponent>
+    {
+        public UnitColourComponent()
+            : base(ZERO)
+        { }
+
+        public UnitColourComponent(ColourPrimitive value)
+            : base(value)
+        { }
+
+        public override ColourPrimitive MinValue => ZERO;
+        public override ColourPrimitive MaxValue => ONE;
+    }
+    #endregion UnitColourComponent
+
+    #region DegreeColourComponent
+    public sealed class DegreeColourComponent : BaseColourComponent<ColourPrimitive, DegreeColourComponent>
+    {
+        public DegreeColourComponent()
+            : base(ZERO)
+        { }
+
+        public DegreeColourComponent(ColourPrimitive value)
+            : base(value)
+        { }
+
+        public override ColourPrimitive MinValue => ZERO;
+        public override ColourPrimitive MaxValue => THREE_SIXTY;
+
+        protected override ColourPrimitive Normalise(ColourPrimitive value)
+        {
+            while (value < MinValue)
+                value += THREE_SIXTY;
+            while (value >= MaxValue)
+                value -= THREE_SIXTY;
+            return value;
+        }
+    }
+    #endregion DegreeColourComponent
+
+    #region SRGB
+    [DebuggerDisplay("R: {R}, G: {G}, B: {B}, A: {A}, {Hex32}")]
+    public struct SRGBColour
+    {
+        public SRGBColour(RGBColourComponent r, RGBColourComponent g, RGBColourComponent b)
+            : this(r, g, b, (RGBColourComponent)(byte)255)
+        { }
+
+        public SRGBColour(byte r, byte g, byte b)
+            : this((RGBColourComponent)r, (RGBColourComponent)g, (RGBColourComponent)b)
+        { }
+
+        public SRGBColour(byte r, byte g, byte b, byte a)
+            : this((RGBColourComponent)r, (RGBColourComponent)g, (RGBColourComponent)b, (RGBColourComponent)a)
+        { }
+
+        public SRGBColour(RGBColourComponent r, RGBColourComponent g, RGBColourComponent b, RGBColourComponent a)
+        {
+            R = r;
+            G = g;
+            B = b;
+            A = a;
+        }
+
+        public string Hex24 => $"#{(byte)R:X2}{(byte)G:X2}{(byte)B:X2}";
+        public string Hex32 => $"#{(byte)A:X2}{(byte)R:X2}{(byte)G:X2}{(byte)B:X2}";
+        public override string ToString() => Hex32;
+
+        /// <summary>
+        /// Red
+        /// </summary>
+        public RGBColourComponent R { get; set; }
+        /// <summary>
+        /// Green
+        /// </summary>
+        public RGBColourComponent G { get; set; }
+        /// <summary>
+        /// Blue
+        /// </summary>
+        public RGBColourComponent B { get; set; }
+        /// <summary>
+        /// Alpha
+        /// 0 - 255. 0 = Transparent, 255 = Opaque
+        /// </summary>
+        public RGBColourComponent A { get; set; }
+
+        public static implicit operator Color(SRGBColour colour) => Color.FromArgb(colour.A, colour.R, colour.G, colour.B);
+        public static implicit operator SRGBColour(Color colour) => new SRGBColour(colour.R, colour.G, colour.B, colour.A);
+        public static implicit operator ColourVector(SRGBColour colour) => new ColourVector(colour.R, colour.G, colour.B);
+
+    }
+    #endregion SRGB
+
+    #region HSVColour
+    [DebuggerDisplay("{DisplayString}")]
+    public struct HSVColour
+    {
+        public HSVColour(DegreeColourComponent h, UnitColourComponent s, UnitColourComponent v)
+            : this(h, s, v, (UnitColourComponent)1.0)
+        { }
+
+        public HSVColour(double h, double s, double v)
+            : this((DegreeColourComponent)h, (UnitColourComponent)s, (UnitColourComponent)v)
+        { }
+
+        public HSVColour(double h, double s, double v, double a)
+            : this((DegreeColourComponent)h, (UnitColourComponent)s, (UnitColourComponent)v, (UnitColourComponent)a)
+        { }
+
+        public HSVColour(DegreeColourComponent h, UnitColourComponent s, UnitColourComponent v, UnitColourComponent a)
+        {
+            H = h;
+            S = s;
+            V = v;
+            A = a;
+        }
+
+        string DisplayString => $"H: {(ColourPrimitive)H:0.0°}, S: {(ColourPrimitive)S:0.000}, V: {(ColourPrimitive)V:0.000}, A: {(ColourPrimitive)A:0.000}";
+        public override string ToString() => $"H: {(ColourPrimitive)H}, S: {(ColourPrimitive)S}, V: {(ColourPrimitive)V}, A: {(ColourPrimitive)A}";
+
+        /// <summary>
+        /// Hue
+        /// 0° - 360°. 0° = Red, 120° = Green, 240° = Blue
+        /// </summary>
+        public DegreeColourComponent H { get; set; }
+        /// <summary>
+        /// Saturation
+        /// 0 - 1. 0 = No saturation (greyscale), 1 = Full saturation (full colour)
+        /// </summary>
+        public UnitColourComponent S { get; set; }
+        /// <summary>
+        /// Value
+        /// 0 - 1. 0 = Full colour, 1 = Black
+        /// </summary>
+        public UnitColourComponent V { get; set; }
+        public UnitColourComponent A { get; set; }
+
+        public static implicit operator ColourVector(HSVColour colour) => new ColourVector(colour.H, colour.S, colour.V);
+    }
+    #endregion HSVColour
+
+
     [DebuggerDisplay("X: {X}, Y: {Y}, Z: {Z}, Illum: {Illuminant}")]
     public struct CIEXYZColour
     {
         // https://en.wikipedia.org/wiki/CIE_1931_color_space
 
-        public CIEXYZColour(ColourPrimitive x, ColourPrimitive y, ColourPrimitive z, bool isLimited = true)
-            : this(x, y, z, Illuminants.D65, isLimited)
+        public CIEXYZColour(float x, float y, float z, bool isLimited = true)
+            : this((ColourPrimitive)x, (ColourPrimitive)y, (ColourPrimitive)z, Illuminants.D65, isLimited)
+        { }
+
+        public CIEXYZColour(double x, double y, double z, bool isLimited = true)
+            : this((ColourPrimitive)x, (ColourPrimitive)y, (ColourPrimitive)z, Illuminants.D65, isLimited)
         { }
 
         public CIEXYZColour(ColourPrimitive x, ColourPrimitive y, ColourPrimitive z, Illuminants illuminant, bool isLimited = true)
@@ -51,6 +258,8 @@ namespace HisRoyalRedness.com
         public ColourPrimitive Z { get; private set; }
         public Illuminants Illuminant { get; private set; }
         public bool IsLimited { get; private set; }
+
+        public static implicit operator ColourVector(CIEXYZColour colour) => new ColourVector(colour.X, colour.Y, colour.Z);
     }
 
     public enum Illuminants
@@ -97,13 +306,91 @@ namespace HisRoyalRedness.com
         F12
     }
 
+    #region ColourVector
+    [DebuggerDisplay("{DisplayString}")]
+    public struct ColourVector
+    {
+        public ColourVector(
+            float x, float y, float z)
+        {
+            X = (ColourPrimitive)x;
+            Y = (ColourPrimitive)y;
+            Z = (ColourPrimitive)z;
+        }
+
+        public ColourVector(
+            double x, double y, double z)
+        {
+            X = (ColourPrimitive)x;
+            Y = (ColourPrimitive)y;
+            Z = (ColourPrimitive)z;
+        }
+
+        public ColourPrimitive X { get; private set; }
+        public ColourPrimitive Y { get; private set; }
+        public ColourPrimitive Z { get; private set; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        string DisplayString => $"X: {(ColourPrimitive)X:0.000}, Y: {(ColourPrimitive)Y:0.000}, Z: {(ColourPrimitive)Z:0.000}";
+        public override string ToString() => $"X: {(ColourPrimitive)X}, Y: {(ColourPrimitive)Y}, Z: {(ColourPrimitive)Z}";
+
+
+        public static ColourVector operator *(ColourVector v, float value)
+            => new ColourVector(
+                v.X * (ColourPrimitive)value, v.Y * (ColourPrimitive)value, v.Z * (ColourPrimitive)value);
+
+        public static ColourVector operator *(ColourVector v, double value)
+            => new ColourVector(
+                v.X * (ColourPrimitive)value, v.Y * (ColourPrimitive)value, v.Z * (ColourPrimitive)value);
+
+        public static ColourVector operator *(float value, ColourVector v)
+            => new ColourVector(
+                v.X * (ColourPrimitive)value, v.Y * (ColourPrimitive)value, v.Z * (ColourPrimitive)value);
+
+        public static ColourVector operator *(double value, ColourVector v)
+            => new ColourVector(
+                v.X * (ColourPrimitive)value, v.Y * (ColourPrimitive)value, v.Z * (ColourPrimitive)value);
+
+        public static ColourVector operator /(ColourVector v, float value)
+            => new ColourVector(
+                v.X / (ColourPrimitive)value, v.Y / (ColourPrimitive)value, v.Z / (ColourPrimitive)value);
+
+        public static ColourVector operator /(ColourVector v, double value)
+            => new ColourVector(
+                v.X / (ColourPrimitive)value, v.Y / (ColourPrimitive)value, v.Z / (ColourPrimitive)value);
+    }
+    #endregion ColourVector
+
     #region ColourMatrix
     public struct ColourMatrix
     {
         public ColourMatrix(
+            float m11, float m12, float m13,
+            float m21, float m22, float m23,
+            float m31, float m32, float m33)
+            : this(
+                  (ColourPrimitive)m11, (ColourPrimitive)m12, (ColourPrimitive)m13,
+                  (ColourPrimitive)m21, (ColourPrimitive)m22, (ColourPrimitive)m23,
+                  (ColourPrimitive)m31, (ColourPrimitive)m32, (ColourPrimitive)m33,
+                  false)
+        { }
+
+        public ColourMatrix(
+            double m11, double m12, double m13,
+            double m21, double m22, double m23,
+            double m31, double m32, double m33)
+            : this(
+                  (ColourPrimitive)m11, (ColourPrimitive)m12, (ColourPrimitive)m13,
+                  (ColourPrimitive)m21, (ColourPrimitive)m22, (ColourPrimitive)m23,
+                  (ColourPrimitive)m31, (ColourPrimitive)m32, (ColourPrimitive)m33,
+                  false)
+        { }
+
+        private ColourMatrix(
             ColourPrimitive m11, ColourPrimitive m12, ColourPrimitive m13,
             ColourPrimitive m21, ColourPrimitive m22, ColourPrimitive m23,
-            ColourPrimitive m31, ColourPrimitive m32, ColourPrimitive m33)
+            ColourPrimitive m31, ColourPrimitive m32, ColourPrimitive m33,
+            bool dummy)
         {
             M11 = m11; M12 = m12; M13 = m13;
             M21 = m21; M22 = m22; M23 = m23;
@@ -147,17 +434,35 @@ namespace HisRoyalRedness.com
                 m.M31 * v.X + m.M32 * v.Y + m.M33 * v.Z,
                 v.IsLimited);
 
-        public static ColourMatrix operator *(ColourMatrix m, ColourPrimitive value)
+        public static ColourVector operator *(ColourMatrix m, ColourVector v)
+            => new ColourVector(
+                m.M11 * v.X + m.M12 * v.Y + m.M13 * v.Z,
+                m.M21 * v.X + m.M22 * v.Y + m.M23 * v.Z,
+                m.M31 * v.X + m.M32 * v.Y + m.M33 * v.Z);
+
+        public static ColourMatrix operator *(ColourMatrix m, float value)
             => new ColourMatrix(
-                m.M11 * value, m.M12 * value, m.M13 * value,
-                m.M21 * value, m.M22 * value, m.M23 * value,
-                m.M31 * value, m.M32 * value, m.M33 * value);
+                m.M11 * (ColourPrimitive)value, m.M12 * (ColourPrimitive)value, m.M13 * (ColourPrimitive)value,
+                m.M21 * (ColourPrimitive)value, m.M22 * (ColourPrimitive)value, m.M23 * (ColourPrimitive)value,
+                m.M31 * (ColourPrimitive)value, m.M32 * (ColourPrimitive)value, m.M33 * (ColourPrimitive)value);
 
-        public static ColourMatrix operator *(ColourPrimitive value, ColourMatrix m)
-            => m * value;
+        public static ColourMatrix operator *(ColourMatrix m, double value)
+            => new ColourMatrix(
+                m.M11 * (ColourPrimitive)value, m.M12 * (ColourPrimitive)value, m.M13 * (ColourPrimitive)value,
+                m.M21 * (ColourPrimitive)value, m.M22 * (ColourPrimitive)value, m.M23 * (ColourPrimitive)value,
+                m.M31 * (ColourPrimitive)value, m.M32 * (ColourPrimitive)value, m.M33 * (ColourPrimitive)value);
 
-        public static ColourMatrix operator /(ColourMatrix m, ColourPrimitive value)
-            => m * (1.0 / value);
+        public static ColourMatrix operator *(float value, ColourMatrix m)
+            => m * (ColourPrimitive)value;
+
+        public static ColourMatrix operator *(double value, ColourMatrix m)
+            => m * (ColourPrimitive)value;
+
+        public static ColourMatrix operator /(ColourMatrix m, float value)
+            => m * ((ColourPrimitive)1.0 / (ColourPrimitive)value);
+
+        public static ColourMatrix operator /(ColourMatrix m, double value)
+            => m * ((ColourPrimitive)1.0 / (ColourPrimitive)value);
 
         public ColourPrimitive Determinant => _determinant.Value;
         public ColourMatrix Inverse => _inverse.Value;
@@ -171,6 +476,35 @@ namespace HisRoyalRedness.com
     {
         // https://en.wikipedia.org/wiki/SRGB
 
+        const ColourPrimitive ZERO = (ColourPrimitive)0.0;
+        const ColourPrimitive ONE = (ColourPrimitive)1.0;
+        const ColourPrimitive TWO_FIVE_FIVE = (ColourPrimitive)255;
+
+        //public static SRGBColour ToRGB(this HSVColour hsv)
+        //{
+
+        //}
+
+        // https://en.wikipedia.org/wiki/HSL_and_HSV#Saturation
+        // http://www.easyrgb.com/en/math.php
+
+        public static HSVColour ToHSV(this SRGBColour srgb)
+        {
+            var scaledRGB = (ColourVector)srgb / 255.0;
+            var max = scaledRGB.Max();
+            var min = scaledRGB.Min();
+            var chroma = max - min;
+
+            var hue = (DegreeColourComponent)0;
+            if (chroma > 0)
+            {
+                if (chroma == scaledRGB.X)
+                    hue = 
+            }
+
+
+            return new HSVColour();
+        }
 
         // Assume xyz uses values in the range from 0.0 to 1.0
         public static Color ToRGB(this CIEXYZColour xyz)
@@ -209,22 +543,32 @@ namespace HisRoyalRedness.com
 
         #region Internal conversion and correction
         static byte ClipPrimitiveToByte(ColourPrimitive primitive)
-            => primitive >= (ColourPrimitive)1.0
+            => primitive >= ONE
                 ? (byte)255
-                : (primitive <= (ColourPrimitive)0.0
+                : (primitive <= ZERO
                     ? (byte)0
-                    : (byte)(primitive * 255));
+                    : (byte)(primitive * TWO_FIVE_FIVE));
         static ColourPrimitive ByteToPrimitive(byte value)
-            => (ColourPrimitive)(value / 255.0);
+            => (ColourPrimitive)value / TWO_FIVE_FIVE;
+
+
+        // Constants (properly defined as ColourPrimitive), needed when converting XYZ to and from RGB
+        const ColourPrimitive XYZ_RGB_A = (ColourPrimitive)0.0031308;
+        const ColourPrimitive XYZ_RGB_B = (ColourPrimitive)0.04045;
+        const ColourPrimitive XYZ_RGB_C = (ColourPrimitive)0.055;
+        const ColourPrimitive XYZ_RGB_D = ONE + XYZ_RGB_C;
+        const ColourPrimitive XYZ_RGB_E = (ColourPrimitive)2.4;
+        const ColourPrimitive XYZ_RGB_F = ONE / XYZ_RGB_E;
+        const ColourPrimitive XYZ_RGB_G = (ColourPrimitive)12.92;
 
         static ColourPrimitive GammaCorrectRGB2XYZ(ColourPrimitive primitive)
-            => primitive >= 0.0031308
-                ? 1.055 * (Math.Pow(primitive, (1.0 / 2.4))) - 0.055
-                : 12.92 * primitive;
+            => primitive >= XYZ_RGB_A
+                ? XYZ_RGB_D * (ColourPrimitive)Math.Pow(primitive, XYZ_RGB_F) - XYZ_RGB_C
+                : XYZ_RGB_G * primitive;
         static ColourPrimitive GammaCorrectXYZ2RGB(ColourPrimitive primitive)
-            => primitive >= 0.04045
-                ? Math.Pow(((primitive + 0.055) / (1 + 0.055)), 2.4)
-                : primitive / 12.92;
+            => primitive >= XYZ_RGB_B
+                ? (ColourPrimitive)Math.Pow(((primitive + XYZ_RGB_C) / XYZ_RGB_D), XYZ_RGB_E)
+                : primitive / XYZ_RGB_G;
         #endregion Internal conversion and correction
 
         #region Scaling
@@ -236,11 +580,16 @@ namespace HisRoyalRedness.com
 
         #region Conversion matrices
         static readonly ColourMatrix _sRGB2CIEXYZ_D65_2deg = new ColourMatrix(
-             3.2406, -1.5372, -0.4986,
-            -0.9689,  1.8758,  0.0415,
-             0.0557, -0.2040,  1.0570);
+            (ColourPrimitive)( 3.2406), (ColourPrimitive)(-1.5372), (ColourPrimitive)(-0.4986),
+            (ColourPrimitive)(-0.9689), (ColourPrimitive)( 1.8758), (ColourPrimitive)( 0.0415),
+            (ColourPrimitive)( 0.0557), (ColourPrimitive)(-0.2040), (ColourPrimitive)( 1.0570));
         static readonly ColourMatrix _CIEXYZ2sRGB_D65_2deg = _sRGB2CIEXYZ_D65_2deg.Inverse;
         #endregion Conversion matrices
+
+        #region Min and Max
+        public static ColourPrimitive Min(this ColourVector v) => Math.Min(v.X, Math.Min(v.Y, v.Z));
+        public static ColourPrimitive Max(this ColourVector v) => Math.Max(v.X, Math.Max(v.Y, v.Z));
+        #endregion Min and Max
     }
 }
 

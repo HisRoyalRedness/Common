@@ -20,9 +20,9 @@ namespace HisRoyalRedness.com.Tests
         public void Test_CIEXYZColour_construction()
         {
             var xyz = new CIEXYZColour(0.1, 0.2, 0.3);
-            xyz.X.Should().Be(0.1);
-            xyz.Y.Should().Be(0.2);
-            xyz.Z.Should().Be(0.3);
+            xyz.X.Should().Be((ColourPrimitive)0.1);
+            xyz.Y.Should().Be((ColourPrimitive)0.2);
+            xyz.Z.Should().Be((ColourPrimitive)0.3);
             xyz.Illuminant.Should().Be(Illuminants.D65, "default to D65");
 
             new Action(() => new CIEXYZColour(0.0, 0.0, 0.0)).ShouldNotThrow<ArgumentOutOfRangeException>();

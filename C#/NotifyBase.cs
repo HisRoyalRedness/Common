@@ -68,7 +68,7 @@ namespace HisRoyalRedness.com
         { get { return _changes; } }
 
         /// <summary>
-        /// Project all echoFrom properties onto echoTo. 
+        /// Project all echoFrom properties onto echoTo.
         /// This has the effect of making echoFrom changes appears as echoTo changes as well.
         /// </summary>
         protected void EchoChanges(string echoTo, params string[] echoFrom)

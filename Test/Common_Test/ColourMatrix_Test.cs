@@ -126,9 +126,13 @@ namespace HisRoyalRedness.com.Tests
         public static Continuation TestElement(this AssertionScope scope, int expected, string expectedName, int actual)
             => scope.ForCondition(expected == actual).FailWith($"Expected {expectedName} to be {expected}, but it is {actual}.");
 
-        public static Continuation TestElementApprox(this Continuation continuation, ColourPrimitive expected, string expectedName, ColourPrimitive actual, ColourPrimitive precision)
+        public static Continuation TestElementApprox(this Continuation continuation, float expected, string expectedName, float actual, float precision)
             => continuation.Then.TestElementApprox(expected, expectedName, actual, precision);
-        public static Continuation TestElementApprox(this AssertionScope scope, ColourPrimitive expected, string expectedName, ColourPrimitive actual, ColourPrimitive precision)
+        public static Continuation TestElementApprox(this AssertionScope scope, float expected, string expectedName, float actual, float precision)
+            => scope.ForCondition(Math.Abs(expected - actual) <= precision).FailWith($"Expected {expectedName} to approximate {expected} +/-{precision}, but it differed by {Math.Abs(expected - actual)}.");
+        public static Continuation TestElementApprox(this Continuation continuation, double expected, string expectedName, double actual, double precision)
+            => continuation.Then.TestElementApprox(expected, expectedName, actual, precision);
+        public static Continuation TestElementApprox(this AssertionScope scope, double expected, string expectedName, double actual, double precision)
             => scope.ForCondition(Math.Abs(expected - actual) <= precision).FailWith($"Expected {expectedName} to approximate {expected} +/-{precision}, but it differed by {Math.Abs(expected - actual)}.");
         public static Continuation TestElementApprox(this Continuation continuation, int expected, string expectedName, int actual, int precision)
             => continuation.Then.TestElementApprox(expected, expectedName, actual, precision);
