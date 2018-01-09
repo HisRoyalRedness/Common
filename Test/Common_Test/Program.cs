@@ -15,23 +15,9 @@ namespace HisRoyalRedness.com.Tests
             //writer.WriteLine("Sync");
             //writer.WriteLineAsync("Async").Wait();
 
-
-            var r = new RGBColourComponent();
-            r.Value = 127;
-
-            byte u = r;
-
-            var val = (byte)58;
-            r = (RGBColourComponent)val;
-
             var srgb = new SRGBColour(12, 34, 56, 78);
+            var hsv = srgb.ToHSV();
 
-            var cc = (Color)srgb;
-            var ccs = cc.ToString();
-
-            var hsv = new HSVColour(1.0 / 3.0, 2.0 / 3.0, .5);
-
-            srgb.ToHSV();
         }
     }
 }

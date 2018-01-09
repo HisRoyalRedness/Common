@@ -49,10 +49,6 @@ namespace HisRoyalRedness.com
                 return value;
         }
 
-        protected const ColourPrimitive ZERO = (ColourPrimitive)0.0;
-        protected const ColourPrimitive ONE = (ColourPrimitive)0.0;
-        protected const ColourPrimitive THREE_SIXTY = (ColourPrimitive)360.0;
-
         public abstract TType MinValue { get; }
         public abstract TType MaxValue { get; }
 
@@ -83,15 +79,15 @@ namespace HisRoyalRedness.com
     public sealed class UnitColourComponent : BaseColourComponent<ColourPrimitive, UnitColourComponent>
     {
         public UnitColourComponent()
-            : base(ZERO)
+            : base(ColourSpaceConstants.ZERO)
         { }
 
         public UnitColourComponent(ColourPrimitive value)
             : base(value)
         { }
 
-        public override ColourPrimitive MinValue => ZERO;
-        public override ColourPrimitive MaxValue => ONE;
+        public override ColourPrimitive MinValue => ColourSpaceConstants.ZERO;
+        public override ColourPrimitive MaxValue => ColourSpaceConstants.ONE;
     }
     #endregion UnitColourComponent
 
@@ -99,22 +95,22 @@ namespace HisRoyalRedness.com
     public sealed class DegreeColourComponent : BaseColourComponent<ColourPrimitive, DegreeColourComponent>
     {
         public DegreeColourComponent()
-            : base(ZERO)
+            : base(ColourSpaceConstants.ZERO)
         { }
 
         public DegreeColourComponent(ColourPrimitive value)
             : base(value)
         { }
 
-        public override ColourPrimitive MinValue => ZERO;
-        public override ColourPrimitive MaxValue => THREE_SIXTY;
+        public override ColourPrimitive MinValue => ColourSpaceConstants.ZERO;
+        public override ColourPrimitive MaxValue => ColourSpaceConstants.THREE_SIXTY;
 
         protected override ColourPrimitive Normalise(ColourPrimitive value)
         {
             while (value < MinValue)
-                value += THREE_SIXTY;
+                value += ColourSpaceConstants.THREE_SIXTY;
             while (value >= MaxValue)
-                value -= THREE_SIXTY;
+                value -= ColourSpaceConstants.THREE_SIXTY;
             return value;
         }
     }
@@ -125,15 +121,15 @@ namespace HisRoyalRedness.com
     public struct SRGBColour
     {
         public SRGBColour(RGBColourComponent r, RGBColourComponent g, RGBColourComponent b)
-            : this(r, g, b, (RGBColourComponent)(byte)255)
+            : this(r, g, b, new RGBColourComponent(255))
         { }
 
         public SRGBColour(byte r, byte g, byte b)
-            : this((RGBColourComponent)r, (RGBColourComponent)g, (RGBColourComponent)b)
+            : this(new RGBColourComponent(r), new RGBColourComponent(g), new RGBColourComponent(b))
         { }
 
         public SRGBColour(byte r, byte g, byte b, byte a)
-            : this((RGBColourComponent)r, (RGBColourComponent)g, (RGBColourComponent)b, (RGBColourComponent)a)
+            : this(new RGBColourComponent(r), new RGBColourComponent(g), new RGBColourComponent(b), new RGBColourComponent(a))
         { }
 
         public SRGBColour(RGBColourComponent r, RGBColourComponent g, RGBColourComponent b, RGBColourComponent a)
@@ -177,16 +173,24 @@ namespace HisRoyalRedness.com
     [DebuggerDisplay("{DisplayString}")]
     public struct HSVColour
     {
-        public HSVColour(DegreeColourComponent h, UnitColourComponent s, UnitColourComponent v)
-            : this(h, s, v, (UnitColourComponent)1.0)
+        public HSVColour(float h, float s, float v)
+            : this(new DegreeColourComponent(h), new UnitColourComponent(s), new UnitColourComponent(v))
+        { }
+
+        public HSVColour(float h, float s, float v, float a)
+            : this(new DegreeColourComponent(h), new UnitColourComponent(s), new UnitColourComponent(v), new UnitColourComponent(a))
         { }
 
         public HSVColour(double h, double s, double v)
-            : this((DegreeColourComponent)h, (UnitColourComponent)s, (UnitColourComponent)v)
+            : this(new DegreeColourComponent(h), new UnitColourComponent(s), new UnitColourComponent(v))
         { }
 
         public HSVColour(double h, double s, double v, double a)
-            : this((DegreeColourComponent)h, (UnitColourComponent)s, (UnitColourComponent)v, (UnitColourComponent)a)
+            : this(new DegreeColourComponent(h), new UnitColourComponent(s), new UnitColourComponent(v), new UnitColourComponent(a))
+        { }
+
+        public HSVColour(DegreeColourComponent h, UnitColourComponent s, UnitColourComponent v)
+            : this(h, s, v, new UnitColourComponent(ColourSpaceConstants.ONE))
         { }
 
         public HSVColour(DegreeColourComponent h, UnitColourComponent s, UnitColourComponent v, UnitColourComponent a)
@@ -197,6 +201,7 @@ namespace HisRoyalRedness.com
             A = a;
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         string DisplayString => $"H: {(ColourPrimitive)H:0.0°}, S: {(ColourPrimitive)S:0.000}, V: {(ColourPrimitive)V:0.000}, A: {(ColourPrimitive)A:0.000}";
         public override string ToString() => $"H: {(ColourPrimitive)H}, S: {(ColourPrimitive)S}, V: {(ColourPrimitive)V}, A: {(ColourPrimitive)A}";
 
@@ -220,7 +225,6 @@ namespace HisRoyalRedness.com
         public static implicit operator ColourVector(HSVColour colour) => new ColourVector(colour.H, colour.S, colour.V);
     }
     #endregion HSVColour
-
 
     [DebuggerDisplay("X: {X}, Y: {Y}, Z: {Z}, Illum: {Illuminant}")]
     public struct CIEXYZColour
@@ -329,6 +333,11 @@ namespace HisRoyalRedness.com
         public ColourPrimitive X { get; private set; }
         public ColourPrimitive Y { get; private set; }
         public ColourPrimitive Z { get; private set; }
+
+        // Aliases
+        public ColourPrimitive R => X;
+        public ColourPrimitive G => Y;
+        public ColourPrimitive B => Z;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         string DisplayString => $"X: {(ColourPrimitive)X:0.000}, Y: {(ColourPrimitive)Y:0.000}, Z: {(ColourPrimitive)Z:0.000}";
@@ -472,38 +481,51 @@ namespace HisRoyalRedness.com
     }
     #endregion ColourMatrix
 
+    internal static class ColourSpaceConstants
+    {
+        internal const ColourPrimitive ZERO = (ColourPrimitive)0.0;
+        internal const ColourPrimitive ONE = (ColourPrimitive)1.0;
+        internal const ColourPrimitive TWO = (ColourPrimitive)2.0;
+        internal const ColourPrimitive FOUR = (ColourPrimitive)4.0;
+        internal const ColourPrimitive SIXTY = (ColourPrimitive)60.0;
+        internal const ColourPrimitive TWO_FIVE_FIVE = (ColourPrimitive)255.0;
+        internal const ColourPrimitive THREE_SIXTY = (ColourPrimitive)360.0;
+    }
+
     public static class ColourSpaceExtensions
     {
         // https://en.wikipedia.org/wiki/SRGB
-
-        const ColourPrimitive ZERO = (ColourPrimitive)0.0;
-        const ColourPrimitive ONE = (ColourPrimitive)1.0;
-        const ColourPrimitive TWO_FIVE_FIVE = (ColourPrimitive)255;
 
         //public static SRGBColour ToRGB(this HSVColour hsv)
         //{
 
         //}
 
-        // https://en.wikipedia.org/wiki/HSL_and_HSV#Saturation
-        // http://www.easyrgb.com/en/math.php
-
         public static HSVColour ToHSV(this SRGBColour srgb)
         {
-            var scaledRGB = (ColourVector)srgb / 255.0;
+            var scaledRGB = (ColourVector)srgb / ColourSpaceConstants.TWO_FIVE_FIVE;
             var max = scaledRGB.Max();
             var min = scaledRGB.Min();
             var chroma = max - min;
 
-            var hue = (DegreeColourComponent)0;
-            if (chroma > 0)
+            var hue = new DegreeColourComponent(ColourSpaceConstants.ZERO);
+            var sat = new UnitColourComponent(ColourSpaceConstants.ZERO);
+            var val = new UnitColourComponent(max);
+
+            // https://en.wikipedia.org/wiki/HSL_and_HSV#Hue_and_chroma
+            // https://en.wikipedia.org/wiki/HSL_and_HSV#Saturation
+            // https://en.wikipedia.org/wiki/HSL_and_HSV#Lightness
+            if (chroma != 0)
             {
-                if (chroma == scaledRGB.X)
-                    hue = 
+                var h_prime = max == scaledRGB.R
+                    ? (scaledRGB.G - scaledRGB.B) / chroma
+                    : (max == scaledRGB.G
+                        ? (scaledRGB.B - scaledRGB.R) / chroma + ColourSpaceConstants.TWO
+                        : (scaledRGB.R - scaledRGB.G) / chroma + ColourSpaceConstants.FOUR);
+                hue.Value = ColourSpaceConstants.SIXTY * h_prime;
+                sat.Value = chroma / max;
             }
-
-
-            return new HSVColour();
+            return new HSVColour(hue, sat, val, (ColourPrimitive)srgb.A / ColourSpaceConstants.TWO_FIVE_FIVE);
         }
 
         // Assume xyz uses values in the range from 0.0 to 1.0
@@ -543,22 +565,22 @@ namespace HisRoyalRedness.com
 
         #region Internal conversion and correction
         static byte ClipPrimitiveToByte(ColourPrimitive primitive)
-            => primitive >= ONE
+            => primitive >= ColourSpaceConstants.ONE
                 ? (byte)255
-                : (primitive <= ZERO
+                : (primitive <= ColourSpaceConstants.ZERO
                     ? (byte)0
-                    : (byte)(primitive * TWO_FIVE_FIVE));
+                    : (byte)(primitive * ColourSpaceConstants.TWO_FIVE_FIVE));
         static ColourPrimitive ByteToPrimitive(byte value)
-            => (ColourPrimitive)value / TWO_FIVE_FIVE;
+            => (ColourPrimitive)value / ColourSpaceConstants.TWO_FIVE_FIVE;
 
 
         // Constants (properly defined as ColourPrimitive), needed when converting XYZ to and from RGB
         const ColourPrimitive XYZ_RGB_A = (ColourPrimitive)0.0031308;
         const ColourPrimitive XYZ_RGB_B = (ColourPrimitive)0.04045;
         const ColourPrimitive XYZ_RGB_C = (ColourPrimitive)0.055;
-        const ColourPrimitive XYZ_RGB_D = ONE + XYZ_RGB_C;
+        const ColourPrimitive XYZ_RGB_D = ColourSpaceConstants.ONE + XYZ_RGB_C;
         const ColourPrimitive XYZ_RGB_E = (ColourPrimitive)2.4;
-        const ColourPrimitive XYZ_RGB_F = ONE / XYZ_RGB_E;
+        const ColourPrimitive XYZ_RGB_F = ColourSpaceConstants.ONE / XYZ_RGB_E;
         const ColourPrimitive XYZ_RGB_G = (ColourPrimitive)12.92;
 
         static ColourPrimitive GammaCorrectRGB2XYZ(ColourPrimitive primitive)
