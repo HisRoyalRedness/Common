@@ -68,9 +68,6 @@ namespace HisRoyalRedness.com.Tests
         [TestMethod]
         public void Test_ColourMatrix_VectorMultiplication()
         {
-            (new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9) * new CIEXYZColour(1, 1, 1, false)).Should().Be(new CIEXYZColour(6, 15, 24, false));
-            (new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9) * new CIEXYZColour(3, 2, 1, false)).Should().Be(new CIEXYZColour(10, 28, 46, false));
-
             (new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9) * new ColourVector(1, 1, 1)).Should().Be(new ColourVector(6, 15, 24));
             (new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9) * new ColourVector(3, 2, 1)).Should().Be(new ColourVector(10, 28, 46));
         }

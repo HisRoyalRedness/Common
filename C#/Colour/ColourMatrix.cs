@@ -87,12 +87,12 @@ namespace HisRoyalRedness.com
         public ColourPrimitive M32 { get; private set; }
         public ColourPrimitive M33 { get; private set; }
 
-        public static CIEXYZColour operator *(ColourMatrix m, CIEXYZColour v)
-            => new CIEXYZColour(
-                m.M11 * v.X + m.M12 * v.Y + m.M13 * v.Z,
-                m.M21 * v.X + m.M22 * v.Y + m.M23 * v.Z,
-                m.M31 * v.X + m.M32 * v.Y + m.M33 * v.Z,
-                v.IsLimited);
+        //public static CIEXYZColour operator *(ColourMatrix m, CIEXYZColour v)
+        //    => new CIEXYZColour(
+        //        m.M11 * v.X + m.M12 * v.Y + m.M13 * v.Z,
+        //        m.M21 * v.X + m.M22 * v.Y + m.M23 * v.Z,
+        //        m.M31 * v.X + m.M32 * v.Y + m.M33 * v.Z,
+        //        v.IsLimited);
 
         public static ColourVector operator *(ColourMatrix m, ColourVector v)
             => new ColourVector(

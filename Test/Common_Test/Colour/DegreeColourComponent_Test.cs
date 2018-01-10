@@ -47,48 +47,46 @@ namespace HisRoyalRedness.com.Tests
         }
 
         [TestMethod]
-        public void Test_DegreeColourComponent_ToByteComponent()
+        public void Test_DegreeColourComponent_ToUnitComponent()
         {
-            fix me
-            new UnitColourComponent(0).ToByteColour().Should().Be(0);
-            new UnitColourComponent(0.101).ToByteColour().Should().BeApproximately((byte)((ColourPrimitive)0.101 * ColourSpaceConstants.TWO_FIVE_FIVE));
-            new UnitColourComponent(0.23).ToByteColour().Should().BeApproximately((byte)((ColourPrimitive)0.23 * ColourSpaceConstants.TWO_FIVE_FIVE));
-            new UnitColourComponent(1).ToByteColour().Should().Be(255);
+            new DegreeColourComponent(0).ToUnitColour().Should().Be(ColourSpaceConstants.ZERO);
+            new DegreeColourComponent(23).ToUnitColour().Should().BeApproximately((ColourPrimitive)23.0 / ColourSpaceConstants.THREE_SIXTY);
+            new DegreeColourComponent(101).ToUnitColour().Should().BeApproximately((ColourPrimitive)101.0 / ColourSpaceConstants.THREE_SIXTY);
+            new DegreeColourComponent(359.9).ToUnitColour().Should().BeApproximately((ColourPrimitive)359.9 / ColourSpaceConstants.THREE_SIXTY);
+            new DegreeColourComponent(360).ToUnitColour().Should().BeApproximately(ColourSpaceConstants.ZERO);
         }
 
         [TestMethod]
         public void Test_DegreeColourComponent_Add()
         {
-            fix me
-            const ColourPrimitive POINT_ONE = (ColourPrimitive)0.1;
-            const ColourPrimitive POINT_TWO = (ColourPrimitive)0.1;
-            const ColourPrimitive POINT_THREE = POINT_ONE + POINT_TWO;
-            const ColourPrimitive POINT_NINE = (ColourPrimitive)0.9;
+            const ColourPrimitive ONE_HUNDRED = (ColourPrimitive)100;
+            const ColourPrimitive TWO_HUNDRED = (ColourPrimitive)200;
+            const ColourPrimitive THREE_HUNDRED = ONE_HUNDRED + TWO_HUNDRED;
+            const ColourPrimitive FOURTY = THREE_HUNDRED + ONE_HUNDRED - ColourSpaceConstants.THREE_SIXTY;
 
-            (new UnitColourComponent(POINT_ONE) + new UnitColourComponent(POINT_TWO)).Should().BeApproximately(POINT_THREE);
-            (new UnitColourComponent(POINT_ONE) + POINT_TWO).Should().BeApproximately(POINT_THREE);
-            (POINT_ONE + new UnitColourComponent(POINT_TWO)).Should().BeApproximately(POINT_THREE);
+            (new DegreeColourComponent(ONE_HUNDRED) + new DegreeColourComponent(TWO_HUNDRED)).Should().BeApproximately(THREE_HUNDRED);
+            (new DegreeColourComponent(ONE_HUNDRED) + TWO_HUNDRED).Should().BeApproximately(THREE_HUNDRED);
+            (ONE_HUNDRED + new DegreeColourComponent(TWO_HUNDRED)).Should().BeApproximately(THREE_HUNDRED);
 
-            (new UnitColourComponent(POINT_NINE) + new UnitColourComponent(POINT_TWO)).Should().Be(ColourSpaceConstants.ONE);
-            (new UnitColourComponent(POINT_NINE) + POINT_TWO).Should().Be(ColourSpaceConstants.ONE);
-            (POINT_NINE + new UnitColourComponent(POINT_TWO)).Should().Be(ColourSpaceConstants.ONE);
+            (new DegreeColourComponent(ONE_HUNDRED) + new DegreeColourComponent(THREE_HUNDRED)).Should().Be(FOURTY);
+            (new DegreeColourComponent(ONE_HUNDRED) + THREE_HUNDRED).Should().Be(FOURTY);
+            (ONE_HUNDRED + new DegreeColourComponent(THREE_HUNDRED)).Should().Be(FOURTY);
         }
 
         [TestMethod]
         public void Test_DegreeColourComponent_Subtract()
         {
-            fix me
-            const ColourPrimitive POINT_FIVE = (ColourPrimitive)0.5;
-            const ColourPrimitive POINT_FOUR = (ColourPrimitive)0.4;
-            const ColourPrimitive POINT_ONE = POINT_FIVE - POINT_FOUR;
+            const ColourPrimitive ONE_HUNDRED = (ColourPrimitive)100;
+            const ColourPrimitive TWO_HUNDRED = (ColourPrimitive)200;
+            const ColourPrimitive TWO_SIXTY = ColourSpaceConstants.THREE_SIXTY - ONE_HUNDRED;
 
-            (new UnitColourComponent(POINT_FIVE) - new UnitColourComponent(POINT_FOUR)).Should().BeApproximately(POINT_ONE);
-            (new UnitColourComponent(POINT_FIVE) - POINT_FOUR).Should().BeApproximately(POINT_ONE);
-            (POINT_FIVE - new UnitColourComponent(POINT_FOUR)).Should().BeApproximately(POINT_ONE);
+            (new DegreeColourComponent(TWO_HUNDRED) - new DegreeColourComponent(ONE_HUNDRED)).Should().BeApproximately(ONE_HUNDRED);
+            (new DegreeColourComponent(TWO_HUNDRED) - ONE_HUNDRED).Should().BeApproximately(ONE_HUNDRED);
+            (TWO_HUNDRED - new DegreeColourComponent(ONE_HUNDRED)).Should().BeApproximately(ONE_HUNDRED);
 
-            (new UnitColourComponent(POINT_FOUR) - new UnitColourComponent(POINT_FIVE)).Should().Be(ColourSpaceConstants.ZERO);
-            (new UnitColourComponent(POINT_FOUR) - POINT_FIVE).Should().Be(ColourSpaceConstants.ZERO);
-            (POINT_FOUR - new UnitColourComponent(POINT_FIVE)).Should().Be(ColourSpaceConstants.ZERO);
+            (new DegreeColourComponent(ONE_HUNDRED) - new DegreeColourComponent(TWO_HUNDRED)).Should().Be(TWO_SIXTY);
+            (new DegreeColourComponent(ONE_HUNDRED) - TWO_HUNDRED).Should().Be(TWO_SIXTY);
+            (ONE_HUNDRED - new DegreeColourComponent(TWO_HUNDRED)).Should().Be(TWO_SIXTY);
         }
     }
 }

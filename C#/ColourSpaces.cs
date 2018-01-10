@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
 using System.Windows.Media;
 using System.ComponentModel;
-using HisRoyalRedness.com.ColourConstants;
 
 /*
     Some additional colour space definitions (other than the built-in sRGB)
@@ -20,45 +17,45 @@ namespace HisRoyalRedness.com
 {
     using ColourPrimitive = Double;
 
-    [DebuggerDisplay("X: {X}, Y: {Y}, Z: {Z}, Illum: {Illuminant}")]
-    public struct CIEXYZColour
-    {
-        // https://en.wikipedia.org/wiki/CIE_1931_color_space
+    //[DebuggerDisplay("X: {X}, Y: {Y}, Z: {Z}, Illum: {Illuminant}")]
+    //public struct CIEXYZColour
+    //{
+    //    // https://en.wikipedia.org/wiki/CIE_1931_color_space
 
-        public CIEXYZColour(float x, float y, float z, bool isLimited = true)
-            : this((ColourPrimitive)x, (ColourPrimitive)y, (ColourPrimitive)z, Illuminants.D65, isLimited)
-        { }
+    //    public CIEXYZColour(float x, float y, float z, bool isLimited = true)
+    //        : this((ColourPrimitive)x, (ColourPrimitive)y, (ColourPrimitive)z, Illuminants.D65, isLimited)
+    //    { }
 
-        public CIEXYZColour(double x, double y, double z, bool isLimited = true)
-            : this((ColourPrimitive)x, (ColourPrimitive)y, (ColourPrimitive)z, Illuminants.D65, isLimited)
-        { }
+    //    public CIEXYZColour(double x, double y, double z, bool isLimited = true)
+    //        : this((ColourPrimitive)x, (ColourPrimitive)y, (ColourPrimitive)z, Illuminants.D65, isLimited)
+    //    { }
 
-        public CIEXYZColour(ColourPrimitive x, ColourPrimitive y, ColourPrimitive z, Illuminants illuminant, bool isLimited = true)
-        {
-            if (isLimited)
-            {
-                if (x > 1.0 || x < 0.0)
-                    throw new ArgumentOutOfRangeException(nameof(x));
-                if (y > 1.0 || y < 0.0)
-                    throw new ArgumentOutOfRangeException(nameof(y));
-                if (z > 1.0 || z < 0.0)
-                    throw new ArgumentOutOfRangeException(nameof(z));
-            }
-            X = x;
-            Y = y;
-            Z = z;
-            Illuminant = illuminant;
-            IsLimited = isLimited;
-        }
+    //    public CIEXYZColour(ColourPrimitive x, ColourPrimitive y, ColourPrimitive z, Illuminants illuminant, bool isLimited = true)
+    //    {
+    //        if (isLimited)
+    //        {
+    //            if (x > 1.0 || x < 0.0)
+    //                throw new ArgumentOutOfRangeException(nameof(x));
+    //            if (y > 1.0 || y < 0.0)
+    //                throw new ArgumentOutOfRangeException(nameof(y));
+    //            if (z > 1.0 || z < 0.0)
+    //                throw new ArgumentOutOfRangeException(nameof(z));
+    //        }
+    //        X = x;
+    //        Y = y;
+    //        Z = z;
+    //        Illuminant = illuminant;
+    //        IsLimited = isLimited;
+    //    }
 
-        public ColourPrimitive X { get; private set; }
-        public ColourPrimitive Y { get; private set; }
-        public ColourPrimitive Z { get; private set; }
-        public Illuminants Illuminant { get; private set; }
-        public bool IsLimited { get; private set; }
+    //    public ColourPrimitive X { get; private set; }
+    //    public ColourPrimitive Y { get; private set; }
+    //    public ColourPrimitive Z { get; private set; }
+    //    public Illuminants Illuminant { get; private set; }
+    //    public bool IsLimited { get; private set; }
 
-        public static implicit operator ColourVector(CIEXYZColour colour) => new ColourVector(colour.X, colour.Y, colour.Z);
-    }
+    //    public static implicit operator ColourVector(CIEXYZColour colour) => new ColourVector(colour.X, colour.Y, colour.Z);
+    //}
 
     public enum Illuminants
     {
@@ -114,88 +111,88 @@ namespace HisRoyalRedness.com
         //}
 
         // Assume xyz uses values in the range from 0.0 to 1.0
-        public static Color ToRGB(this CIEXYZColour xyz)
-        {
-            var d65_xyz = xyz;
-            if (d65_xyz.Illuminant != Illuminants.D65)
-            {
-                // Todo: Convert to D65
+        //public static Color ToRGB(this CIEXYZColour xyz)
+        //{
+        //    var d65_xyz = xyz;
+        //    if (d65_xyz.Illuminant != Illuminants.D65)
+        //    {
+        //        // Todo: Convert to D65
 
-            }
+        //    }
 
-            // Convert to linear rgb
-            var linear_rgb = _sRGB2CIEXYZ_D65_2deg * d65_xyz;
+        //    // Convert to linear rgb
+        //    var linear_rgb = _sRGB2CIEXYZ_D65_2deg * d65_xyz;
 
-            // Gamma correct and clip to 0-255
-            return Color.FromRgb(
-                ClipPrimitiveToByte(GammaCorrectRGB2XYZ(linear_rgb.X)),
-                ClipPrimitiveToByte(GammaCorrectRGB2XYZ(linear_rgb.Y)),
-                ClipPrimitiveToByte(GammaCorrectRGB2XYZ(linear_rgb.Z)));
-        }
+        //    // Gamma correct and clip to 0-255
+        //    return Color.FromRgb(
+        //        ClipPrimitiveToByte(GammaCorrectRGB2XYZ(linear_rgb.X)),
+        //        ClipPrimitiveToByte(GammaCorrectRGB2XYZ(linear_rgb.Y)),
+        //        ClipPrimitiveToByte(GammaCorrectRGB2XYZ(linear_rgb.Z)));
+        //}
 
-        public static CIEXYZColour ToCIEXYZ(this Color rgb, Illuminants illuminant = Illuminants.D65)
-        {
-            var linear_rgb = new CIEXYZColour(
-                GammaCorrectXYZ2RGB(ByteToPrimitive(rgb.R)),
-                GammaCorrectXYZ2RGB(ByteToPrimitive(rgb.G)),
-                GammaCorrectXYZ2RGB(ByteToPrimitive(rgb.B)));
+        //public static CIEXYZColour ToCIEXYZ(this Color rgb, Illuminants illuminant = Illuminants.D65)
+        //{
+        //    var linear_rgb = new CIEXYZColour(
+        //        GammaCorrectXYZ2RGB(ByteToPrimitive(rgb.R)),
+        //        GammaCorrectXYZ2RGB(ByteToPrimitive(rgb.G)),
+        //        GammaCorrectXYZ2RGB(ByteToPrimitive(rgb.B)));
 
-            var xyz = _CIEXYZ2sRGB_D65_2deg * linear_rgb;
-            if (xyz.Illuminant != illuminant)
-            {
-                // Todo: Convert from D65
-            }
-            return xyz;
-        }
+        //    var xyz = _CIEXYZ2sRGB_D65_2deg * linear_rgb;
+        //    if (xyz.Illuminant != illuminant)
+        //    {
+        //        // Todo: Convert from D65
+        //    }
+        //    return xyz;
+        //}
 
         #region Internal conversion and correction
-        static byte ClipPrimitiveToByte(ColourPrimitive primitive)
-            => primitive >= ColourSpaceConstants.ONE
-                ? (byte)255
-                : (primitive <= ColourSpaceConstants.ZERO
-                    ? (byte)0
-                    : (byte)(primitive * ColourSpaceConstants.TWO_FIVE_FIVE));
-        static ColourPrimitive ByteToPrimitive(byte value)
-            => (ColourPrimitive)value / ColourSpaceConstants.TWO_FIVE_FIVE;
+        //static byte ClipPrimitiveToByte(ColourPrimitive primitive)
+        //    => primitive >= ColourSpaceConstants.ONE
+        //        ? (byte)255
+        //        : (primitive <= ColourSpaceConstants.ZERO
+        //            ? (byte)0
+        //            : (byte)(primitive * ColourSpaceConstants.TWO_FIVE_FIVE));
+        //static ColourPrimitive ByteToPrimitive(byte value)
+        //    => (ColourPrimitive)value / ColourSpaceConstants.TWO_FIVE_FIVE;
 
 
         // Constants (properly defined as ColourPrimitive), needed when converting XYZ to and from RGB
-        const ColourPrimitive XYZ_RGB_A = (ColourPrimitive)0.0031308;
-        const ColourPrimitive XYZ_RGB_B = (ColourPrimitive)0.04045;
-        const ColourPrimitive XYZ_RGB_C = (ColourPrimitive)0.055;
-        const ColourPrimitive XYZ_RGB_D = ColourSpaceConstants.ONE + XYZ_RGB_C;
-        const ColourPrimitive XYZ_RGB_E = (ColourPrimitive)2.4;
-        const ColourPrimitive XYZ_RGB_F = ColourSpaceConstants.ONE / XYZ_RGB_E;
-        const ColourPrimitive XYZ_RGB_G = (ColourPrimitive)12.92;
+        //const ColourPrimitive XYZ_RGB_A = (ColourPrimitive)0.0031308;
+        //const ColourPrimitive XYZ_RGB_B = (ColourPrimitive)0.04045;
+        //const ColourPrimitive XYZ_RGB_C = (ColourPrimitive)0.055;
+        //const ColourPrimitive XYZ_RGB_D = ColourSpaceConstants.ONE + XYZ_RGB_C;
+        //const ColourPrimitive XYZ_RGB_E = (ColourPrimitive)2.4;
+        //const ColourPrimitive XYZ_RGB_F = ColourSpaceConstants.ONE / XYZ_RGB_E;
+        //const ColourPrimitive XYZ_RGB_G = (ColourPrimitive)12.92;
 
-        static ColourPrimitive GammaCorrectRGB2XYZ(ColourPrimitive primitive)
-            => primitive >= XYZ_RGB_A
-                ? XYZ_RGB_D * (ColourPrimitive)Math.Pow(primitive, XYZ_RGB_F) - XYZ_RGB_C
-                : XYZ_RGB_G * primitive;
-        static ColourPrimitive GammaCorrectXYZ2RGB(ColourPrimitive primitive)
-            => primitive >= XYZ_RGB_B
-                ? (ColourPrimitive)Math.Pow(((primitive + XYZ_RGB_C) / XYZ_RGB_D), XYZ_RGB_E)
-                : primitive / XYZ_RGB_G;
+        //static ColourPrimitive GammaCorrectRGB2XYZ(ColourPrimitive primitive)
+        //    => primitive >= XYZ_RGB_A
+        //        ? XYZ_RGB_D * (ColourPrimitive)Math.Pow(primitive, XYZ_RGB_F) - XYZ_RGB_C
+        //        : XYZ_RGB_G * primitive;
+        //static ColourPrimitive GammaCorrectXYZ2RGB(ColourPrimitive primitive)
+        //    => primitive >= XYZ_RGB_B
+        //        ? (ColourPrimitive)Math.Pow(((primitive + XYZ_RGB_C) / XYZ_RGB_D), XYZ_RGB_E)
+        //        : primitive / XYZ_RGB_G;
         #endregion Internal conversion and correction
 
         #region Scaling
-        public static CIEXYZColour Scale(this CIEXYZColour xyz, ColourPrimitive xFactor, ColourPrimitive yFactor, ColourPrimitive zFactor)
-            => new CIEXYZColour(xyz.X * xFactor, xyz.Y * yFactor, xyz.Z * zFactor);
-        public static CIEXYZColour Scale(this CIEXYZColour xyz, ColourPrimitive factor)
-            => new CIEXYZColour(xyz.X * factor, xyz.Y * factor, xyz.Z * factor);
+        //public static CIEXYZColour Scale(this CIEXYZColour xyz, ColourPrimitive xFactor, ColourPrimitive yFactor, ColourPrimitive zFactor)
+        //    => new CIEXYZColour(xyz.X * xFactor, xyz.Y * yFactor, xyz.Z * zFactor);
+        //public static CIEXYZColour Scale(this CIEXYZColour xyz, ColourPrimitive factor)
+        //    => new CIEXYZColour(xyz.X * factor, xyz.Y * factor, xyz.Z * factor);
         #endregion Scaling
 
         #region Conversion matrices
-        static readonly ColourMatrix _sRGB2CIEXYZ_D65_2deg = new ColourMatrix(
-            (ColourPrimitive)( 3.2406), (ColourPrimitive)(-1.5372), (ColourPrimitive)(-0.4986),
-            (ColourPrimitive)(-0.9689), (ColourPrimitive)( 1.8758), (ColourPrimitive)( 0.0415),
-            (ColourPrimitive)( 0.0557), (ColourPrimitive)(-0.2040), (ColourPrimitive)( 1.0570));
-        static readonly ColourMatrix _CIEXYZ2sRGB_D65_2deg = _sRGB2CIEXYZ_D65_2deg.Inverse;
+        //static readonly ColourMatrix _sRGB2CIEXYZ_D65_2deg = new ColourMatrix(
+        //    (ColourPrimitive)( 3.2406), (ColourPrimitive)(-1.5372), (ColourPrimitive)(-0.4986),
+        //    (ColourPrimitive)(-0.9689), (ColourPrimitive)( 1.8758), (ColourPrimitive)( 0.0415),
+        //    (ColourPrimitive)( 0.0557), (ColourPrimitive)(-0.2040), (ColourPrimitive)( 1.0570));
+        //static readonly ColourMatrix _CIEXYZ2sRGB_D65_2deg = _sRGB2CIEXYZ_D65_2deg.Inverse;
         #endregion Conversion matrices
 
         #region Min and Max
-        public static ColourPrimitive Min(this ColourVector v) => Math.Min(v.X, Math.Min(v.Y, v.Z));
-        public static ColourPrimitive Max(this ColourVector v) => Math.Max(v.X, Math.Max(v.Y, v.Z));
+        //public static ColourPrimitive Min(this ColourVector v) => Math.Min(v.X, Math.Min(v.Y, v.Z));
+        //public static ColourPrimitive Max(this ColourVector v) => Math.Max(v.X, Math.Max(v.Y, v.Z));
         #endregion Min and Max
     }
 }
