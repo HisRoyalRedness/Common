@@ -1,6 +1,7 @@
 ﻿using HisRoyalRedness.com.ColourConstants;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 /*
@@ -22,102 +23,52 @@ namespace HisRoyalRedness.com
     using ColourPrimitive = Double;
 #endif
 
-    #region BaseColourComponent
-    public abstract class BaseColourComponent<TType, TComponent>
-        where TType : struct, IComparable<TType>
-        where TComponent : BaseColourComponent<TType, TComponent>, new()
+    #region ByteColourComponent
+    public partial struct ByteColourComponent
     {
-        public BaseColourComponent()
-        { }
-
-        public BaseColourComponent(TType value)
+        public ByteColourComponent(byte value)
         {
             _value = value;
         }
 
-        public TType Value
-        {
-            get { return _value; }
-            set { _value = Normalise(value); }
-        }
-        TType _value = default(TType);
+        const byte MIN_VAL = ColourSpaceConstants.BYTECOLOURCOMPONENT_MIN_VALUE;
+        const byte MAX_VAL = ColourSpaceConstants.BYTECOLOURCOMPONENT_MAX_VALUE;
 
-        protected virtual TType Normalise(TType value)
-        {
-            if (value.CompareTo(MinValue) < 0)
-                return MinValue;
-            else if (value.CompareTo(MaxValue) > 0)
-                return MaxValue;
-            else
-                return value;
-        }
-
-        public abstract TType MinValue { get; }
-        public abstract TType MaxValue { get; }
-
-        public override string ToString() => Value.ToString();
-
-        public static implicit operator TType(BaseColourComponent<TType, TComponent> colour) => colour.Value;
-        public static implicit operator BaseColourComponent<TType, TComponent>(TType colour) => new TComponent { Value = colour };
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        string DisplayString => $"{_value}";
     }
-    #endregion BaseColourComponent
-
-    #region RGBColourComponent
-    public sealed class RGBColourComponent : BaseColourComponent<byte, RGBColourComponent>
-    {
-        public RGBColourComponent()
-            : base(0)
-        { }
-
-        public RGBColourComponent(byte value)
-            : base(value)
-        { }
-
-        public override byte MinValue => 0;
-        public override byte MaxValue => 255;
-    }
-    #endregion RGBColourComponent
+    #endregion ByteColourComponent
 
     #region UnitColourComponent
-    public sealed class UnitColourComponent : BaseColourComponent<ColourPrimitive, UnitColourComponent>
+    public partial struct UnitColourComponent
     {
-        public UnitColourComponent()
-            : base(ColourSpaceConstants.ZERO)
-        { }
+        const ColourPrimitive MIN_VAL = ColourSpaceConstants.UNITCOLOURCOMPONENT_MIN_VALUE;
+        const ColourPrimitive MAX_VAL = ColourSpaceConstants.UNITCOLOURCOMPONENT_MAX_VALUE;
 
-        public UnitColourComponent(ColourPrimitive value)
-            : base(value)
-        { }
-
-        public override ColourPrimitive MinValue => ColourSpaceConstants.ZERO;
-        public override ColourPrimitive MaxValue => ColourSpaceConstants.ONE;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        string DisplayString => $"{_value:0.000}";
     }
     #endregion UnitColourComponent
 
     #region DegreeColourComponent
-    public sealed class DegreeColourComponent : BaseColourComponent<ColourPrimitive, DegreeColourComponent>
+    public partial struct DegreeColourComponent
     {
-        public DegreeColourComponent()
-            : base(ColourSpaceConstants.ZERO)
-        { }
+        const ColourPrimitive MIN_VAL = ColourSpaceConstants.DEGREECOLOURCOMPONENT_MIN_VALUE;
+        const ColourPrimitive MAX_VAL = ColourSpaceConstants.DEGREECOLOURCOMPONENT_MAX_VALUE;
 
-        public DegreeColourComponent(ColourPrimitive value)
-            : base(value)
-        { }
-
-        public override ColourPrimitive MinValue => ColourSpaceConstants.ZERO;
-        public override ColourPrimitive MaxValue => ColourSpaceConstants.THREE_SIXTY;
-
-        protected override ColourPrimitive Normalise(ColourPrimitive value)
-        {
-            while (value < MinValue)
-                value += ColourSpaceConstants.THREE_SIXTY;
-            while (value >= MaxValue)
-                value -= ColourSpaceConstants.THREE_SIXTY;
-            return value;
-        }
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        string DisplayString => $"{_value:0.0}°";
     }
     #endregion DegreeColourComponent
+
+    public static class ComponentConversionExtensions
+    {
+        public static ByteColourComponent ToByteColour(this UnitColourComponent colourComp) => new ByteColourComponent(colourComp.Value * (ColourPrimitive)ColourSpaceConstants.BYTECOLOURCOMPONENT_MAX_VALUE);
+        public static UnitColourComponent ToUnitColour(this ByteColourComponent colourComp) => new UnitColourComponent((ColourPrimitive)colourComp.Value / (ColourPrimitive)ColourSpaceConstants.BYTECOLOURCOMPONENT_MAX_VALUE);
+
+        public static DegreeColourComponent ToDegreeColour(this UnitColourComponent unit) => new DegreeColourComponent(unit.Value * ColourSpaceConstants.DEGREECOLOURCOMPONENT_MAX_VALUE);
+        public static UnitColourComponent ToUnitColour(this DegreeColourComponent colourComp) => new UnitColourComponent(colourComp.Value / ColourSpaceConstants.DEGREECOLOURCOMPONENT_MAX_VALUE);
+    }
 }
 
 /*

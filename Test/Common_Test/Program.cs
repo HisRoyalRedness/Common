@@ -18,10 +18,10 @@ namespace HisRoyalRedness.com.Tests
             var cm = new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9);
             var v = new ColourVector(1, 2, 3);
 
-            var srgb = new SRGBColour(12, 34, 56, 78);
-            var hsv = srgb.ToHSV();
+            //var srgb = new SRGBColour(12, 34, 56, 78);
+            //var hsv = srgb.ToHSV();
 
-            var cc = new SRGBColour(0xA8, 0x34, 0x5B).ToHSV();
+            //var cc = new SRGBColour(0xA8, 0x34, 0x5B).ToHSV();
         }
     }
 }

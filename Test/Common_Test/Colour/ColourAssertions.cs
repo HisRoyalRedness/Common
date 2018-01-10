@@ -91,92 +91,194 @@ namespace HisRoyalRedness.com.Tests
     }
     #endregion ColourVector assertions
 
-    #region SRGBColour assertions
-    public class SRGBColourAssertions : ReferenceTypeAssertions<SRGBColour, SRGBColourAssertions>
+    #region ByteColourComponent assertions
+    public class ByteColourComponentAssertions : ReferenceTypeAssertions<ByteColourComponent, ByteColourComponentAssertions>
     {
-        public SRGBColourAssertions(SRGBColour value)
+        public ByteColourComponentAssertions(ByteColourComponent value)
         {
             Subject = value;
         }
 
-        protected override string Context => nameof(SRGBColour);
+        protected override string Context => nameof(ByteColourComponent);
 
-        public AndConstraint<SRGBColourAssertions> Be(SRGBColour expected, string because = "", params object[] becauseArgs)
+        //public AndConstraint<ByteColourComponentAssertions> Be(ByteColourComponent expected, string because = "", params object[] becauseArgs)
+        //    => Be(expected.Value, because, becauseArgs);
+
+        public AndConstraint<ByteColourComponentAssertions> Be(byte expected, string because = "", params object[] becauseArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
-                .TestElement(expected.R, nameof(expected.R), Subject.R)
-                .TestElement(expected.G, nameof(expected.G), Subject.G)
-                .TestElement(expected.B, nameof(expected.B), Subject.B)
-                .TestElement(expected.A, nameof(expected.A), Subject.A);
-            return new AndConstraint<SRGBColourAssertions>(this);
+                .TestElement(expected, nameof(expected), Subject.Value);
+            return new AndConstraint<ByteColourComponentAssertions>(this);
         }
 
-        public AndConstraint<SRGBColourAssertions> BeIgnoringAlpha(SRGBColour expected, string because = "", params object[] becauseArgs)
+        //public AndConstraint<ByteColourComponentAssertions> BeApproximately(ByteColourComponent expected, byte precision = 1, string because = "", params object[] becauseArgs)
+        //    => BeApproximately(expected.Value, precision, because, becauseArgs);
+
+        public AndConstraint<ByteColourComponentAssertions> BeApproximately(byte expected, byte precision = 1, string because = "", params object[] becauseArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
-                .TestElement(expected.R, nameof(expected.R), Subject.R)
-                .TestElement(expected.G, nameof(expected.G), Subject.G)
-                .TestElement(expected.B, nameof(expected.B), Subject.B);
-            return new AndConstraint<SRGBColourAssertions>(this);
+                .TestElementApprox(expected, nameof(expected), Subject.Value, precision);
+            return new AndConstraint<ByteColourComponentAssertions>(this);
         }
     }
-    #endregion SRGBColour assertions
+    #endregion ByteColourComponent assertions
 
-    #region HSVColour assertions
-    public class HSVColourAssertions : ReferenceTypeAssertions<HSVColour, HSVColourAssertions>
+    #region UnitColourComponent assertions
+    public class UnitColourComponentAssertions : ReferenceTypeAssertions<UnitColourComponent, UnitColourComponentAssertions>
     {
-        public HSVColourAssertions(HSVColour value)
+        public UnitColourComponentAssertions(UnitColourComponent value)
         {
             Subject = value;
         }
 
-        protected override string Context => nameof(HSVColour);
+        protected override string Context => nameof(UnitColourComponent);
 
-        public AndConstraint<HSVColourAssertions> Be(HSVColour expected, string because = "", params object[] becauseArgs)
+        //public AndConstraint<UnitColourComponentAssertions> Be(UnitColourComponent expected, string because = "", params object[] becauseArgs)
+        //    => Be(expected.Value, because, becauseArgs);
+
+        public AndConstraint<UnitColourComponentAssertions> Be(ColourPrimitive expected, string because = "", params object[] becauseArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
-                .TestElement(expected.H, nameof(expected.H), Subject.H)
-                .TestElement(expected.S, nameof(expected.S), Subject.S)
-                .TestElement(expected.V, nameof(expected.V), Subject.V)
-                .TestElement(expected.A, nameof(expected.A), Subject.A);
-            return new AndConstraint<HSVColourAssertions>(this);
+                .TestElement(expected, nameof(expected), Subject.Value);
+            return new AndConstraint<UnitColourComponentAssertions>(this);
         }
 
-        public AndConstraint<HSVColourAssertions> BeApproximately(HSVColour expected, ColourPrimitive precision = (ColourPrimitive)(float.Epsilon), string because = "", params object[] becauseArgs)
-        {
-            Execute.Assertion
-                .BecauseOf(because, becauseArgs)
-                .TestElementApprox(expected.H, nameof(expected.H), Subject.H, precision)
-                .TestElementApprox(expected.S, nameof(expected.S), Subject.S, precision)
-                .TestElementApprox(expected.V, nameof(expected.V), Subject.V, precision)
-                .TestElementApprox(expected.A, nameof(expected.A), Subject.A, precision);
-            return new AndConstraint<HSVColourAssertions>(this);
-        }
+        //public AndConstraint<UnitColourComponentAssertions> BeApproximately(UnitColourComponent expected, ColourPrimitive precision = (ColourPrimitive)(float.Epsilon), string because = "", params object[] becauseArgs)
+        //    => BeApproximately(expected.Value, precision, because, becauseArgs);
 
-        public AndConstraint<HSVColourAssertions> BeIgnoringAlpha(HSVColour expected, string because = "", params object[] becauseArgs)
+        public AndConstraint<UnitColourComponentAssertions> BeApproximately(ColourPrimitive expected, ColourPrimitive precision = (ColourPrimitive)(float.Epsilon), string because = "", params object[] becauseArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
-                .TestElement(expected.H, nameof(expected.H), Subject.H)
-                .TestElement(expected.S, nameof(expected.S), Subject.S)
-                .TestElement(expected.V, nameof(expected.V), Subject.V);
-            return new AndConstraint<HSVColourAssertions>(this);
-        }
-
-        public AndConstraint<HSVColourAssertions> BeApproximatelyIgoringAlpha(HSVColour expected, ColourPrimitive precision = (ColourPrimitive)(float.Epsilon), string because = "", params object[] becauseArgs)
-        {
-            Execute.Assertion
-                .BecauseOf(because, becauseArgs)
-                .TestElementApprox(expected.H, nameof(expected.H), Subject.H, precision)
-                .TestElementApprox(expected.S, nameof(expected.S), Subject.S, precision)
-                .TestElementApprox(expected.V, nameof(expected.V), Subject.V, precision);
-            return new AndConstraint<HSVColourAssertions>(this);
+                .TestElementApprox(expected, nameof(expected), Subject.Value, precision);
+            return new AndConstraint<UnitColourComponentAssertions>(this);
         }
     }
-    #endregion HSVColour assertions
+    #endregion UnitColourComponent assertions
+
+    #region DegreeColourComponent assertions
+    public class DegreeColourComponentAssertions : ReferenceTypeAssertions<DegreeColourComponent, DegreeColourComponentAssertions>
+    {
+        public DegreeColourComponentAssertions(DegreeColourComponent value)
+        {
+            Subject = value;
+        }
+
+        protected override string Context => nameof(DegreeColourComponent);
+
+        //public AndConstraint<DegreeColourComponentAssertions> Be(DegreeColourComponent expected, string because = "", params object[] becauseArgs)
+        //    => Be(expected.Value, because, becauseArgs);
+
+        public AndConstraint<DegreeColourComponentAssertions> Be(ColourPrimitive expected, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .TestElement(expected, nameof(expected), Subject.Value);
+            return new AndConstraint<DegreeColourComponentAssertions>(this);
+        }
+
+        //public AndConstraint<DegreeColourComponentAssertions> BeApproximately(DegreeColourComponent expected, ColourPrimitive precision = (ColourPrimitive)(float.Epsilon), string because = "", params object[] becauseArgs)
+        //    => BeApproximately(expected.Value, precision, because, becauseArgs);
+
+        public AndConstraint<DegreeColourComponentAssertions> BeApproximately(ColourPrimitive expected, ColourPrimitive precision = (ColourPrimitive)(float.Epsilon), string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .TestElementApprox(expected, nameof(expected), Subject.Value, precision);
+            return new AndConstraint<DegreeColourComponentAssertions>(this);
+        }
+    }
+    #endregion DegreeColourComponent assertions
+
+    //#region SRGBColour assertions
+    //public class SRGBColourAssertions : ReferenceTypeAssertions<SRGBColour, SRGBColourAssertions>
+    //{
+    //    public SRGBColourAssertions(SRGBColour value)
+    //    {
+    //        Subject = value;
+    //    }
+
+    //    protected override string Context => nameof(SRGBColour);
+
+    //    public AndConstraint<SRGBColourAssertions> Be(SRGBColour expected, string because = "", params object[] becauseArgs)
+    //    {
+    //        Execute.Assertion
+    //            .BecauseOf(because, becauseArgs)
+    //            .TestElement(expected.R, nameof(expected.R), Subject.R)
+    //            .TestElement(expected.G, nameof(expected.G), Subject.G)
+    //            .TestElement(expected.B, nameof(expected.B), Subject.B)
+    //            .TestElement(expected.A, nameof(expected.A), Subject.A);
+    //        return new AndConstraint<SRGBColourAssertions>(this);
+    //    }
+
+    //    public AndConstraint<SRGBColourAssertions> BeIgnoringAlpha(SRGBColour expected, string because = "", params object[] becauseArgs)
+    //    {
+    //        Execute.Assertion
+    //            .BecauseOf(because, becauseArgs)
+    //            .TestElement(expected.R, nameof(expected.R), Subject.R)
+    //            .TestElement(expected.G, nameof(expected.G), Subject.G)
+    //            .TestElement(expected.B, nameof(expected.B), Subject.B);
+    //        return new AndConstraint<SRGBColourAssertions>(this);
+    //    }
+    //}
+    //#endregion SRGBColour assertions
+
+    //#region HSVColour assertions
+    //public class HSVColourAssertions : ReferenceTypeAssertions<HSVColour, HSVColourAssertions>
+    //{
+    //    public HSVColourAssertions(HSVColour value)
+    //    {
+    //        Subject = value;
+    //    }
+
+    //    protected override string Context => nameof(HSVColour);
+
+    //    public AndConstraint<HSVColourAssertions> Be(HSVColour expected, string because = "", params object[] becauseArgs)
+    //    {
+    //        Execute.Assertion
+    //            .BecauseOf(because, becauseArgs)
+    //            .TestElement(expected.H, nameof(expected.H), Subject.H)
+    //            .TestElement(expected.S, nameof(expected.S), Subject.S)
+    //            .TestElement(expected.V, nameof(expected.V), Subject.V)
+    //            .TestElement(expected.A, nameof(expected.A), Subject.A);
+    //        return new AndConstraint<HSVColourAssertions>(this);
+    //    }
+
+    //    public AndConstraint<HSVColourAssertions> BeApproximately(HSVColour expected, ColourPrimitive precision = (ColourPrimitive)(float.Epsilon), string because = "", params object[] becauseArgs)
+    //    {
+    //        Execute.Assertion
+    //            .BecauseOf(because, becauseArgs)
+    //            .TestElementApprox(expected.H, nameof(expected.H), Subject.H, precision)
+    //            .TestElementApprox(expected.S, nameof(expected.S), Subject.S, precision)
+    //            .TestElementApprox(expected.V, nameof(expected.V), Subject.V, precision)
+    //            .TestElementApprox(expected.A, nameof(expected.A), Subject.A, precision);
+    //        return new AndConstraint<HSVColourAssertions>(this);
+    //    }
+
+    //    public AndConstraint<HSVColourAssertions> BeIgnoringAlpha(HSVColour expected, string because = "", params object[] becauseArgs)
+    //    {
+    //        Execute.Assertion
+    //            .BecauseOf(because, becauseArgs)
+    //            .TestElement(expected.H, nameof(expected.H), Subject.H)
+    //            .TestElement(expected.S, nameof(expected.S), Subject.S)
+    //            .TestElement(expected.V, nameof(expected.V), Subject.V);
+    //        return new AndConstraint<HSVColourAssertions>(this);
+    //    }
+
+    //    public AndConstraint<HSVColourAssertions> BeApproximatelyIgoringAlpha(HSVColour expected, ColourPrimitive precision = (ColourPrimitive)(float.Epsilon), string because = "", params object[] becauseArgs)
+    //    {
+    //        Execute.Assertion
+    //            .BecauseOf(because, becauseArgs)
+    //            .TestElementApprox(expected.H, nameof(expected.H), Subject.H, precision)
+    //            .TestElementApprox(expected.S, nameof(expected.S), Subject.S, precision)
+    //            .TestElementApprox(expected.V, nameof(expected.V), Subject.V, precision);
+    //        return new AndConstraint<HSVColourAssertions>(this);
+    //    }
+    //}
+    //#endregion HSVColour assertions
 
     internal static class ColourMatrix_Test_Extensions
     {
@@ -184,10 +286,18 @@ namespace HisRoyalRedness.com.Tests
             => new ColourMatrixAssertions(value);
         public static ColourVectorAssertions Should(this ColourVector value)
             => new ColourVectorAssertions(value);
-        public static SRGBColourAssertions Should(this SRGBColour value)
-            => new SRGBColourAssertions(value);
-        public static HSVColourAssertions Should(this HSVColour value)
-            => new HSVColourAssertions(value);
+
+        public static ByteColourComponentAssertions Should(this ByteColourComponent value)
+            => new ByteColourComponentAssertions(value);
+        public static UnitColourComponentAssertions Should(this UnitColourComponent value)
+            => new UnitColourComponentAssertions(value);
+        public static DegreeColourComponentAssertions Should(this DegreeColourComponent value)
+            => new DegreeColourComponentAssertions(value);
+
+        //public static SRGBColourAssertions Should(this SRGBColour value)
+        //    => new SRGBColourAssertions(value);
+        //public static HSVColourAssertions Should(this HSVColour value)
+        //    => new HSVColourAssertions(value);
 
         public static Continuation TestElement(this Continuation continuation, ColourPrimitive expected, string expectedName, ColourPrimitive actual)
             => continuation.Then.TestElement(expected, expectedName, actual);

@@ -1,0 +1,253 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+
+/*
+    A generated file, from a template, that fills out all the boring,
+    repeatetive stuff for each colour component type
+
+    Keith Fletcher
+    Jan 2018
+
+    This file is Unlicensed.
+    See the foot of the file, or refer to <http://unlicense.org>
+*/
+
+namespace HisRoyalRedness.com
+{
+#if COLOUR_SINGLE
+    using ColourPrimitive = Single;
+#else
+    using ColourPrimitive = Double;
+#endif
+
+<# 
+	// Dictionary of struct names and their base type
+	var componentTypes = new Dictionary<string, string>() 
+	{ 
+		{ "ByteColourComponent", "byte" },
+		{ "UnitColourComponent", "ColourPrimitive" },
+		{ "DegreeColourComponent", "ColourPrimitive" },
+	}; 
+	
+	foreach(var componentType in componentTypes.Keys)
+	{
+		var baseType = componentTypes[componentType];
+#>
+    #region <#=componentType#>
+    [DebuggerDisplay("{DisplayString}")]
+    public partial struct <#=componentType#>
+    {
+        public <#=componentType#>(int value)
+        {
+            _value = Clip(value);
+        }
+
+        public <#=componentType#>(float value)
+        {
+            _value = Clip(value);
+        }
+
+        public <#=componentType#>(double value)
+        {
+            _value = Clip(value);
+        }
+
+        #region Typed constants
+        const float MIN_FLOAT = (float)MIN_VAL;
+        const double MIN_DOUBLE = (double)MIN_VAL;
+        const int MIN_INT = (int)MIN_VAL;
+
+        const float MAX_FLOAT = (float)MAX_VAL;
+        const double MAX_DOUBLE = (double)MAX_VAL;
+        const int MAX_INT = (int)MAX_VAL;
+        #endregion Typed constants
+
+		#region Value clipping
+<#
+    if (componentType == "DegreeColourComponent")
+    {
+#>
+        static <#=baseType#> Clip(int value)
+        {
+            var newValue = (<#=baseType#>)value;
+            while(newValue >= MAX_VAL)
+                newValue -= MAX_VAL;
+            while(newValue < MIN_VAL)
+                newValue += MAX_VAL;
+            return newValue;
+        }
+
+        static <#=baseType#> Clip(float value)
+        {
+            var newValue = (<#=baseType#>)value;
+            while(newValue >= MAX_VAL)
+                newValue -= MAX_VAL;
+            while(newValue < MIN_VAL)
+                newValue += MAX_VAL;
+            return newValue;
+        }
+
+        static <#=baseType#> Clip(double value)
+        {
+            var newValue = (<#=baseType#>)value;
+            while(newValue >= MAX_VAL)
+                newValue -= MAX_VAL;
+            while(newValue < MIN_VAL)
+                newValue += MAX_VAL;
+            return newValue;
+        }
+<#
+    }
+    else
+    {
+#>
+        static <#=baseType#> Clip(float value)
+            => value > MAX_FLOAT
+                ? MAX_VAL
+                : (value < MIN_FLOAT
+                    ? MIN_VAL
+                    : (<#=baseType#>)value);
+
+        static <#=baseType#> Clip(double value)
+            => value > MAX_DOUBLE
+                ? MAX_VAL
+                : (value < MIN_DOUBLE
+                    ? MIN_VAL
+                    : (<#=baseType#>)value);
+
+        static <#=baseType#> Clip(int value)
+            => value > MAX_INT
+                ? MAX_VAL
+                : (value < MIN_INT
+                    ? MIN_VAL
+                    : (<#=baseType#>)value);
+<#
+    }
+#>
+        #endregion Value clipping
+
+        public static <#=baseType#> MinValue => MIN_VAL;
+        public static <#=baseType#> MaxValue => MAX_VAL;
+
+        public <#=baseType#> Value => _value;
+        readonly <#=baseType#> _value;
+
+        public override string ToString() => _value.ToString();
+
+        public static implicit operator <#=baseType#>(<#=componentType#> component) => component.Value;
+        public static implicit operator <#=componentType#>(<#=baseType#> value) => new <#=componentType#>(value);
+
+        #region Add and subtract
+<#
+    if (componentType == "ByteColourComponent")
+    {
+#>
+        public static <#=componentType#> operator +(<#=componentType#> a, <#=componentType#> b)
+            => new <#=componentType#>((int)a.Value + (int)b.Value);
+        public static <#=componentType#> operator +(<#=componentType#> a, int b)
+            => new <#=componentType#>((int)a.Value + b);
+        public static <#=componentType#> operator +(<#=componentType#> a, float b)
+            => new <#=componentType#>((float)a.Value + b);
+        public static <#=componentType#> operator +(<#=componentType#> a, double b)
+            => new <#=componentType#>((double)a.Value + b);
+        public static <#=componentType#> operator +(int a, <#=componentType#> b)
+            => new <#=componentType#>(a + (int)b.Value);
+        public static <#=componentType#> operator +(float a, <#=componentType#> b)
+            => new <#=componentType#>(a + (float)b.Value);
+        public static <#=componentType#> operator +(double a, <#=componentType#> b)
+            => new <#=componentType#>(a + (double)b.Value);
+
+        public static <#=componentType#> operator -(<#=componentType#> a, <#=componentType#> b)
+            => new <#=componentType#>(a.Value - b.Value);
+        public static <#=componentType#> operator -(<#=componentType#> a, int b)
+            => new <#=componentType#>((int)a.Value - b);
+        public static <#=componentType#> operator -(<#=componentType#> a, float b)
+            => new <#=componentType#>((float)a.Value - b);
+        public static <#=componentType#> operator -(<#=componentType#> a, double b)
+            => new <#=componentType#>((double)a.Value - b);
+        public static <#=componentType#> operator -(int a, <#=componentType#> b)
+            => new <#=componentType#>(a - (int)b.Value);
+        public static <#=componentType#> operator -(float a, <#=componentType#> b)
+            => new <#=componentType#>(a - (float)b.Value);
+        public static <#=componentType#> operator -(double a, <#=componentType#> b)
+            => new <#=componentType#>(a - (double)b.Value);
+<#
+    }
+    else
+    {
+#>
+        public static <#=componentType#> operator +(<#=componentType#> a, <#=componentType#> b)
+            => new <#=componentType#>(a.Value + b.Value);
+        public static <#=componentType#> operator +(<#=componentType#> a, int b)
+            => new <#=componentType#>(a.Value + (<#=baseType#>)b);
+        public static <#=componentType#> operator +(<#=componentType#> a, float b)
+            => new <#=componentType#>(a.Value + (<#=baseType#>)b);
+        public static <#=componentType#> operator +(<#=componentType#> a, double b)
+            => new <#=componentType#>(a.Value + (<#=baseType#>)b);
+        public static <#=componentType#> operator +(int a, <#=componentType#> b)
+            => new <#=componentType#>((<#=baseType#>)a + b.Value);
+        public static <#=componentType#> operator +(float a, <#=componentType#> b)
+            => new <#=componentType#>((<#=baseType#>)a + b.Value);
+        public static <#=componentType#> operator +(double a, <#=componentType#> b)
+            => new <#=componentType#>((<#=baseType#>)a + b.Value);
+
+        public static <#=componentType#> operator -(<#=componentType#> a, <#=componentType#> b)
+            => new <#=componentType#>(a.Value - b.Value);
+        public static <#=componentType#> operator -(<#=componentType#> a, int b)
+            => new <#=componentType#>(a.Value - (<#=baseType#>)b);
+        public static <#=componentType#> operator -(<#=componentType#> a, float b)
+            => new <#=componentType#>(a.Value - (<#=baseType#>)b);
+        public static <#=componentType#> operator -(<#=componentType#> a, double b)
+            => new <#=componentType#>(a.Value - (<#=baseType#>)b);
+        public static <#=componentType#> operator -(int a, <#=componentType#> b)
+            => new <#=componentType#>((<#=baseType#>)a - b.Value);
+        public static <#=componentType#> operator -(float a, <#=componentType#> b)
+            => new <#=componentType#>((<#=baseType#>)a - b.Value);
+        public static <#=componentType#> operator -(double a, <#=componentType#> b)
+            => new <#=componentType#>((<#=baseType#>)a - b.Value);
+<#
+    }
+#>
+        #endregion Add and subtract
+    }
+    #endregion <#=componentType#>
+
+<#
+	}
+#>
+}
+
+/*
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/

@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CircularBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Colour\ColourComponents_Templated.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\ColourConversions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\ColourComponents.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\ColourConstants.cs" />
@@ -24,6 +25,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Colour\sRGB.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)ColourComponent_Template.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)README.md" />
   </ItemGroup>
 </Project>
