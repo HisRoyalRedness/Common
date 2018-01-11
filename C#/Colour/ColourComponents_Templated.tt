@@ -11,7 +11,7 @@ using System.Text;
 
 /*
     A generated file, from a template, that fills out all the boring,
-    repeatetive stuff for each colour component type
+    repetitive stuff for each colour component type
 
     Keith Fletcher
     Jan 2018
@@ -28,111 +28,124 @@ namespace HisRoyalRedness.com
     using ColourPrimitive = Double;
 #endif
 
-<# 
+<#
 	// Dictionary of struct names and their base type
-	var componentTypes = new Dictionary<string, string>() 
-	{ 
+	var componentTypes = new Dictionary<string, string>()
+	{
 		{ "ByteColourComponent", "byte" },
 		{ "UnitColourComponent", "ColourPrimitive" },
 		{ "DegreeColourComponent", "ColourPrimitive" },
-	}; 
-	
+	};
+
+    // Types that wrap values outside of the allowed range, rather than clip then
+    var wrappingTypes = new HashSet<string>(new [] { "DegreeColourComponent" });
+
+    // Type to overload various methods with
+    var overloadTypes = new [] { "int", "float", "double"};
+
 	foreach(var componentType in componentTypes.Keys)
 	{
 		var baseType = componentTypes[componentType];
 #>
     #region <#=componentType#>
     [DebuggerDisplay("{DisplayString}")]
-    public partial struct <#=componentType#>
+    public partial struct <#=componentType#> : IEquatable<<#=componentType#>>, IComparable, IComparable<<#=componentType#>>
     {
-        public <#=componentType#>(int value)
+        #region Constructors
+<#  foreach(var overloadType in overloadTypes)
+    {
+        if (overloadType != baseType)
         {
-            _value = Clip(value);
-        }
-
-        public <#=componentType#>(float value)
+#>
+        public <#=componentType#>(<#=overloadType#> value)
         {
-            _value = Clip(value);
-        }
-
-        public <#=componentType#>(double value)
-        {
-            _value = Clip(value);
-        }
-
-        #region Typed constants
-        const float MIN_FLOAT = (float)MIN_VAL;
-        const double MIN_DOUBLE = (double)MIN_VAL;
-        const int MIN_INT = (int)MIN_VAL;
-
-        const float MAX_FLOAT = (float)MAX_VAL;
-        const double MAX_DOUBLE = (double)MAX_VAL;
-        const int MAX_INT = (int)MAX_VAL;
-        #endregion Typed constants
-
-		#region Value clipping
 <#
-    if (componentType == "DegreeColourComponent")
+    if (wrappingTypes.Contains(componentType))
     {
 #>
-        static <#=baseType#> Clip(int value)
-        {
-            var newValue = (<#=baseType#>)value;
-            while(newValue >= MAX_VAL)
-                newValue -= MAX_VAL;
-            while(newValue < MIN_VAL)
-                newValue += MAX_VAL;
-            return newValue;
-        }
-
-        static <#=baseType#> Clip(float value)
-        {
-            var newValue = (<#=baseType#>)value;
-            while(newValue >= MAX_VAL)
-                newValue -= MAX_VAL;
-            while(newValue < MIN_VAL)
-                newValue += MAX_VAL;
-            return newValue;
-        }
-
-        static <#=baseType#> Clip(double value)
-        {
-            var newValue = (<#=baseType#>)value;
-            while(newValue >= MAX_VAL)
-                newValue -= MAX_VAL;
-            while(newValue < MIN_VAL)
-                newValue += MAX_VAL;
-            return newValue;
-        }
+            _value = Wrap(value);
 <#
     }
     else
     {
 #>
-        static <#=baseType#> Clip(float value)
-            => value > MAX_FLOAT
-                ? MAX_VAL
-                : (value < MIN_FLOAT
-                    ? MIN_VAL
-                    : (<#=baseType#>)value);
-
-        static <#=baseType#> Clip(double value)
-            => value > MAX_DOUBLE
-                ? MAX_VAL
-                : (value < MIN_DOUBLE
-                    ? MIN_VAL
-                    : (<#=baseType#>)value);
-
-        static <#=baseType#> Clip(int value)
-            => value > MAX_INT
-                ? MAX_VAL
-                : (value < MIN_INT
-                    ? MIN_VAL
-                    : (<#=baseType#>)value);
+            _value = Clip(value);
 <#
     }
 #>
+        }
+
+<#
+        }
+    }
+#>
+        #endregion Constructors
+
+        #region Typed constants
+<#  foreach(var overloadType in overloadTypes)
+    {
+        if (overloadType != baseType)
+        {
+#>
+        const <#=overloadType#> MIN_<#=overloadType.ToUpper()#> = (<#=overloadType#>)MIN_VAL;
+        const <#=overloadType#> MAX_<#=overloadType.ToUpper()#> = (<#=overloadType#>)MAX_VAL;
+<#
+        }
+    }
+#>
+        #endregion Typed constants
+
+<#
+    if (wrappingTypes.Contains(componentType))
+    {
+#>
+		#region Value wrapping
+<#  foreach(var overloadType in overloadTypes)
+    {
+        if (overloadType != baseType)
+        {
+#>
+        static <#=baseType#> Wrap(<#=overloadType#> value)
+        {
+            var newValue = (<#=baseType#>)value;
+            while(newValue >= MAX_VAL)
+                newValue -= MAX_VAL;
+            while(newValue < MIN_VAL)
+                newValue += MAX_VAL;
+            return newValue;
+        }
+
+<#
+        }
+    }
+#>
+        #endregion Value wrapping
+<#
+    }
+    else
+    {
+#>
+        #region Value clipping
+<#  foreach(var overloadType in overloadTypes)
+    {
+        if (overloadType != baseType)
+        {
+#>
+        static <#=baseType#> Clip(<#=overloadType#> value)
+            => value > MAX_<#=overloadType.ToUpper()#>
+                ? MAX_VAL
+                : (value < MIN_<#=overloadType.ToUpper()#>
+                    ? MIN_VAL
+                    : (<#=baseType#>)value);
+
+<#
+        }
+    }
+#>
         #endregion Value clipping
+<#
+    }
+#>
 
         public static <#=baseType#> MinValue => MIN_VAL;
         public static <#=baseType#> MaxValue => MAX_VAL;
@@ -140,10 +153,27 @@ namespace HisRoyalRedness.com
         public <#=baseType#> Value => _value;
         readonly <#=baseType#> _value;
 
+        /// <summary>
+        /// Determines whether values outside the range of <see cref="<#=componentType#>"></see> are
+        /// clipped to either the minimum or maximum value, or whether they wrap around.
+        /// </summary>
+        public static bool IsWrappingValue => <#= wrappingTypes.Contains(componentType) ? "true" : "false" #>;
+
         public override string ToString() => _value.ToString();
 
+        #region Implicit casts
         public static implicit operator <#=baseType#>(<#=componentType#> component) => component.Value;
-        public static implicit operator <#=componentType#>(<#=baseType#> value) => new <#=componentType#>(value);
+<#  foreach(var overloadType in overloadTypes)
+    {
+        if (overloadType != baseType)
+        {
+#>
+        public static implicit operator <#=componentType#>(<#=overloadType#> value) => new <#=componentType#>(value);
+<#
+        }
+    }
+#>
+        #endregion Implicit casts
 
         #region Add and subtract
 <#
@@ -152,33 +182,8 @@ namespace HisRoyalRedness.com
 #>
         public static <#=componentType#> operator +(<#=componentType#> a, <#=componentType#> b)
             => new <#=componentType#>((int)a.Value + (int)b.Value);
-        public static <#=componentType#> operator +(<#=componentType#> a, int b)
-            => new <#=componentType#>((int)a.Value + b);
-        public static <#=componentType#> operator +(<#=componentType#> a, float b)
-            => new <#=componentType#>((float)a.Value + b);
-        public static <#=componentType#> operator +(<#=componentType#> a, double b)
-            => new <#=componentType#>((double)a.Value + b);
-        public static <#=componentType#> operator +(int a, <#=componentType#> b)
-            => new <#=componentType#>(a + (int)b.Value);
-        public static <#=componentType#> operator +(float a, <#=componentType#> b)
-            => new <#=componentType#>(a + (float)b.Value);
-        public static <#=componentType#> operator +(double a, <#=componentType#> b)
-            => new <#=componentType#>(a + (double)b.Value);
-
         public static <#=componentType#> operator -(<#=componentType#> a, <#=componentType#> b)
-            => new <#=componentType#>(a.Value - b.Value);
-        public static <#=componentType#> operator -(<#=componentType#> a, int b)
-            => new <#=componentType#>((int)a.Value - b);
-        public static <#=componentType#> operator -(<#=componentType#> a, float b)
-            => new <#=componentType#>((float)a.Value - b);
-        public static <#=componentType#> operator -(<#=componentType#> a, double b)
-            => new <#=componentType#>((double)a.Value - b);
-        public static <#=componentType#> operator -(int a, <#=componentType#> b)
-            => new <#=componentType#>(a - (int)b.Value);
-        public static <#=componentType#> operator -(float a, <#=componentType#> b)
-            => new <#=componentType#>(a - (float)b.Value);
-        public static <#=componentType#> operator -(double a, <#=componentType#> b)
-            => new <#=componentType#>(a - (double)b.Value);
+            => new <#=componentType#>((int)a.Value - (int)b.Value);
 <#
     }
     else
@@ -186,37 +191,46 @@ namespace HisRoyalRedness.com
 #>
         public static <#=componentType#> operator +(<#=componentType#> a, <#=componentType#> b)
             => new <#=componentType#>(a.Value + b.Value);
-        public static <#=componentType#> operator +(<#=componentType#> a, int b)
-            => new <#=componentType#>(a.Value + (<#=baseType#>)b);
-        public static <#=componentType#> operator +(<#=componentType#> a, float b)
-            => new <#=componentType#>(a.Value + (<#=baseType#>)b);
-        public static <#=componentType#> operator +(<#=componentType#> a, double b)
-            => new <#=componentType#>(a.Value + (<#=baseType#>)b);
-        public static <#=componentType#> operator +(int a, <#=componentType#> b)
-            => new <#=componentType#>((<#=baseType#>)a + b.Value);
-        public static <#=componentType#> operator +(float a, <#=componentType#> b)
-            => new <#=componentType#>((<#=baseType#>)a + b.Value);
-        public static <#=componentType#> operator +(double a, <#=componentType#> b)
-            => new <#=componentType#>((<#=baseType#>)a + b.Value);
-
         public static <#=componentType#> operator -(<#=componentType#> a, <#=componentType#> b)
             => new <#=componentType#>(a.Value - b.Value);
-        public static <#=componentType#> operator -(<#=componentType#> a, int b)
-            => new <#=componentType#>(a.Value - (<#=baseType#>)b);
-        public static <#=componentType#> operator -(<#=componentType#> a, float b)
-            => new <#=componentType#>(a.Value - (<#=baseType#>)b);
-        public static <#=componentType#> operator -(<#=componentType#> a, double b)
-            => new <#=componentType#>(a.Value - (<#=baseType#>)b);
-        public static <#=componentType#> operator -(int a, <#=componentType#> b)
-            => new <#=componentType#>((<#=baseType#>)a - b.Value);
-        public static <#=componentType#> operator -(float a, <#=componentType#> b)
-            => new <#=componentType#>((<#=baseType#>)a - b.Value);
-        public static <#=componentType#> operator -(double a, <#=componentType#> b)
-            => new <#=componentType#>((<#=baseType#>)a - b.Value);
 <#
     }
 #>
         #endregion Add and subtract
+
+        #region IEquality
+        public bool Equals(<#=componentType#> other) => Value == other.Value;
+        public override bool Equals(object obj) => obj is <#=componentType#> && this == (<#=componentType#>)obj;
+
+        public override int GetHashCode() => Value.GetHashCode();
+
+        public static bool operator ==(<#=componentType#> a, <#=componentType#> b) => a.Value == b.Value;
+        public static bool operator !=(<#=componentType#> a, <#=componentType#> b) => !(a.Value == b.Value);
+        #endregion IEquality
+
+        #region Comparison
+        public static int Compare(<#=componentType#> left, <#=componentType#> right)
+            => left.Value > right.Value
+                ? 1
+                : (left.Value < right.Value
+                    ? -1
+                    : 0);
+
+        public int CompareTo(object obj)
+        {
+            if (obj == null)
+                return 1;
+            if (!(obj is <#=componentType#>))
+                throw new ArgumentException("Object must be of type <#=componentType#>.");
+            return Compare(this, (<#=componentType#>)obj);}
+
+        public int CompareTo(<#=componentType#> other) => Compare(this, other.Value);
+
+        public static bool operator <(<#=componentType#> left, <#=componentType#> right) => Compare(left, right.Value) < 0;
+        public static bool operator <=(<#=componentType#> left, <#=componentType#> right) => Compare(left, right.Value) <= 0;
+        public static bool operator >(<#=componentType#> left, <#=componentType#> right) => Compare(left, right.Value) > 0;
+        public static bool operator >=(<#=componentType#> left, <#=componentType#> right) => Compare(left, right.Value) >= 0;
+        #endregion Comparison
     }
     #endregion <#=componentType#>
 

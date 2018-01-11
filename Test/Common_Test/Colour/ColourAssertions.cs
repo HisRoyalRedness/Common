@@ -193,38 +193,38 @@ namespace HisRoyalRedness.com.Tests
     }
     #endregion DegreeColourComponent assertions
 
-    //#region SRGBColour assertions
-    //public class SRGBColourAssertions : ReferenceTypeAssertions<SRGBColour, SRGBColourAssertions>
-    //{
-    //    public SRGBColourAssertions(SRGBColour value)
-    //    {
-    //        Subject = value;
-    //    }
+    #region SRGBColour assertions
+    public class SRGBColourAssertions : ReferenceTypeAssertions<SRGBColour, SRGBColourAssertions>
+    {
+        public SRGBColourAssertions(SRGBColour value)
+        {
+            Subject = value;
+        }
 
-    //    protected override string Context => nameof(SRGBColour);
+        protected override string Context => nameof(SRGBColour);
 
-    //    public AndConstraint<SRGBColourAssertions> Be(SRGBColour expected, string because = "", params object[] becauseArgs)
-    //    {
-    //        Execute.Assertion
-    //            .BecauseOf(because, becauseArgs)
-    //            .TestElement(expected.R, nameof(expected.R), Subject.R)
-    //            .TestElement(expected.G, nameof(expected.G), Subject.G)
-    //            .TestElement(expected.B, nameof(expected.B), Subject.B)
-    //            .TestElement(expected.A, nameof(expected.A), Subject.A);
-    //        return new AndConstraint<SRGBColourAssertions>(this);
-    //    }
+        public AndConstraint<SRGBColourAssertions> Be(SRGBColour expected, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .TestElement(expected.R, nameof(expected.R), Subject.R)
+                .TestElement(expected.G, nameof(expected.G), Subject.G)
+                .TestElement(expected.B, nameof(expected.B), Subject.B)
+                .TestElement(expected.A, nameof(expected.A), Subject.A);
+            return new AndConstraint<SRGBColourAssertions>(this);
+        }
 
-    //    public AndConstraint<SRGBColourAssertions> BeIgnoringAlpha(SRGBColour expected, string because = "", params object[] becauseArgs)
-    //    {
-    //        Execute.Assertion
-    //            .BecauseOf(because, becauseArgs)
-    //            .TestElement(expected.R, nameof(expected.R), Subject.R)
-    //            .TestElement(expected.G, nameof(expected.G), Subject.G)
-    //            .TestElement(expected.B, nameof(expected.B), Subject.B);
-    //        return new AndConstraint<SRGBColourAssertions>(this);
-    //    }
-    //}
-    //#endregion SRGBColour assertions
+        public AndConstraint<SRGBColourAssertions> BeIgnoringAlpha(SRGBColour expected, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .TestElement(expected.R, nameof(expected.R), Subject.R)
+                .TestElement(expected.G, nameof(expected.G), Subject.G)
+                .TestElement(expected.B, nameof(expected.B), Subject.B);
+            return new AndConstraint<SRGBColourAssertions>(this);
+        }
+    }
+    #endregion SRGBColour assertions
 
     //#region HSVColour assertions
     //public class HSVColourAssertions : ReferenceTypeAssertions<HSVColour, HSVColourAssertions>
@@ -294,8 +294,8 @@ namespace HisRoyalRedness.com.Tests
         public static DegreeColourComponentAssertions Should(this DegreeColourComponent value)
             => new DegreeColourComponentAssertions(value);
 
-        //public static SRGBColourAssertions Should(this SRGBColour value)
-        //    => new SRGBColourAssertions(value);
+        public static SRGBColourAssertions Should(this SRGBColour value)
+            => new SRGBColourAssertions(value);
         //public static HSVColourAssertions Should(this HSVColour value)
         //    => new HSVColourAssertions(value);
 

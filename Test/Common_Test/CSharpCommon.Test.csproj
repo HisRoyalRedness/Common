@@ -116,10 +116,15 @@
   <ItemGroup>
     <Compile Include="CIEXYZ_Test.cs" />
     <Compile Include="CircularBuffer_Test.cs" />
-    <Compile Include="Colour\ByteColourComponent_Test.cs" />
+    <Compile Include="Colour\ColourComponents\ByteColourComponent_Test.cs" />
     <Compile Include="Colour\ColourAssertions.cs" />
+    <Compile Include="Colour\ColourComponents\ColourComponent_Test_Template.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ColourComponent_Test_Template.tt</DependentUpon>
+    </Compile>
     <Compile Include="Colour\ColourMatrix_Test.cs" />
-    <Compile Include="Colour\DegreeColourComponent_Test.cs" />
+    <Compile Include="Colour\ColourComponents\DegreeColourComponent_Test.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FragmentBuffer_Test.cs" />
     <Compile Include="NotifyBase_Tests.cs" />
@@ -127,10 +132,20 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Colour\ColourVector_Test.cs" />
     <Compile Include="Colour\ColourConversion_Test.cs" />
-    <Compile Include="Colour\UnitColourComponent_Test.cs" />
+    <Compile Include="Colour\ColourComponents\UnitColourComponent_Test.cs" />
+    <Compile Include="Colour\SRGBColour_Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Colour\ColourComponents\ColourComponent_Test_Template.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ColourComponent_Test_Template.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

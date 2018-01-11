@@ -24,26 +24,28 @@ namespace HisRoyalRedness.com
 #endif
 
     #region ByteColourComponent
-    public partial struct ByteColourComponent
+    public partial struct ByteColourComponent : IComparable, IComparable<ByteColourComponent>
     {
         public ByteColourComponent(byte value)
         {
             _value = value;
         }
 
-        const byte MIN_VAL = ColourSpaceConstants.BYTECOLOURCOMPONENT_MIN_VALUE;
-        const byte MAX_VAL = ColourSpaceConstants.BYTECOLOURCOMPONENT_MAX_VALUE;
+        internal const byte MIN_VAL = 0;
+        internal const byte MAX_VAL = 255;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         string DisplayString => $"{_value}";
+
+        public static implicit operator ByteColourComponent(byte value) => new ByteColourComponent(value);
     }
     #endregion ByteColourComponent
 
     #region UnitColourComponent
     public partial struct UnitColourComponent
     {
-        const ColourPrimitive MIN_VAL = ColourSpaceConstants.UNITCOLOURCOMPONENT_MIN_VALUE;
-        const ColourPrimitive MAX_VAL = ColourSpaceConstants.UNITCOLOURCOMPONENT_MAX_VALUE;
+        internal const ColourPrimitive MIN_VAL = 0;
+        internal const ColourPrimitive MAX_VAL = 1.0;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         string DisplayString => $"{_value:0.000}";
@@ -53,8 +55,8 @@ namespace HisRoyalRedness.com
     #region DegreeColourComponent
     public partial struct DegreeColourComponent
     {
-        const ColourPrimitive MIN_VAL = ColourSpaceConstants.DEGREECOLOURCOMPONENT_MIN_VALUE;
-        const ColourPrimitive MAX_VAL = ColourSpaceConstants.DEGREECOLOURCOMPONENT_MAX_VALUE;
+        internal const ColourPrimitive MIN_VAL = 0;
+        internal const ColourPrimitive MAX_VAL = 360.0;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         string DisplayString => $"{_value:0.0}°";
@@ -63,11 +65,11 @@ namespace HisRoyalRedness.com
 
     public static class ComponentConversionExtensions
     {
-        public static ByteColourComponent ToByteColour(this UnitColourComponent colourComp) => new ByteColourComponent(colourComp.Value * (ColourPrimitive)ColourSpaceConstants.BYTECOLOURCOMPONENT_MAX_VALUE);
-        public static UnitColourComponent ToUnitColour(this ByteColourComponent colourComp) => new UnitColourComponent((ColourPrimitive)colourComp.Value / (ColourPrimitive)ColourSpaceConstants.BYTECOLOURCOMPONENT_MAX_VALUE);
+        public static ByteColourComponent ToByteColour(this UnitColourComponent colourComp) => new ByteColourComponent(colourComp.Value * (ColourPrimitive)ByteColourComponent.MaxValue);
+        public static UnitColourComponent ToUnitColour(this ByteColourComponent colourComp) => new UnitColourComponent((ColourPrimitive)colourComp.Value / (ColourPrimitive)ByteColourComponent.MaxValue);
 
-        public static DegreeColourComponent ToDegreeColour(this UnitColourComponent unit) => new DegreeColourComponent(unit.Value * ColourSpaceConstants.DEGREECOLOURCOMPONENT_MAX_VALUE);
-        public static UnitColourComponent ToUnitColour(this DegreeColourComponent colourComp) => new UnitColourComponent(colourComp.Value / ColourSpaceConstants.DEGREECOLOURCOMPONENT_MAX_VALUE);
+        public static DegreeColourComponent ToDegreeColour(this UnitColourComponent unit) => new DegreeColourComponent(unit.Value * DegreeColourComponent.MaxValue);
+        public static UnitColourComponent ToUnitColour(this DegreeColourComponent colourComp) => new UnitColourComponent(colourComp.Value / DegreeColourComponent.MaxValue);
     }
 }
 

@@ -25,9 +25,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Colour\sRGB.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)ColourComponent_Template.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
     <None Include="$(MSBuildThisFileDirectory)README.md" />
   </ItemGroup>
 </Project>

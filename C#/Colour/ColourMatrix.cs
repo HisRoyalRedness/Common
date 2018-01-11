@@ -28,48 +28,67 @@ namespace HisRoyalRedness.com
             float m11, float m12, float m13,
             float m21, float m22, float m23,
             float m31, float m32, float m33)
-            : this(
-                  (ColourPrimitive)m11, (ColourPrimitive)m12, (ColourPrimitive)m13,
-                  (ColourPrimitive)m21, (ColourPrimitive)m22, (ColourPrimitive)m23,
-                  (ColourPrimitive)m31, (ColourPrimitive)m32, (ColourPrimitive)m33,
-                  false)
-        { }
+        {
+            M11 = (ColourPrimitive)m11; M12 = (ColourPrimitive)m12; M13 = (ColourPrimitive)m13;
+            M21 = (ColourPrimitive)m21; M22 = (ColourPrimitive)m22; M23 = (ColourPrimitive)m23;
+            M31 = (ColourPrimitive)m31; M32 = (ColourPrimitive)m32; M33 = (ColourPrimitive)m33;
+
+            _determinant = new Lazy<ColourPrimitive>(() =>
+                (ColourPrimitive)m11 * (ColourPrimitive)m22 * (ColourPrimitive)m33 +
+                (ColourPrimitive)m12 * (ColourPrimitive)m23 * (ColourPrimitive)m31 +
+                (ColourPrimitive)m13 * (ColourPrimitive)m21 * (ColourPrimitive)m32 -
+                (ColourPrimitive)m31 * (ColourPrimitive)m22 * (ColourPrimitive)m13 -
+                (ColourPrimitive)m32 * (ColourPrimitive)m23 * (ColourPrimitive)m11 -
+                (ColourPrimitive)m33 * (ColourPrimitive)m21 * (ColourPrimitive)m12);
+            _inverse = new Lazy<ColourMatrix>(() =>
+            {
+                // https://en.wikipedia.org/wiki/Invertible_matrix#Inversion_of_3_%C3%97_3_matrices
+                var A = ((ColourPrimitive)m22 * (ColourPrimitive)m33 - (ColourPrimitive)m23 * (ColourPrimitive)m32);
+                var B = ((ColourPrimitive)m23 * (ColourPrimitive)m31 - (ColourPrimitive)m21 * (ColourPrimitive)m33);
+                var C = ((ColourPrimitive)m21 * (ColourPrimitive)m32 - (ColourPrimitive)m22 * (ColourPrimitive)m31);
+                var D = ((ColourPrimitive)m13 * (ColourPrimitive)m32 - (ColourPrimitive)m12 * (ColourPrimitive)m33);
+                var E = ((ColourPrimitive)m11 * (ColourPrimitive)m33 - (ColourPrimitive)m13 * (ColourPrimitive)m31);
+                var F = ((ColourPrimitive)m12 * (ColourPrimitive)m31 - (ColourPrimitive)m11 * (ColourPrimitive)m32);
+                var G = ((ColourPrimitive)m12 * (ColourPrimitive)m23 - (ColourPrimitive)m13 * (ColourPrimitive)m22);
+                var H = ((ColourPrimitive)m13 * (ColourPrimitive)m21 - (ColourPrimitive)m11 * (ColourPrimitive)m23);
+                var I = ((ColourPrimitive)m11 * (ColourPrimitive)m22 - (ColourPrimitive)m12 * (ColourPrimitive)m21);
+                var det = (ColourPrimitive)m11 * A + (ColourPrimitive)m12 * B + (ColourPrimitive)m13 * C; // Rule of Sarrus
+                return new ColourMatrix(
+                  A / det, D / det, G / det,
+                  B / det, E / det, H / det,
+                  C / det, F / det, I / det);
+            });
+        }
 
         public ColourMatrix(
             double m11, double m12, double m13,
             double m21, double m22, double m23,
             double m31, double m32, double m33)
-            : this(
-                  (ColourPrimitive)m11, (ColourPrimitive)m12, (ColourPrimitive)m13,
-                  (ColourPrimitive)m21, (ColourPrimitive)m22, (ColourPrimitive)m23,
-                  (ColourPrimitive)m31, (ColourPrimitive)m32, (ColourPrimitive)m33,
-                  false)
-        { }
-
-        ColourMatrix(
-            ColourPrimitive m11, ColourPrimitive m12, ColourPrimitive m13,
-            ColourPrimitive m21, ColourPrimitive m22, ColourPrimitive m23,
-            ColourPrimitive m31, ColourPrimitive m32, ColourPrimitive m33,
-            bool dummy)
         {
-            M11 = m11; M12 = m12; M13 = m13;
-            M21 = m21; M22 = m22; M23 = m23;
-            M31 = m31; M32 = m32; M33 = m33;
+            M11 = (ColourPrimitive)m11; M12 = (ColourPrimitive)m12; M13 = (ColourPrimitive)m13;
+            M21 = (ColourPrimitive)m21; M22 = (ColourPrimitive)m22; M23 = (ColourPrimitive)m23;
+            M31 = (ColourPrimitive)m31; M32 = (ColourPrimitive)m32; M33 = (ColourPrimitive)m33;
 
-            _determinant = new Lazy<ColourPrimitive>(() => m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32 - m31 * m22 * m13 - m32 * m23 * m11 - m33 * m21 * m12);
+            _determinant = new Lazy<ColourPrimitive>(() =>
+                (ColourPrimitive)m11 * (ColourPrimitive)m22 * (ColourPrimitive)m33 +
+                (ColourPrimitive)m12 * (ColourPrimitive)m23 * (ColourPrimitive)m31 +
+                (ColourPrimitive)m13 * (ColourPrimitive)m21 * (ColourPrimitive)m32 -
+                (ColourPrimitive)m31 * (ColourPrimitive)m22 * (ColourPrimitive)m13 -
+                (ColourPrimitive)m32 * (ColourPrimitive)m23 * (ColourPrimitive)m11 -
+                (ColourPrimitive)m33 * (ColourPrimitive)m21 * (ColourPrimitive)m12);
             _inverse = new Lazy<ColourMatrix>(() =>
             {
                 // https://en.wikipedia.org/wiki/Invertible_matrix#Inversion_of_3_%C3%97_3_matrices
-                var A = (m22 * m33 - m23 * m32);
-                var B = (m23 * m31 - m21 * m33);
-                var C = (m21 * m32 - m22 * m31);
-                var D = (m13 * m32 - m12 * m33);
-                var E = (m11 * m33 - m13 * m31);
-                var F = (m12 * m31 - m11 * m32);
-                var G = (m12 * m23 - m13 * m22);
-                var H = (m13 * m21 - m11 * m23);
-                var I = (m11 * m22 - m12 * m21);
-                var det = m11 * A + m12 * B + m13 * C; // Rule of Sarrus
+                var A = ((ColourPrimitive)m22 * (ColourPrimitive)m33 - (ColourPrimitive)m23 * (ColourPrimitive)m32);
+                var B = ((ColourPrimitive)m23 * (ColourPrimitive)m31 - (ColourPrimitive)m21 * (ColourPrimitive)m33);
+                var C = ((ColourPrimitive)m21 * (ColourPrimitive)m32 - (ColourPrimitive)m22 * (ColourPrimitive)m31);
+                var D = ((ColourPrimitive)m13 * (ColourPrimitive)m32 - (ColourPrimitive)m12 * (ColourPrimitive)m33);
+                var E = ((ColourPrimitive)m11 * (ColourPrimitive)m33 - (ColourPrimitive)m13 * (ColourPrimitive)m31);
+                var F = ((ColourPrimitive)m12 * (ColourPrimitive)m31 - (ColourPrimitive)m11 * (ColourPrimitive)m32);
+                var G = ((ColourPrimitive)m12 * (ColourPrimitive)m23 - (ColourPrimitive)m13 * (ColourPrimitive)m22);
+                var H = ((ColourPrimitive)m13 * (ColourPrimitive)m21 - (ColourPrimitive)m11 * (ColourPrimitive)m23);
+                var I = ((ColourPrimitive)m11 * (ColourPrimitive)m22 - (ColourPrimitive)m12 * (ColourPrimitive)m21);
+                var det = (ColourPrimitive)m11 * A + (ColourPrimitive)m12 * B + (ColourPrimitive)m13 * C; // Rule of Sarrus
                 return new ColourMatrix(
                   A / det, D / det, G / det,
                   B / det, E / det, H / det,
@@ -87,13 +106,7 @@ namespace HisRoyalRedness.com
         public ColourPrimitive M32 { get; private set; }
         public ColourPrimitive M33 { get; private set; }
 
-        //public static CIEXYZColour operator *(ColourMatrix m, CIEXYZColour v)
-        //    => new CIEXYZColour(
-        //        m.M11 * v.X + m.M12 * v.Y + m.M13 * v.Z,
-        //        m.M21 * v.X + m.M22 * v.Y + m.M23 * v.Z,
-        //        m.M31 * v.X + m.M32 * v.Y + m.M33 * v.Z,
-        //        v.IsLimited);
-
+        #region Multiply, divide
         public static ColourVector operator *(ColourMatrix m, ColourVector v)
             => new ColourVector(
                 m.M11 * v.X + m.M12 * v.Y + m.M13 * v.Z,
@@ -123,6 +136,7 @@ namespace HisRoyalRedness.com
 
         public static ColourMatrix operator /(ColourMatrix m, double value)
             => m * ((ColourPrimitive)1.0 / (ColourPrimitive)value);
+        #endregion Multiply, divide
 
         public ColourPrimitive Determinant => _determinant.Value;
         public ColourMatrix Inverse => _inverse.Value;

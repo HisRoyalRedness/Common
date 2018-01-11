@@ -1,0 +1,491 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using FluentAssertions;
+using FluentAssertions.Primitives;
+using FluentAssertions.Execution;
+using HisRoyalRedness.com.ColourConstants;
+
+/*
+    A generated file, from a template, that builds test code common to all colour components
+
+    Keith Fletcher
+    Jan 2018
+
+    This file is Unlicensed.
+    See the foot of the file, or refer to <http://unlicense.org>
+*/
+
+namespace HisRoyalRedness.com
+{
+#if COLOUR_SINGLE
+    using ColourPrimitive = Single;
+#else
+    using ColourPrimitive = Double;
+#endif
+
+<#
+	// Dictionary of struct names and their base type
+	var componentTypes = new Dictionary<string, string>()
+	{
+		{ "ByteColourComponent", "byte" },
+		{ "UnitColourComponent", "ColourPrimitive" },
+		{ "DegreeColourComponent", "ColourPrimitive" },
+	};
+
+    // Types that wrap values outside of the allowed range, rather than clip then
+    var wrappingTypes = new HashSet<string>(new [] { "DegreeColourComponent" });
+
+    // Type to overload various methods with
+    var overloadTypes = new [] { "int", "float", "double"};
+
+    var toCamelCase = new Func<string, string>(inStr => {
+        if (string.IsNullOrEmpty(inStr))
+            return "";
+        var tmpArr = inStr.ToCharArray();
+        tmpArr[0] = char.ToUpper(tmpArr[0]);
+        return new string(tmpArr);
+    });
+
+	foreach(var componentType in componentTypes.Keys)
+	{
+		var baseType = componentTypes[componentType];
+        var safeBaseType = (baseType == "byte" ? "int" : baseType);
+        var className = componentType + "_Test";
+        var isWrapped = wrappingTypes.Contains(componentType);
+#>
+    #region <#=className#>
+    [TestClass]
+    public partial class <#=className#>
+    {
+        // Constants that are just out, on, or just in the range of acceptable values
+        internal const <#=safeBaseType#> MIN = (<#=safeBaseType#>)<#=componentType#>.MIN_VAL;
+        internal const <#=safeBaseType#> MAX = (<#=safeBaseType#>)<#=componentType#>.MAX_VAL;
+        internal const <#=safeBaseType#> STEP = (MAX - MIN) / 100;
+        internal const <#=safeBaseType#> ONE_BELOW_MIN = MIN - STEP;
+        internal const <#=safeBaseType#> ONE_ABOVE_MIN = MIN + STEP;
+        internal const <#=safeBaseType#> MID = (MAX - MIN) / 2;
+        internal const <#=safeBaseType#> ONE_BELOW_MAX = MAX - STEP;
+        internal const <#=safeBaseType#> ONE_ABOVE_MAX = MAX + STEP;
+        
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Min_and_Max_generated()
+        {
+            // There should be a manually written test that checks the min and max against hard-coded values
+            <#=componentType#>.MinValue.Should().Be(MIN, $"the minimum value for <#=componentType#> should be {MIN}");
+            <#=componentType#>.MaxValue.Should().Be(MAX, $"the maximum value for <#=componentType#> should be {MAX}");
+        } // Test_<#=componentType#>_Min_and_Max_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_IsWrappingValue_generated()
+        {
+            <#=componentType#>.IsWrappingValue.Should().Be<#= isWrapped ? "True" : "False" #>("<#=componentType#> is <#= isWrapped ? "" : "not " #>a wrapping value type");
+        } // Test_<#=componentType#>_IsWrappingValue_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Construction_default_value_generated()
+        {
+            new <#=componentType#>().Should().Be(MIN, $"the default value for the default constructor should be {MIN}");
+        } // Test_<#=componentType#>_Construction_default_value_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Construction_different_arg_types_generated()
+        {
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
+        if (overloadType != "int" || componentType != "UnitColourComponent")
+        {
+#>
+            new <#=componentType#>((<#=overloadType#>)ONE_ABOVE_MIN).Should().Be((<#=overloadType#>)ONE_ABOVE_MIN, $"<#=componentType#> should construct with a <#=overloadType#> constructor argument");
+            new <#=componentType#>((<#=overloadType#>)MID).Should().Be((<#=overloadType#>)MID, $"<#=componentType#> should construct with a <#=overloadType#> constructor argument");
+            new <#=componentType#>((<#=overloadType#>)ONE_BELOW_MAX).Should().Be((<#=overloadType#>)ONE_BELOW_MAX, $"<#=componentType#> should construct with a <#=overloadType#> constructor argument");
+<#
+        }
+    }
+#>
+        } // Test_<#=componentType#>_Construction_different_arg_types_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Implicit_cast_different_arg_types_generated()
+        {
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
+        if (overloadType != "int" || componentType != "UnitColourComponent")
+        {
+#>
+            ((<#=componentType#>)(<#=overloadType#>)ONE_ABOVE_MIN).Should().Be((<#=overloadType#>)ONE_ABOVE_MIN, $"<#=componentType#> should construct from a cast from <#=overloadType#>");
+            ((<#=componentType#>)(<#=overloadType#>)MID).Should().Be((<#=overloadType#>)MID, $"<#=componentType#> should construct from a cast from <#=overloadType#>");
+            ((<#=componentType#>)(<#=overloadType#>)ONE_BELOW_MAX).Should().Be((<#=overloadType#>)ONE_BELOW_MAX, $"<#=componentType#> should construct from a cast from <#=overloadType#>");
+<#
+        }
+    }
+#>
+        } // Test_<#=componentType#>_Implicit_cast_different_arg_types_generated()
+
+<#
+    if (isWrapped)
+    {
+#>
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Construction_value_wrapping_generated()
+        {
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+            var wrapMinName = "wrapMin" + toCamelCase(overloadType);
+            var wrapMaxName = "wrapMax" + toCamelCase(overloadType);
+#>
+            var <#=wrapMinName#> = <#=componentType#>.MAX_VAL + (<#=baseType#>)(<#=overloadType#>)ONE_BELOW_MIN;
+            var <#=wrapMaxName#> = (<#=baseType#>)(<#=overloadType#>)ONE_ABOVE_MAX - <#=componentType#>.MAX_VAL;
+            new <#=componentType#>((<#=overloadType#>)ONE_BELOW_MIN).Should().Be(<#=wrapMinName#>, $"<#=componentType#> should wrap to {<#=wrapMinName#>} when constructed with a value below minimum");
+            new <#=componentType#>((<#=overloadType#>)MIN).Should().Be(MIN, $"<#=componentType#> should be {MIN} when constructed with a value equal to minimum");
+            new <#=componentType#>((<#=overloadType#>)MAX).Should().Be(MIN, $"<#=componentType#> should be {MIN} when constructed with a value equal maximum");
+            new <#=componentType#>((<#=overloadType#>)ONE_ABOVE_MAX).Should().Be(<#=wrapMaxName#>, $"<#=componentType#> should wrap to {<#=wrapMaxName#>} when constructed with a value above maximum");
+<#
+    }
+#>
+        } // Test_<#=componentType#>_Construction_value_wrapping_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Implicit_cast_value_wrapping_generated()
+        {
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+            var wrapMinName = "wrapMin" + toCamelCase(overloadType);
+            var wrapMaxName = "wrapMax" + toCamelCase(overloadType);
+#>
+            var <#=wrapMinName#> = <#=componentType#>.MAX_VAL + (<#=baseType#>)(<#=overloadType#>)ONE_BELOW_MIN;
+            var <#=wrapMaxName#> = (<#=baseType#>)(<#=overloadType#>)ONE_ABOVE_MAX - <#=componentType#>.MAX_VAL;
+            ((<#=componentType#>)(<#=overloadType#>)ONE_BELOW_MIN).Should().Be(<#=wrapMinName#>, $"<#=componentType#> should wrap to {<#=wrapMinName#>} when constructed with a value below minimum");
+            ((<#=componentType#>)(<#=overloadType#>)MIN).Should().Be(MIN, $"<#=componentType#> should be {MIN} when constructed with a value equal to minimum");
+            ((<#=componentType#>)(<#=overloadType#>)MAX).Should().Be(MIN, $"<#=componentType#> should be {MIN} when constructed with a value equal maximum");
+            ((<#=componentType#>)(<#=overloadType#>)ONE_ABOVE_MAX).Should().Be(<#=wrapMaxName#>, $"<#=componentType#> should wrap to {<#=wrapMaxName#>} when constructed with a value above maximum");
+<#
+    }
+#>
+        } // Test_<#=componentType#>_Implicit_cast_value_wrapping_generated()
+<#
+    }
+    else
+    {
+#>
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Implicit_cast_value_clipping_generated()
+        {
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+#>
+            ((<#=componentType#>)(<#=overloadType#>)ONE_BELOW_MIN).Should().Be(MIN, $"<#=componentType#> should clip to {MIN} when constructed with a value below minimum");
+            ((<#=componentType#>)(<#=overloadType#>)MIN).Should().Be(MIN, $"<#=componentType#> should clip to {MIN} when constructed with a value equal to minimum");
+            ((<#=componentType#>)(<#=overloadType#>)MAX).Should().Be(MAX, $"<#=componentType#> should clip to {MAX} when constructed with a value equal maximum");
+            ((<#=componentType#>)(<#=overloadType#>)ONE_ABOVE_MAX).Should().Be(MAX, $"<#=componentType#> should clip to {MAX} when constructed with a value above maximum");
+<#
+    }
+#>
+        } // Test_<#=componentType#>_Implicit_cast_value_clipping_generated
+<#
+    }
+#>
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Implicit_casting_generated()
+        {
+            ((<#=baseType#>)new <#=componentType#>(ONE_ABOVE_MIN)).Should().Be((<#=baseType#>)ONE_ABOVE_MIN);
+            ((<#=baseType#>)new <#=componentType#>(MID)).Should().Be((<#=baseType#>)MID);
+            ((<#=baseType#>)new <#=componentType#>(ONE_BELOW_MAX)).Should().Be((<#=baseType#>)ONE_BELOW_MAX);
+
+        } // Test_<#=componentType#>_Implicit_casting_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Addition_generated()
+        {
+            <#=baseType#> sum = (<#=baseType#>)MID + (<#=baseType#>)STEP;
+            (new <#=componentType#>(MID) + new <#=componentType#>(STEP)).Should().Be(sum, $"should add two <#=componentType#>'s");
+
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
+        if (overloadType != "int" || componentType != "UnitColourComponent")
+        {
+#>
+            (new <#=componentType#>(MID) + (<#=overloadType#>)STEP).Should().Be((<#=baseType#>)((<#=baseType#>)MID + (<#=overloadType#>)STEP), $"should add a <#=componentType#> to a <#=overloadType#>");
+            ((<#=overloadType#>)MID + new <#=componentType#>(STEP)).Should().Be((<#=baseType#>)((<#=overloadType#>)MID + (<#=baseType#>)STEP), $"should add a <#=overloadType#> to a <#=componentType#>");
+<#
+        }
+    }
+#>
+
+        } // Test_<#=componentType#>_Addition_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Subtraction_generated()
+        {
+            <#=baseType#> diff = (<#=baseType#>)MID - (<#=baseType#>)STEP;
+            (new <#=componentType#>(MID) - new <#=componentType#>(STEP)).Should().Be(diff, $"should subtract two <#=componentType#>'s");
+
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
+        if (overloadType != "int" || componentType != "UnitColourComponent")
+        {
+#>
+            (new <#=componentType#>(MID) - (<#=overloadType#>)STEP).Should().Be((<#=baseType#>)((<#=baseType#>)MID - (<#=overloadType#>)STEP), $"should subtract a <#=componentType#> from a <#=overloadType#>");
+            ((<#=overloadType#>)MID - new <#=componentType#>(STEP)).Should().Be((<#=baseType#>)((<#=overloadType#>)MID - (<#=baseType#>)STEP), $"should subtract a <#=overloadType#> from a <#=componentType#>");
+<#
+        }
+    }
+#>
+
+        } // Test_<#=componentType#>_Subtraction_generated()
+
+<#
+    if (isWrapped)
+    {
+#>
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Addition_with_wrapping_generated()
+        {
+            (new <#=componentType#>(MID) + new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MID + ONE_BELOW_MAX - MAX, $"should add two <#=componentType#>'s and wrap if the sum exceeds MaxValue");
+
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
+        if (overloadType != "int" || componentType != "UnitColourComponent")
+        {
+#>
+            (new <#=componentType#>(MID) + (<#=overloadType#>)ONE_BELOW_MAX).Should().Be(MID + (<#=baseType#>)(<#=overloadType#>)ONE_BELOW_MAX - MAX, $"should add a <#=componentType#> to a <#=overloadType#> and wrap if the sum exceeds MaxValue");
+            ((<#=overloadType#>)MID + new <#=componentType#>(ONE_BELOW_MAX)).Should().Be((<#=baseType#>)(<#=overloadType#>)MID + ONE_BELOW_MAX - MAX, $"should add a <#=overloadType#> to a <#=componentType#> and wrap if the sum exceeds MaxValue");
+<#
+        }
+    }
+#>
+
+        } // Test_<#=componentType#>_Addition_with_wrapping_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Subtraction_with_wrapping_generated()
+        {
+            (new <#=componentType#>(MID) - new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MID - ONE_BELOW_MAX + MAX, $"should subtract two <#=componentType#>'s and wrap if the difference falls below MinValue");
+
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
+        if (overloadType != "int" || componentType != "UnitColourComponent")
+        {
+#>
+            (new <#=componentType#>(MID) - (<#=overloadType#>)ONE_BELOW_MAX).Should().Be(MID - (<#=baseType#>)(<#=overloadType#>)ONE_BELOW_MAX + MAX, $"should subtract a <#=componentType#> from a <#=overloadType#> and wrap if the difference falls below MinValue");
+            ((<#=overloadType#>)MID - new <#=componentType#>(ONE_BELOW_MAX)).Should().Be((<#=overloadType#>)MID - ONE_BELOW_MAX + MAX, $"should subtract a <#=overloadType#> from a <#=componentType#> and wrap if the difference falls below MinValue");
+<#
+        }
+    }
+#>
+
+        } // Test_<#=componentType#>_Subtraction_with_wrapping_generated()
+<#
+    }
+    else
+    {
+#>
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Addition_with_clipping_generated()
+        {
+            (new <#=componentType#>(MID) + new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MAX, $"should add two <#=componentType#>'s and clip to MAX if the sum exceeds MaxValue");
+
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
+        if (overloadType != "int" || componentType != "UnitColourComponent")
+        {
+#>
+            (new <#=componentType#>(MID) + (<#=overloadType#>)ONE_BELOW_MAX).Should().Be(MAX, $"should add a <#=componentType#> to a <#=overloadType#> and clip to MAX if the sum exceeds MaxValue");
+            ((<#=overloadType#>)MID + new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MAX, $"should add a <#=overloadType#> to a <#=componentType#> and clip to MAX if the sum exceeds MaxValue");
+<#
+        }
+    }
+#>
+
+        } // Test_<#=componentType#>_Addition_with_clipping_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Subtraction_with_clipping_generated()
+        {
+            (new <#=componentType#>(MID) - new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MIN, $"should subtract two <#=componentType#>'s and clip to MIN if the difference falls below MinValue");
+
+<#
+    foreach(var overloadType in overloadTypes)
+    {
+        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
+        if (overloadType != "int" || componentType != "UnitColourComponent")
+        {
+#>
+            (new <#=componentType#>(MID) - (<#=overloadType#>)ONE_BELOW_MAX).Should().Be(MIN, $"should subtract a <#=componentType#> from a <#=overloadType#> and clip to MIN if the difference falls below MinValue");
+            ((<#=overloadType#>)MID - new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MIN, $"should subtract a <#=overloadType#> from a <#=componentType#> and clip to MIN if the difference falls below MinValue");
+<#
+        }
+    }
+#>
+
+        } // Test_<#=componentType#>_Subtraction_with_clipping_generated()
+
+<#
+    }
+#>
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Equality_generated()
+        {
+            new <#=componentType#>(MID).Equals(new <#=componentType#>(MID)).Should().BeTrue();
+            new <#=componentType#>(MID).Equals(new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeFalse();
+
+            (new <#=componentType#>(MID) == new <#=componentType#>(MID)).Should().BeTrue();
+            (new <#=componentType#>(MID) == MID).Should().BeTrue();
+            (new <#=componentType#>(MID) == new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeFalse();
+            (new <#=componentType#>(MID) == ONE_ABOVE_MIN).Should().BeFalse();
+
+            (new <#=componentType#>(MID) != new <#=componentType#>(MID)).Should().BeFalse();
+            (new <#=componentType#>(MID) != MID).Should().BeFalse();
+            (new <#=componentType#>(MID) != new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeTrue();
+            (new <#=componentType#>(MID) != ONE_ABOVE_MIN).Should().BeTrue();
+
+        } // Test_<#=componentType#>_Equality_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_Comparison_generated()
+        {
+            <#=componentType#>.Compare(new <#=componentType#>(ONE_ABOVE_MIN), new <#=componentType#>(MID)).Should().Be(-1, "the first is less than the second");
+            <#=componentType#>.Compare(new <#=componentType#>(MID), new <#=componentType#>(MID)).Should().Be(0, "the first is the same as the second");
+            <#=componentType#>.Compare(new <#=componentType#>(MID), new <#=componentType#>(ONE_ABOVE_MIN)).Should().Be(1, "the first is greater than the second");
+
+            new <#=componentType#>(ONE_ABOVE_MIN).CompareTo(new <#=componentType#>(MID)).Should().Be(-1, "the first is less than the second");
+            new <#=componentType#>(MID).CompareTo(new <#=componentType#>(MID)).Should().Be(0, "the first is the same as the second");
+            new <#=componentType#>(MID).CompareTo(new <#=componentType#>(ONE_ABOVE_MIN)).Should().Be(1, "the first is greater than the second");
+
+            (new <#=componentType#>(ONE_ABOVE_MIN) < new <#=componentType#>(MID)).Should().BeTrue("the first is less than the second");
+            (new <#=componentType#>(ONE_ABOVE_MIN) > new <#=componentType#>(MID)).Should().BeFalse("the first is less than the second");
+            (new <#=componentType#>(MID) < new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeFalse("the first is greater than the second");
+            (new <#=componentType#>(MID) > new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeTrue("the first is greater than the second");
+            (new <#=componentType#>(MID) < new <#=componentType#>(MID)).Should().BeFalse("the first is equal to the second");
+            (new <#=componentType#>(MID) > new <#=componentType#>(MID)).Should().BeFalse("the first is equal to the second");
+
+            (new <#=componentType#>(ONE_ABOVE_MIN) <= new <#=componentType#>(MID)).Should().BeTrue("the first is less than the second");
+            (new <#=componentType#>(ONE_ABOVE_MIN) >= new <#=componentType#>(MID)).Should().BeFalse("the first is less than the second");
+            (new <#=componentType#>(MID) <= new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeFalse("the first is greater than the second");
+            (new <#=componentType#>(MID) >= new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeTrue("the first is greater than the second");
+            (new <#=componentType#>(MID) <= new <#=componentType#>(MID)).Should().BeTrue("the first is equal to the second");
+            (new <#=componentType#>(MID) >= new <#=componentType#>(MID)).Should().BeTrue("the first is equal to the second");
+
+
+        } // Test_<#=componentType#>_Comparison_generated()
+
+        [TestMethod]
+        [TestCategory("Template generated")]
+        [TestCategory("<#=componentType#>")]
+        public void Test_<#=componentType#>_GetHashCode_generated()
+        {
+            new <#=componentType#>(MIN).GetHashCode().Should().Be(MIN.GetHashCode());
+            new <#=componentType#>(ONE_ABOVE_MIN).GetHashCode().Should().Be(ONE_ABOVE_MIN.GetHashCode());
+            new <#=componentType#>(MID).GetHashCode().Should().Be(MID.GetHashCode());
+            new <#=componentType#>(ONE_BELOW_MAX).GetHashCode().Should().Be(ONE_BELOW_MAX.GetHashCode());
+<#  if (isWrapped)
+    {
+#>
+            new <#=componentType#>(MAX).GetHashCode().Should().Be(MIN.GetHashCode());
+<#
+    }
+    else
+    {
+#>
+            new <#=componentType#>(MAX).GetHashCode().Should().Be(MAX.GetHashCode());
+<#
+    }
+#>
+
+        } // Test_<#=componentType#>_GetHashCode_generated()
+
+    } // public partial class <#=className#>
+    #endregion <#=className#>
+
+<#
+	}
+#>
+}
+
+/*
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/

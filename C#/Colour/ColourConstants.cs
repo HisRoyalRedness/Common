@@ -29,13 +29,6 @@ namespace HisRoyalRedness.com.ColourConstants
         internal const ColourPrimitive SIXTY = (ColourPrimitive)60.0;
         internal const ColourPrimitive TWO_FIVE_FIVE = (ColourPrimitive)255.0;
         internal const ColourPrimitive THREE_SIXTY = (ColourPrimitive)360.0;
-
-        internal const byte BYTECOLOURCOMPONENT_MIN_VALUE = 0;
-        internal const byte BYTECOLOURCOMPONENT_MAX_VALUE = 255;
-        internal const ColourPrimitive UNITCOLOURCOMPONENT_MIN_VALUE = ZERO;
-        internal const ColourPrimitive UNITCOLOURCOMPONENT_MAX_VALUE = ONE;
-        internal const ColourPrimitive DEGREECOLOURCOMPONENT_MIN_VALUE = ZERO;
-        internal const ColourPrimitive DEGREECOLOURCOMPONENT_MAX_VALUE = THREE_SIXTY;
     }
 }
 

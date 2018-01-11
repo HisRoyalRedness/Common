@@ -53,6 +53,7 @@ namespace HisRoyalRedness.com
         string DisplayString => $"X: {(ColourPrimitive)X:0.000}, Y: {(ColourPrimitive)Y:0.000}, Z: {(ColourPrimitive)Z:0.000}";
         public override string ToString() => $"X: {(ColourPrimitive)X}, Y: {(ColourPrimitive)Y}, Z: {(ColourPrimitive)Z}";
 
+        #region Add, subtract, multiply, divide
         public static ColourVector operator +(ColourVector a, ColourVector b)
             => new ColourVector(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
 
@@ -82,6 +83,7 @@ namespace HisRoyalRedness.com
         public static ColourVector operator /(ColourVector v, double value)
             => new ColourVector(
                 v.X / (ColourPrimitive)value, v.Y / (ColourPrimitive)value, v.Z / (ColourPrimitive)value);
+        #endregion Add, subtract, multiply, divide
     }
 }
 
