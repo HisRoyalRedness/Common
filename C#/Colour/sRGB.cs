@@ -72,23 +72,13 @@ namespace HisRoyalRedness.com
         #region Add and subtract
         public static SRGBColour operator +(SRGBColour a, SRGBColour b)
             => new SRGBColour((int)a.R + (int)b.R, (int)a.G + (int)b.G, (int)a.B + (int)b.B, (int)a.A);
-        public static SRGBColour operator +(SRGBColour a, ColourVector b)
-            => new SRGBColour((int)a.R + (int)b.R, (int)a.G + (int)b.G, (int)a.B + (int)b.B, (int)a.A);
-        public static SRGBColour operator +(ColourVector a, SRGBColour b)
-            => new SRGBColour((int)a.R + (int)b.R, (int)a.G + (int)b.G, (int)a.B + (int)b.B);
         public static SRGBColour operator -(SRGBColour a, SRGBColour b)
             => new SRGBColour((int)a.R - (int)b.R, (int)a.G - (int)b.G, (int)a.B - (int)b.B, (int)a.A);
-        public static SRGBColour operator -(SRGBColour a, ColourVector b)
-            => new SRGBColour((int)a.R - (int)b.R, (int)a.G - (int)b.G, (int)a.B - (int)b.B, (int)a.A);
-        public static SRGBColour operator -(ColourVector a, SRGBColour b)
-            => new SRGBColour((int)a.R - (int)b.R, (int)a.G - (int)b.G, (int)a.B - (int)b.B);
         #endregion Add and subtract
 
         #region Implicit casts
         public static implicit operator Color(SRGBColour colour) => Color.FromArgb(colour.A, colour.R, colour.G, colour.B);
-        public static implicit operator SRGBColour(Color colour) => new SRGBColour(colour.R, colour.G, colour.B, colour.A);
         public static implicit operator ColourVector(SRGBColour colour) => new ColourVector(colour.R, colour.G, colour.B);
-        public static implicit operator SRGBColour(ColourVector vector) => new SRGBColour(vector.X, vector.Y, vector.Z);
         #endregion Implicit casts
     }
     #endregion SRGB

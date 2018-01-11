@@ -20,6 +20,7 @@ namespace HisRoyalRedness.com.Tests
     [TestClass]
     public class ColourVector_Test
     {
+        [TestCategory("ColourVector")]
         [TestMethod]
         public void Test_ColourVector_Construction()
         {
@@ -29,6 +30,7 @@ namespace HisRoyalRedness.com.Tests
             v.Z.Should().Be(3);
         }
 
+        [TestCategory("ColourVector")]
         [TestMethod]
         public void Test_ColourVector_Add()
         {
@@ -37,6 +39,7 @@ namespace HisRoyalRedness.com.Tests
             (v1 + v2).Should().Be(new ColourVector(5, 7, 9));
         }
 
+        [TestCategory("ColourVector")]
         [TestMethod]
         public void Test_ColourVector_Subtract()
         {
@@ -46,6 +49,7 @@ namespace HisRoyalRedness.com.Tests
             (v2 - v2).Should().Be(new ColourVector(0, 0, 0));
         }
 
+        [TestCategory("ColourVector")]
         [TestMethod]
         public void Test_ColourVector_Multiply()
         {
@@ -54,6 +58,7 @@ namespace HisRoyalRedness.com.Tests
             (2.0 * v1).Should().Be(new ColourVector(2, 4, 6));
         }
 
+        [TestCategory("ColourVector")]
         [TestMethod]
         public void Test_ColourVector_Divide()
         {
@@ -61,7 +66,7 @@ namespace HisRoyalRedness.com.Tests
             (v1 / 2.0).Should().Be(new ColourVector(0.5, 1, 1.5));
         }
 
-
+        [TestCategory("ColourVector")]
         [TestMethod]
         public void Test_ColourVector_Alias()
         {
