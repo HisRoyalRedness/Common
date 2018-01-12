@@ -24,7 +24,7 @@ using HisRoyalRedness.com.ColourConstants;
     See the foot of the file, or refer to <http://unlicense.org>
 */
 
-namespace HisRoyalRedness.com
+namespace HisRoyalRedness.com.Tests
 {
 #if COLOUR_SINGLE
     using ColourPrimitive = Single;
@@ -78,7 +78,7 @@ namespace HisRoyalRedness.com
         
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Min_and_Max_generated()
         {
             // There should be a manually written test that checks the min and max against hard-coded values
@@ -88,7 +88,7 @@ namespace HisRoyalRedness.com
 
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_IsWrappingValue_generated()
         {
             <#=componentType#>.IsWrappingValue.Should().Be<#= isWrapped ? "True" : "False" #>("<#=componentType#> is <#= isWrapped ? "" : "not " #>a wrapping value type");
@@ -96,7 +96,7 @@ namespace HisRoyalRedness.com
 
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Construction_default_value_generated()
         {
             new <#=componentType#>().Should().Be(MIN, $"the default value for the default constructor should be {MIN}");
@@ -104,7 +104,7 @@ namespace HisRoyalRedness.com
 
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Construction_different_arg_types_generated()
         {
 <#
@@ -114,9 +114,9 @@ namespace HisRoyalRedness.com
         if (overloadType != "int" || componentType != "UnitColourComponent")
         {
 #>
-            new <#=componentType#>((<#=overloadType#>)ONE_ABOVE_MIN).Should().Be((<#=overloadType#>)ONE_ABOVE_MIN, $"<#=componentType#> should construct with a <#=overloadType#> constructor argument");
-            new <#=componentType#>((<#=overloadType#>)MID).Should().Be((<#=overloadType#>)MID, $"<#=componentType#> should construct with a <#=overloadType#> constructor argument");
-            new <#=componentType#>((<#=overloadType#>)ONE_BELOW_MAX).Should().Be((<#=overloadType#>)ONE_BELOW_MAX, $"<#=componentType#> should construct with a <#=overloadType#> constructor argument");
+            new <#=componentType#>((<#=overloadType#>)ONE_ABOVE_MIN).Should().Be((<#=baseType#>)(<#=overloadType#>)ONE_ABOVE_MIN, $"<#=componentType#> should construct with a <#=overloadType#> constructor argument");
+            new <#=componentType#>((<#=overloadType#>)MID).Should().Be((<#=baseType#>)(<#=overloadType#>)MID, $"<#=componentType#> should construct with a <#=overloadType#> constructor argument");
+            new <#=componentType#>((<#=overloadType#>)ONE_BELOW_MAX).Should().Be((<#=baseType#>)(<#=overloadType#>)ONE_BELOW_MAX, $"<#=componentType#> should construct with a <#=overloadType#> constructor argument");
 <#
         }
     }
@@ -125,7 +125,7 @@ namespace HisRoyalRedness.com
 
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Implicit_cast_different_arg_types_generated()
         {
 <#
@@ -135,9 +135,9 @@ namespace HisRoyalRedness.com
         if (overloadType != "int" || componentType != "UnitColourComponent")
         {
 #>
-            ((<#=componentType#>)(<#=overloadType#>)ONE_ABOVE_MIN).Should().Be((<#=overloadType#>)ONE_ABOVE_MIN, $"<#=componentType#> should construct from a cast from <#=overloadType#>");
-            ((<#=componentType#>)(<#=overloadType#>)MID).Should().Be((<#=overloadType#>)MID, $"<#=componentType#> should construct from a cast from <#=overloadType#>");
-            ((<#=componentType#>)(<#=overloadType#>)ONE_BELOW_MAX).Should().Be((<#=overloadType#>)ONE_BELOW_MAX, $"<#=componentType#> should construct from a cast from <#=overloadType#>");
+            ((<#=componentType#>)(<#=overloadType#>)ONE_ABOVE_MIN).Should().Be((<#=baseType#>)(<#=overloadType#>)ONE_ABOVE_MIN, $"<#=componentType#> should construct from a cast from <#=overloadType#>");
+            ((<#=componentType#>)(<#=overloadType#>)MID).Should().Be((<#=baseType#>)(<#=overloadType#>)MID, $"<#=componentType#> should construct from a cast from <#=overloadType#>");
+            ((<#=componentType#>)(<#=overloadType#>)ONE_BELOW_MAX).Should().Be((<#=baseType#>)(<#=overloadType#>)ONE_BELOW_MAX, $"<#=componentType#> should construct from a cast from <#=overloadType#>");
 <#
         }
     }
@@ -150,7 +150,7 @@ namespace HisRoyalRedness.com
 #>
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Construction_value_wrapping_generated()
         {
 <#
@@ -172,7 +172,7 @@ namespace HisRoyalRedness.com
 
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Implicit_cast_value_wrapping_generated()
         {
 <#
@@ -198,7 +198,7 @@ namespace HisRoyalRedness.com
 #>
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Implicit_cast_value_clipping_generated()
         {
 <#
@@ -219,7 +219,7 @@ namespace HisRoyalRedness.com
 
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Implicit_casting_generated()
         {
             ((<#=baseType#>)new <#=componentType#>(ONE_ABOVE_MIN)).Should().Be((<#=baseType#>)ONE_ABOVE_MIN);
@@ -230,49 +230,21 @@ namespace HisRoyalRedness.com
 
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Addition_generated()
         {
             <#=baseType#> sum = (<#=baseType#>)MID + (<#=baseType#>)STEP;
             (new <#=componentType#>(MID) + new <#=componentType#>(STEP)).Should().Be(sum, $"should add two <#=componentType#>'s");
 
-<#
-    foreach(var overloadType in overloadTypes)
-    {
-        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
-        if (overloadType != "int" || componentType != "UnitColourComponent")
-        {
-#>
-            (new <#=componentType#>(MID) + (<#=overloadType#>)STEP).Should().Be((<#=baseType#>)((<#=baseType#>)MID + (<#=overloadType#>)STEP), $"should add a <#=componentType#> to a <#=overloadType#>");
-            ((<#=overloadType#>)MID + new <#=componentType#>(STEP)).Should().Be((<#=baseType#>)((<#=overloadType#>)MID + (<#=baseType#>)STEP), $"should add a <#=overloadType#> to a <#=componentType#>");
-<#
-        }
-    }
-#>
-
         } // Test_<#=componentType#>_Addition_generated()
 
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Subtraction_generated()
         {
             <#=baseType#> diff = (<#=baseType#>)MID - (<#=baseType#>)STEP;
             (new <#=componentType#>(MID) - new <#=componentType#>(STEP)).Should().Be(diff, $"should subtract two <#=componentType#>'s");
-
-<#
-    foreach(var overloadType in overloadTypes)
-    {
-        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
-        if (overloadType != "int" || componentType != "UnitColourComponent")
-        {
-#>
-            (new <#=componentType#>(MID) - (<#=overloadType#>)STEP).Should().Be((<#=baseType#>)((<#=baseType#>)MID - (<#=overloadType#>)STEP), $"should subtract a <#=componentType#> from a <#=overloadType#>");
-            ((<#=overloadType#>)MID - new <#=componentType#>(STEP)).Should().Be((<#=baseType#>)((<#=overloadType#>)MID - (<#=baseType#>)STEP), $"should subtract a <#=overloadType#> from a <#=componentType#>");
-<#
-        }
-    }
-#>
 
         } // Test_<#=componentType#>_Subtraction_generated()
 
@@ -282,47 +254,19 @@ namespace HisRoyalRedness.com
 #>
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Addition_with_wrapping_generated()
         {
             (new <#=componentType#>(MID) + new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MID + ONE_BELOW_MAX - MAX, $"should add two <#=componentType#>'s and wrap if the sum exceeds MaxValue");
-
-<#
-    foreach(var overloadType in overloadTypes)
-    {
-        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
-        if (overloadType != "int" || componentType != "UnitColourComponent")
-        {
-#>
-            (new <#=componentType#>(MID) + (<#=overloadType#>)ONE_BELOW_MAX).Should().Be(MID + (<#=baseType#>)(<#=overloadType#>)ONE_BELOW_MAX - MAX, $"should add a <#=componentType#> to a <#=overloadType#> and wrap if the sum exceeds MaxValue");
-            ((<#=overloadType#>)MID + new <#=componentType#>(ONE_BELOW_MAX)).Should().Be((<#=baseType#>)(<#=overloadType#>)MID + ONE_BELOW_MAX - MAX, $"should add a <#=overloadType#> to a <#=componentType#> and wrap if the sum exceeds MaxValue");
-<#
-        }
-    }
-#>
 
         } // Test_<#=componentType#>_Addition_with_wrapping_generated()
 
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Subtraction_with_wrapping_generated()
         {
             (new <#=componentType#>(MID) - new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MID - ONE_BELOW_MAX + MAX, $"should subtract two <#=componentType#>'s and wrap if the difference falls below MinValue");
-
-<#
-    foreach(var overloadType in overloadTypes)
-    {
-        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
-        if (overloadType != "int" || componentType != "UnitColourComponent")
-        {
-#>
-            (new <#=componentType#>(MID) - (<#=overloadType#>)ONE_BELOW_MAX).Should().Be(MID - (<#=baseType#>)(<#=overloadType#>)ONE_BELOW_MAX + MAX, $"should subtract a <#=componentType#> from a <#=overloadType#> and wrap if the difference falls below MinValue");
-            ((<#=overloadType#>)MID - new <#=componentType#>(ONE_BELOW_MAX)).Should().Be((<#=overloadType#>)MID - ONE_BELOW_MAX + MAX, $"should subtract a <#=overloadType#> from a <#=componentType#> and wrap if the difference falls below MinValue");
-<#
-        }
-    }
-#>
 
         } // Test_<#=componentType#>_Subtraction_with_wrapping_generated()
 <#
@@ -332,128 +276,25 @@ namespace HisRoyalRedness.com
 #>
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Addition_with_clipping_generated()
         {
             (new <#=componentType#>(MID) + new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MAX, $"should add two <#=componentType#>'s and clip to MAX if the sum exceeds MaxValue");
-
-<#
-    foreach(var overloadType in overloadTypes)
-    {
-        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
-        if (overloadType != "int" || componentType != "UnitColourComponent")
-        {
-#>
-            (new <#=componentType#>(MID) + (<#=overloadType#>)ONE_BELOW_MAX).Should().Be(MAX, $"should add a <#=componentType#> to a <#=overloadType#> and clip to MAX if the sum exceeds MaxValue");
-            ((<#=overloadType#>)MID + new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MAX, $"should add a <#=overloadType#> to a <#=componentType#> and clip to MAX if the sum exceeds MaxValue");
-<#
-        }
-    }
-#>
 
         } // Test_<#=componentType#>_Addition_with_clipping_generated()
 
         [TestMethod]
         [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
+        [TestCategory(nameof(<#=componentType#>))]
         public void Test_<#=componentType#>_Subtraction_with_clipping_generated()
         {
             (new <#=componentType#>(MID) - new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MIN, $"should subtract two <#=componentType#>'s and clip to MIN if the difference falls below MinValue");
-
-<#
-    foreach(var overloadType in overloadTypes)
-    {
-        // Makes no sense to test ints for UnitColourComponent, and the int value will always either be min or max
-        if (overloadType != "int" || componentType != "UnitColourComponent")
-        {
-#>
-            (new <#=componentType#>(MID) - (<#=overloadType#>)ONE_BELOW_MAX).Should().Be(MIN, $"should subtract a <#=componentType#> from a <#=overloadType#> and clip to MIN if the difference falls below MinValue");
-            ((<#=overloadType#>)MID - new <#=componentType#>(ONE_BELOW_MAX)).Should().Be(MIN, $"should subtract a <#=overloadType#> from a <#=componentType#> and clip to MIN if the difference falls below MinValue");
-<#
-        }
-    }
-#>
 
         } // Test_<#=componentType#>_Subtraction_with_clipping_generated()
 
 <#
     }
 #>
-
-        [TestMethod]
-        [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
-        public void Test_<#=componentType#>_Equality_generated()
-        {
-            new <#=componentType#>(MID).Equals(new <#=componentType#>(MID)).Should().BeTrue();
-            new <#=componentType#>(MID).Equals(new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeFalse();
-
-            (new <#=componentType#>(MID) == new <#=componentType#>(MID)).Should().BeTrue();
-            (new <#=componentType#>(MID) == MID).Should().BeTrue();
-            (new <#=componentType#>(MID) == new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeFalse();
-            (new <#=componentType#>(MID) == ONE_ABOVE_MIN).Should().BeFalse();
-
-            (new <#=componentType#>(MID) != new <#=componentType#>(MID)).Should().BeFalse();
-            (new <#=componentType#>(MID) != MID).Should().BeFalse();
-            (new <#=componentType#>(MID) != new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeTrue();
-            (new <#=componentType#>(MID) != ONE_ABOVE_MIN).Should().BeTrue();
-
-        } // Test_<#=componentType#>_Equality_generated()
-
-        [TestMethod]
-        [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
-        public void Test_<#=componentType#>_Comparison_generated()
-        {
-            <#=componentType#>.Compare(new <#=componentType#>(ONE_ABOVE_MIN), new <#=componentType#>(MID)).Should().Be(-1, "the first is less than the second");
-            <#=componentType#>.Compare(new <#=componentType#>(MID), new <#=componentType#>(MID)).Should().Be(0, "the first is the same as the second");
-            <#=componentType#>.Compare(new <#=componentType#>(MID), new <#=componentType#>(ONE_ABOVE_MIN)).Should().Be(1, "the first is greater than the second");
-
-            new <#=componentType#>(ONE_ABOVE_MIN).CompareTo(new <#=componentType#>(MID)).Should().Be(-1, "the first is less than the second");
-            new <#=componentType#>(MID).CompareTo(new <#=componentType#>(MID)).Should().Be(0, "the first is the same as the second");
-            new <#=componentType#>(MID).CompareTo(new <#=componentType#>(ONE_ABOVE_MIN)).Should().Be(1, "the first is greater than the second");
-
-            (new <#=componentType#>(ONE_ABOVE_MIN) < new <#=componentType#>(MID)).Should().BeTrue("the first is less than the second");
-            (new <#=componentType#>(ONE_ABOVE_MIN) > new <#=componentType#>(MID)).Should().BeFalse("the first is less than the second");
-            (new <#=componentType#>(MID) < new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeFalse("the first is greater than the second");
-            (new <#=componentType#>(MID) > new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeTrue("the first is greater than the second");
-            (new <#=componentType#>(MID) < new <#=componentType#>(MID)).Should().BeFalse("the first is equal to the second");
-            (new <#=componentType#>(MID) > new <#=componentType#>(MID)).Should().BeFalse("the first is equal to the second");
-
-            (new <#=componentType#>(ONE_ABOVE_MIN) <= new <#=componentType#>(MID)).Should().BeTrue("the first is less than the second");
-            (new <#=componentType#>(ONE_ABOVE_MIN) >= new <#=componentType#>(MID)).Should().BeFalse("the first is less than the second");
-            (new <#=componentType#>(MID) <= new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeFalse("the first is greater than the second");
-            (new <#=componentType#>(MID) >= new <#=componentType#>(ONE_ABOVE_MIN)).Should().BeTrue("the first is greater than the second");
-            (new <#=componentType#>(MID) <= new <#=componentType#>(MID)).Should().BeTrue("the first is equal to the second");
-            (new <#=componentType#>(MID) >= new <#=componentType#>(MID)).Should().BeTrue("the first is equal to the second");
-
-
-        } // Test_<#=componentType#>_Comparison_generated()
-
-        [TestMethod]
-        [TestCategory("Template generated")]
-        [TestCategory("<#=componentType#>")]
-        public void Test_<#=componentType#>_GetHashCode_generated()
-        {
-            new <#=componentType#>(MIN).GetHashCode().Should().Be(MIN.GetHashCode());
-            new <#=componentType#>(ONE_ABOVE_MIN).GetHashCode().Should().Be(ONE_ABOVE_MIN.GetHashCode());
-            new <#=componentType#>(MID).GetHashCode().Should().Be(MID.GetHashCode());
-            new <#=componentType#>(ONE_BELOW_MAX).GetHashCode().Should().Be(ONE_BELOW_MAX.GetHashCode());
-<#  if (isWrapped)
-    {
-#>
-            new <#=componentType#>(MAX).GetHashCode().Should().Be(MIN.GetHashCode());
-<#
-    }
-    else
-    {
-#>
-            new <#=componentType#>(MAX).GetHashCode().Should().Be(MAX.GetHashCode());
-<#
-    }
-#>
-
-        } // Test_<#=componentType#>_GetHashCode_generated()
 
     } // public partial class <#=className#>
     #endregion <#=className#>

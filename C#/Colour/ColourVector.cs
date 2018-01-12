@@ -44,10 +44,10 @@ namespace HisRoyalRedness.com
         public ColourPrimitive Y { get; private set; }
         public ColourPrimitive Z { get; private set; }
 
-        // Aliases
-        public ColourPrimitive R => X;
-        public ColourPrimitive G => Y;
-        public ColourPrimitive B => Z;
+        //// Aliases
+        //public ColourPrimitive R => X;
+        //public ColourPrimitive G => Y;
+        //public ColourPrimitive B => Z;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         string DisplayString => $"X: {(ColourPrimitive)X:0.000}, Y: {(ColourPrimitive)Y:0.000}, Z: {(ColourPrimitive)Z:0.000}";

@@ -26,6 +26,7 @@ namespace HisRoyalRedness.com.ColourConstants
         internal const ColourPrimitive ONE = (ColourPrimitive)1.0;
         internal const ColourPrimitive TWO = (ColourPrimitive)2.0;
         internal const ColourPrimitive FOUR = (ColourPrimitive)4.0;
+        internal const ColourPrimitive SIX = (ColourPrimitive)6.0;
         internal const ColourPrimitive SIXTY = (ColourPrimitive)60.0;
         internal const ColourPrimitive TWO_FIVE_FIVE = (ColourPrimitive)255.0;
         internal const ColourPrimitive THREE_SIXTY = (ColourPrimitive)360.0;

@@ -24,7 +24,7 @@ namespace HisRoyalRedness.com
 
     #region ByteColourComponent
     [DebuggerDisplay("{DisplayString}")]
-    public partial struct ByteColourComponent : IEquatable<ByteColourComponent>, IComparable, IComparable<ByteColourComponent>
+    public partial struct ByteColourComponent 
     {
         #region Constructors
         public ByteColourComponent(int value)
@@ -104,46 +104,12 @@ namespace HisRoyalRedness.com
         public static ByteColourComponent operator -(ByteColourComponent a, ByteColourComponent b)
             => new ByteColourComponent((int)a.Value - (int)b.Value);
         #endregion Add and subtract
-
-        #region IEquality
-        public bool Equals(ByteColourComponent other) => Value == other.Value;
-        public override bool Equals(object obj) => obj is ByteColourComponent && this == (ByteColourComponent)obj;
-
-        public override int GetHashCode() => Value.GetHashCode();
-
-        public static bool operator ==(ByteColourComponent a, ByteColourComponent b) => a.Value == b.Value;
-        public static bool operator !=(ByteColourComponent a, ByteColourComponent b) => !(a.Value == b.Value);
-        #endregion IEquality
-
-        #region Comparison
-        public static int Compare(ByteColourComponent left, ByteColourComponent right)
-            => left.Value > right.Value
-                ? 1
-                : (left.Value < right.Value
-                    ? -1
-                    : 0);
-
-        public int CompareTo(object obj)
-        {
-            if (obj == null)
-                return 1;
-            if (!(obj is ByteColourComponent))
-                throw new ArgumentException("Object must be of type ByteColourComponent.");
-            return Compare(this, (ByteColourComponent)obj);}
-
-        public int CompareTo(ByteColourComponent other) => Compare(this, other.Value);
-
-        public static bool operator <(ByteColourComponent left, ByteColourComponent right) => Compare(left, right.Value) < 0;
-        public static bool operator <=(ByteColourComponent left, ByteColourComponent right) => Compare(left, right.Value) <= 0;
-        public static bool operator >(ByteColourComponent left, ByteColourComponent right) => Compare(left, right.Value) > 0;
-        public static bool operator >=(ByteColourComponent left, ByteColourComponent right) => Compare(left, right.Value) >= 0;
-        #endregion Comparison
     }
     #endregion ByteColourComponent
 
     #region UnitColourComponent
     [DebuggerDisplay("{DisplayString}")]
-    public partial struct UnitColourComponent : IEquatable<UnitColourComponent>, IComparable, IComparable<UnitColourComponent>
+    public partial struct UnitColourComponent 
     {
         #region Constructors
         public UnitColourComponent(int value)
@@ -223,46 +189,12 @@ namespace HisRoyalRedness.com
         public static UnitColourComponent operator -(UnitColourComponent a, UnitColourComponent b)
             => new UnitColourComponent(a.Value - b.Value);
         #endregion Add and subtract
-
-        #region IEquality
-        public bool Equals(UnitColourComponent other) => Value == other.Value;
-        public override bool Equals(object obj) => obj is UnitColourComponent && this == (UnitColourComponent)obj;
-
-        public override int GetHashCode() => Value.GetHashCode();
-
-        public static bool operator ==(UnitColourComponent a, UnitColourComponent b) => a.Value == b.Value;
-        public static bool operator !=(UnitColourComponent a, UnitColourComponent b) => !(a.Value == b.Value);
-        #endregion IEquality
-
-        #region Comparison
-        public static int Compare(UnitColourComponent left, UnitColourComponent right)
-            => left.Value > right.Value
-                ? 1
-                : (left.Value < right.Value
-                    ? -1
-                    : 0);
-
-        public int CompareTo(object obj)
-        {
-            if (obj == null)
-                return 1;
-            if (!(obj is UnitColourComponent))
-                throw new ArgumentException("Object must be of type UnitColourComponent.");
-            return Compare(this, (UnitColourComponent)obj);}
-
-        public int CompareTo(UnitColourComponent other) => Compare(this, other.Value);
-
-        public static bool operator <(UnitColourComponent left, UnitColourComponent right) => Compare(left, right.Value) < 0;
-        public static bool operator <=(UnitColourComponent left, UnitColourComponent right) => Compare(left, right.Value) <= 0;
-        public static bool operator >(UnitColourComponent left, UnitColourComponent right) => Compare(left, right.Value) > 0;
-        public static bool operator >=(UnitColourComponent left, UnitColourComponent right) => Compare(left, right.Value) >= 0;
-        #endregion Comparison
     }
     #endregion UnitColourComponent
 
     #region DegreeColourComponent
     [DebuggerDisplay("{DisplayString}")]
-    public partial struct DegreeColourComponent : IEquatable<DegreeColourComponent>, IComparable, IComparable<DegreeColourComponent>
+    public partial struct DegreeColourComponent 
     {
         #region Constructors
         public DegreeColourComponent(int value)
@@ -351,40 +283,6 @@ namespace HisRoyalRedness.com
         public static DegreeColourComponent operator -(DegreeColourComponent a, DegreeColourComponent b)
             => new DegreeColourComponent(a.Value - b.Value);
         #endregion Add and subtract
-
-        #region IEquality
-        public bool Equals(DegreeColourComponent other) => Value == other.Value;
-        public override bool Equals(object obj) => obj is DegreeColourComponent && this == (DegreeColourComponent)obj;
-
-        public override int GetHashCode() => Value.GetHashCode();
-
-        public static bool operator ==(DegreeColourComponent a, DegreeColourComponent b) => a.Value == b.Value;
-        public static bool operator !=(DegreeColourComponent a, DegreeColourComponent b) => !(a.Value == b.Value);
-        #endregion IEquality
-
-        #region Comparison
-        public static int Compare(DegreeColourComponent left, DegreeColourComponent right)
-            => left.Value > right.Value
-                ? 1
-                : (left.Value < right.Value
-                    ? -1
-                    : 0);
-
-        public int CompareTo(object obj)
-        {
-            if (obj == null)
-                return 1;
-            if (!(obj is DegreeColourComponent))
-                throw new ArgumentException("Object must be of type DegreeColourComponent.");
-            return Compare(this, (DegreeColourComponent)obj);}
-
-        public int CompareTo(DegreeColourComponent other) => Compare(this, other.Value);
-
-        public static bool operator <(DegreeColourComponent left, DegreeColourComponent right) => Compare(left, right.Value) < 0;
-        public static bool operator <=(DegreeColourComponent left, DegreeColourComponent right) => Compare(left, right.Value) <= 0;
-        public static bool operator >(DegreeColourComponent left, DegreeColourComponent right) => Compare(left, right.Value) > 0;
-        public static bool operator >=(DegreeColourComponent left, DegreeColourComponent right) => Compare(left, right.Value) >= 0;
-        #endregion Comparison
     }
     #endregion DegreeColourComponent
 

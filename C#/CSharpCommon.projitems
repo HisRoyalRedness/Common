@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ColourSpaces.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\ColourVector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\ColourMatrix.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Colour\HSL.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EnumerableExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FragmentBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\HSV.cs" />

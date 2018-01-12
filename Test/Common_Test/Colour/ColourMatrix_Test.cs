@@ -21,6 +21,7 @@ namespace HisRoyalRedness.com.Tests
     public class ColourMatrix_Test
     {
         [TestMethod]
+        [TestCategory(nameof(ColourMatrix))]
         public void Test_ColourMatrix_Construction()
         {
             var m = new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -36,6 +37,7 @@ namespace HisRoyalRedness.com.Tests
         }
 
         [TestMethod]
+        [TestCategory(nameof(ColourMatrix))]
         public void Test_ColourMatrix_Determinant()
         {
             new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9).Determinant.Should().Be(0);
@@ -48,6 +50,7 @@ namespace HisRoyalRedness.com.Tests
         }
 
         [TestMethod]
+        [TestCategory(nameof(ColourMatrix))]
         public void Test_ColourMatrix_ScalarMultiplictionAndDivision()
         {
             (new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9) * 2.0).Should().Be(new ColourMatrix(2, 4, 6, 8, 10, 12, 14, 16, 18));
@@ -59,6 +62,7 @@ namespace HisRoyalRedness.com.Tests
         }
 
         [TestMethod]
+        [TestCategory(nameof(ColourMatrix))]
         public void Test_ColourMatrix_Inverse()
         {
             new ColourMatrix(1, 2, 3, 2, 3, 4, 4, 2, 1).Inverse.Should().Be(new ColourMatrix(5, -4, 1, -14, 11, -2, 8, -6, 1));
@@ -66,6 +70,8 @@ namespace HisRoyalRedness.com.Tests
         }
 
         [TestMethod]
+        [TestCategory(nameof(ColourMatrix))]
+        [TestCategory(nameof(ColourVector))]
         public void Test_ColourMatrix_VectorMultiplication()
         {
             (new ColourMatrix(1, 2, 3, 4, 5, 6, 7, 8, 9) * new ColourVector(1, 1, 1)).Should().Be(new ColourVector(6, 15, 24));

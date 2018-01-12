@@ -13,11 +13,10 @@ namespace HisRoyalRedness.com.Tests
     using ColourPrimitive = Double;
 #endif
 
-    [TestClass]
     public partial class UnitColourComponent_Test
     {
         [TestMethod]
-        [TestCategory("UnitColourComponent")]
+        [TestCategory(nameof(UnitColourComponent))]
         public void Test_UnitColourComponent_Min_and_Max()
         {
             UnitColourComponent.MinValue.Should().Be(0);
@@ -25,6 +24,7 @@ namespace HisRoyalRedness.com.Tests
         }
 
         [TestMethod]
+        [TestCategory(nameof(UnitColourComponent))]
         public void Test_UnitColourComponent_ToByteComponent()
         {
             new UnitColourComponent(0).ToByteColour().Should().Be(0);

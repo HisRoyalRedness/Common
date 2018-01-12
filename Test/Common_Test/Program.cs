@@ -22,9 +22,7 @@ namespace HisRoyalRedness.com.Tests
             //var srgb = new SRGBColour(12, 34, 56, 78);
             //var hsv = srgb.ToHSV();
 
-            var bCC = new ByteColourComponent(3);
-            var uCC = new UnitColourComponent(3);
-            var dCC = new DegreeColourComponent(3);
+            var gg = new SRGBColour(0x0C, 0x66, 0xEE).ToHSL();
         }
     }
 }

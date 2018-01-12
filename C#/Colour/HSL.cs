@@ -5,7 +5,8 @@ using System.Diagnostics;
 using System.Text;
 
 /*
-    Defines a colour instance using the HSV / HSB colour space
+    Defines a colour instance using the HSL colour space.
+
     https://en.wikipedia.org/wiki/HSL_and_HSV
 
     Keith Fletcher
@@ -24,46 +25,47 @@ namespace HisRoyalRedness.com
 #endif
 
     /// <summary>
-    /// HSV (or HSB) is a remapping of the RGB colour space.
+    /// HSL is a remapping of the RGB colour space.
     /// Hue (H) is attribute of a visual sensation according to which an area appears to be similar to one of the perceived colors: red, yellow, green, and blue, or to a combination of two of them.
     /// Saturation (S) it the coluorfulness of a stimulus relative to its own brightness.
-    /// Value or Brightness (V) is the brightness relative to the brightness of a similarly illuminated white.
+    /// Lightness (L) is the brightness relative to the brightness of a similarly illuminated white.
     /// 
     /// Ranges:
     /// Hue: 0° - 360°. 0° = Red, 120° = Green, 240° = Blue
     /// Saturation: 0 - 1. 0 = No saturation (greyscale), 1 = Full saturation (full colour)
-    /// Value: 0 - 1. 0 = Darkest (black), 1 = Brightest (full colour)
+    /// Lightness: 0 - 1. 0 = Darkest (black), 0.5 (full colour), 1 = Brightest (white)
+    /// 
     /// </summary>
     [DebuggerDisplay("{DisplayString}")]
-    public struct HSVColour
+    public struct HSLColour
     {
-        public HSVColour(DegreeColourComponent h, UnitColourComponent s, UnitColourComponent v)
+        public HSLColour(DegreeColourComponent h, UnitColourComponent s, UnitColourComponent l)
         {
             _h = h;
             _s = s;
-            _v = v;
+            _l = l;
             _a = ColourSpaceConstants.ONE;
         }
 
-        public HSVColour(DegreeColourComponent h, UnitColourComponent s, UnitColourComponent v, UnitColourComponent a)
+        public HSLColour(DegreeColourComponent h, UnitColourComponent s, UnitColourComponent l, UnitColourComponent a)
         {
             _h = h;
             _s = s;
-            _v = v;
+            _l = l;
             _a = a;
         }
 
-        public HSVColour(ColourVector v, UnitColourComponent a)
+        public HSLColour(ColourVector v, UnitColourComponent a)
         {
             _h = v.X;
             _s = v.Y;
-            _v = v.Z;
+            _l = v.Z;
             _a = a;
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        string DisplayString => $"H: {(ColourPrimitive)H:0.0°}, S: {(ColourPrimitive)S:0.000}, V: {(ColourPrimitive)V:0.000}, A: {(ColourPrimitive)A:0.000}";
-        public override string ToString() => $"H: {(ColourPrimitive)H}, S: {(ColourPrimitive)S}, V: {(ColourPrimitive)V}, A: {(ColourPrimitive)A}";
+        string DisplayString => $"H: {(ColourPrimitive)H:0.0°}, S: {(ColourPrimitive)S:0.000}, V: {(ColourPrimitive)L:0.000}, A: {(ColourPrimitive)A:0.000}";
+        public override string ToString() => $"H: {(ColourPrimitive)H}, S: {(ColourPrimitive)S}, V: {(ColourPrimitive)L}, A: {(ColourPrimitive)A}";
 
         /// <summary>
         /// Hue
@@ -78,33 +80,26 @@ namespace HisRoyalRedness.com
         public UnitColourComponent S => _s;
         readonly UnitColourComponent _s;
         /// <summary>
-        /// Value
-        /// 0 - 1. 0 = Darkest (black), 1 = Brightest (full colour)
+        /// Lightness
+        /// 0 - 1. 0 = Darkest (black), 0.5 (full colour), 1 = Brightest (white)
         /// </summary>
-        public UnitColourComponent V => _v;
-        readonly UnitColourComponent _v;
+        public UnitColourComponent L => _l;
+        readonly UnitColourComponent _l;
 
         public UnitColourComponent A => _a;
         readonly UnitColourComponent _a;
 
-        // Alias
-        /// <summary>
-        /// Brightness
-        /// 0 - 1. 0 = Darkest (black), 1 = Brightest (full colour)
-        /// </summary>
-        public UnitColourComponent B => _v;
-
         #region Add and subtract
-        public static HSVColour operator +(HSVColour a, HSVColour b)
-            => new HSVColour(a.H + b.H, a.S + b.S, a.V + b.V, a.A + b.A);
-        public static HSVColour operator -(HSVColour a, HSVColour b)
-            => new HSVColour(a.H - b.H, a.S - b.S, a.V - b.V, a.A - b.A);
+        public static HSLColour operator +(HSLColour a, HSLColour b)
+            => new HSLColour(a.H + b.H, a.S + b.S, a.L + b.L, a.A + b.A);
+        public static HSLColour operator -(HSLColour a, HSLColour b)
+            => new HSLColour(a.H - b.H, a.S - b.S, a.L - b.L, a.A - b.A);
         #endregion Add and subtract
 
         #region Implicit and explicit casts
-        public static implicit operator ColourVector(HSVColour colour) => new ColourVector(colour.H, colour.S, colour.V);
+        public static implicit operator ColourVector(HSLColour colour) => new ColourVector(colour.H, colour.S, colour.L);
 
-        public static explicit operator HSVColour(ColourVector vector) => new HSVColour(vector.X, vector.Y, vector.Z);
+        public static explicit operator HSLColour(ColourVector vector) => new HSLColour(vector.X, vector.Y, vector.Z);
         #endregion Implicit and explicit casts
     }
 }

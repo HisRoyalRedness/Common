@@ -49,7 +49,7 @@ namespace HisRoyalRedness.com
 #>
     #region <#=componentType#>
     [DebuggerDisplay("{DisplayString}")]
-    public partial struct <#=componentType#> : IEquatable<<#=componentType#>>, IComparable, IComparable<<#=componentType#>>
+    public partial struct <#=componentType#> 
     {
         #region Constructors
 <#  foreach(var overloadType in overloadTypes)
@@ -197,40 +197,6 @@ namespace HisRoyalRedness.com
     }
 #>
         #endregion Add and subtract
-
-        #region IEquality
-        public bool Equals(<#=componentType#> other) => Value == other.Value;
-        public override bool Equals(object obj) => obj is <#=componentType#> && this == (<#=componentType#>)obj;
-
-        public override int GetHashCode() => Value.GetHashCode();
-
-        public static bool operator ==(<#=componentType#> a, <#=componentType#> b) => a.Value == b.Value;
-        public static bool operator !=(<#=componentType#> a, <#=componentType#> b) => !(a.Value == b.Value);
-        #endregion IEquality
-
-        #region Comparison
-        public static int Compare(<#=componentType#> left, <#=componentType#> right)
-            => left.Value > right.Value
-                ? 1
-                : (left.Value < right.Value
-                    ? -1
-                    : 0);
-
-        public int CompareTo(object obj)
-        {
-            if (obj == null)
-                return 1;
-            if (!(obj is <#=componentType#>))
-                throw new ArgumentException("Object must be of type <#=componentType#>.");
-            return Compare(this, (<#=componentType#>)obj);}
-
-        public int CompareTo(<#=componentType#> other) => Compare(this, other.Value);
-
-        public static bool operator <(<#=componentType#> left, <#=componentType#> right) => Compare(left, right.Value) < 0;
-        public static bool operator <=(<#=componentType#> left, <#=componentType#> right) => Compare(left, right.Value) <= 0;
-        public static bool operator >(<#=componentType#> left, <#=componentType#> right) => Compare(left, right.Value) > 0;
-        public static bool operator >=(<#=componentType#> left, <#=componentType#> right) => Compare(left, right.Value) >= 0;
-        #endregion Comparison
     }
     #endregion <#=componentType#>
 

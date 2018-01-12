@@ -24,7 +24,7 @@ namespace HisRoyalRedness.com
 #endif
 
     #region ByteColourComponent
-    public partial struct ByteColourComponent : IComparable, IComparable<ByteColourComponent>
+    public partial struct ByteColourComponent
     {
         public ByteColourComponent(byte value)
         {

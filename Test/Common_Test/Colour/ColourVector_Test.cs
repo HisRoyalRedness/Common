@@ -20,8 +20,8 @@ namespace HisRoyalRedness.com.Tests
     [TestClass]
     public class ColourVector_Test
     {
-        [TestCategory("ColourVector")]
         [TestMethod]
+        [TestCategory(nameof(ColourVector))]
         public void Test_ColourVector_Construction()
         {
             var v = new ColourVector(1, 2, 3);
@@ -30,8 +30,8 @@ namespace HisRoyalRedness.com.Tests
             v.Z.Should().Be(3);
         }
 
-        [TestCategory("ColourVector")]
         [TestMethod]
+        [TestCategory(nameof(ColourVector))]
         public void Test_ColourVector_Add()
         {
             var v1 = new ColourVector(1, 2, 3);
@@ -39,8 +39,8 @@ namespace HisRoyalRedness.com.Tests
             (v1 + v2).Should().Be(new ColourVector(5, 7, 9));
         }
 
-        [TestCategory("ColourVector")]
         [TestMethod]
+        [TestCategory(nameof(ColourVector))]
         public void Test_ColourVector_Subtract()
         {
             var v1 = new ColourVector(1, 2, 6);
@@ -49,8 +49,8 @@ namespace HisRoyalRedness.com.Tests
             (v2 - v2).Should().Be(new ColourVector(0, 0, 0));
         }
 
-        [TestCategory("ColourVector")]
         [TestMethod]
+        [TestCategory(nameof(ColourVector))]
         public void Test_ColourVector_Multiply()
         {
             var v1 = new ColourVector(1, 2, 3);
@@ -58,22 +58,12 @@ namespace HisRoyalRedness.com.Tests
             (2.0 * v1).Should().Be(new ColourVector(2, 4, 6));
         }
 
-        [TestCategory("ColourVector")]
         [TestMethod]
+        [TestCategory(nameof(ColourVector))]
         public void Test_ColourVector_Divide()
         {
             var v1 = new ColourVector(1, 2, 3);
             (v1 / 2.0).Should().Be(new ColourVector(0.5, 1, 1.5));
-        }
-
-        [TestCategory("ColourVector")]
-        [TestMethod]
-        public void Test_ColourVector_Alias()
-        {
-            var v1 = new ColourVector(1, 2, 3);
-            v1.X.Should().Be(v1.R);
-            v1.Y.Should().Be(v1.G);
-            v1.Z.Should().Be(v1.B);
-        }        
+        }       
     }
 }

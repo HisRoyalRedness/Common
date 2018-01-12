@@ -125,6 +125,8 @@
     </Compile>
     <Compile Include="Colour\ColourMatrix_Test.cs" />
     <Compile Include="Colour\ColourComponents\DegreeColourComponent_Test.cs" />
+    <Compile Include="Colour\HSLColour_Test.cs" />
+    <Compile Include="Colour\HSVColour_Test.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FragmentBuffer_Test.cs" />
     <Compile Include="NotifyBase_Tests.cs" />

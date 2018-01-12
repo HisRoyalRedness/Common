@@ -23,8 +23,7 @@ namespace HisRoyalRedness.com
     using ColourPrimitive = Double;
 #endif
 
-    #region SRGB
-    [DebuggerDisplay("R: {R}, G: {G}, B: {B}, A: {A}, {Hex32}")]
+    [DebuggerDisplay("{DisplayString}")]
     public struct SRGBColour
     {
         public SRGBColour(ByteColourComponent r, ByteColourComponent g, ByteColourComponent b)
@@ -43,8 +42,19 @@ namespace HisRoyalRedness.com
             _a = a;
         }
 
+        public SRGBColour(ColourVector v, ByteColourComponent a)
+        {
+            _r = v.X;
+            _g = v.Y;
+            _b = v.Z;
+            _a = a;
+        }
+
         public string Hex24 => $"#{(byte)R:X2}{(byte)G:X2}{(byte)B:X2}";
         public string Hex32 => $"#{(byte)A:X2}{(byte)R:X2}{(byte)G:X2}{(byte)B:X2}";
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        string DisplayString => $"R: {R}, G: {G}, B: {B}, A: {A}, {Hex32}";
         public override string ToString() => Hex32;
 
         /// <summary>
@@ -71,18 +81,19 @@ namespace HisRoyalRedness.com
 
         #region Add and subtract
         public static SRGBColour operator +(SRGBColour a, SRGBColour b)
-            => new SRGBColour((int)a.R + (int)b.R, (int)a.G + (int)b.G, (int)a.B + (int)b.B, (int)a.A);
+            => new SRGBColour((int)a.R + (int)b.R, (int)a.G + (int)b.G, (int)a.B + (int)b.B, (int)a.A + (int)b.A);
         public static SRGBColour operator -(SRGBColour a, SRGBColour b)
-            => new SRGBColour((int)a.R - (int)b.R, (int)a.G - (int)b.G, (int)a.B - (int)b.B, (int)a.A);
+            => new SRGBColour((int)a.R - (int)b.R, (int)a.G - (int)b.G, (int)a.B - (int)b.B, (int)a.A - (int)b.A);
         #endregion Add and subtract
 
-        #region Implicit casts
+        #region Implicit and explicit casts
         public static implicit operator Color(SRGBColour colour) => Color.FromArgb(colour.A, colour.R, colour.G, colour.B);
         public static implicit operator ColourVector(SRGBColour colour) => new ColourVector(colour.R, colour.G, colour.B);
-        #endregion Implicit casts
-    }
-    #endregion SRGB
 
+        public static explicit operator SRGBColour(Color colour) => new SRGBColour(colour.R, colour.G, colour.B, colour.A);
+        public static explicit operator SRGBColour(ColourVector vector) => new SRGBColour(vector.X, vector.Y, vector.Z);
+        #endregion Implicit and explicit casts
+    }
 }
 
 /*
