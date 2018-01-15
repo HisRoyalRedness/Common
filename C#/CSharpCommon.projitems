@@ -9,6 +9,7 @@
     <Import_RootNamespace>HisRoyalRedness.com</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)BiMap.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CircularBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\ColourComponents_Templated.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\ColourConversions.cs" />

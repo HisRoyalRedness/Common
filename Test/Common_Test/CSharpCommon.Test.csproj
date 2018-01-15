@@ -136,6 +136,7 @@
     <Compile Include="Colour\ColourConversion_Test.cs" />
     <Compile Include="Colour\ColourComponents\UnitColourComponent_Test.cs" />
     <Compile Include="Colour\SRGBColour_Test.cs" />
+    <Compile Include="BiMap_Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
