@@ -6,7 +6,8 @@ using System.Diagnostics;
 
 /*
     Bimap implementation.
-    A dictionary that keys elements by name and value.
+    A dictionary that allows you to find items by key or value.
+    Values must be unique.
 
     Keith Fletcher
     Jan 2018
@@ -17,20 +18,20 @@ using System.Diagnostics;
 
 namespace HisRoyalRedness.com
 {
-    #region BiMap<T>
-    public class BiMap<T> : IDictionary<T, T>
+    public interface IBiMap<T1, T2> : IDictionary<T1, T2>
     {
-        readonly Dictionary<T, T> _dict1 = new Dictionary<T, T>();
-        readonly Dictionary<T, T> _dict2 = new Dictionary<T, T>();
+        bool ContainsValue(T2 value);
+        bool ContainsValue(KeyValuePair<T2, T1> item);
+        bool RemoveValue(T2 value);
+    }
 
+    #region BiMap<T>
+    public class BiMap<T> : IBiMap<T, T>
+    {
         #region IDictionary<T, T> implementation
+        [DebuggerStepThrough]
         public void Add(T key, T value)
         {
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
-
             _dict1.Add(key, value);
             try
             {
@@ -43,13 +44,13 @@ namespace HisRoyalRedness.com
             }
         }
 
+        [DebuggerStepThrough]
         public void Add(KeyValuePair<T, T> item) => Add(item.Key, item.Value);
 
+        [DebuggerStepThrough]
+        todo - Fix
         public bool Remove(T key)
         {
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
-
             if (_dict1.ContainsKey(key))
             {
                 var value = _dict1[key];
@@ -82,22 +83,23 @@ namespace HisRoyalRedness.com
                 return false;
         }
 
+        [DebuggerStepThrough]
         public bool Remove(KeyValuePair<T, T> item) => Remove(item.Key);
 
         public T this[T key]
         {
+            [DebuggerStepThrough]
             get
             {
-                if (key == null)
-                    throw new ArgumentNullException(nameof(key));
                 return (_dict1.ContainsKey(key))
                     ? _dict1[key]
                     : _dict2[key];
             }
+            [DebuggerStepThrough]
             set
             {
-                if (key == null)
-                    throw new ArgumentNullException(nameof(key));
+                todo - Fix
+
                 // Key exists, but value points to a different key
                 // eg 1 = A
                 //    2 = B
@@ -105,19 +107,18 @@ namespace HisRoyalRedness.com
                 //
                 // dict[1] = C or dict[4] = C
 
-                if (ContainsKey(key) && (ContainsKey(value)) && !_dict1[key].Equals(value))
-                    throw new ArgumentException("An element with the same value already exists in the {0}.", GetTypeName());
+                if (ContainsKey(key) && (ContainsValue(value)) && !_dict1[key].Equals(value))
+                    throw new ArgumentException($"An element with the same value already exists in the {GetTypeName()}.");
                 
                 // Existing key
                 if (ContainsKey(key))
                 {
                     Debug.Assert(Remove(_dict1[key]));
                     Remove(key);
-
                 }
 
                 // Different key, but existing value
-                else if (ContainsKey(value))
+                else if (ContainsValue(value))
                 {
                     // Key exists, but value points to a different key
                     // eg 1 = A
@@ -132,72 +133,49 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public bool ContainsKey(T key)
-        {
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
-            return _dict1.ContainsKey(key);
-        }
-
+        [DebuggerStepThrough]
+        public bool ContainsKey(T key) => _dict1.ContainsKey(key);
+        [DebuggerStepThrough]
         public bool Contains(KeyValuePair<T, T> item) => _dict1.Contains(item);
-
-        public ICollection<T> Keys
-        { get { return _dict1.Keys; } }
-
-        public ICollection<T> Values
-        { get { return _dict1.Values; } }
-
+        public ICollection<T> Keys => _dict1.Keys;
+        public ICollection<T> Values => _dict1.Values;
+        [DebuggerStepThrough]
         public void Clear()
         {
             _dict1.Clear();
             _dict2.Clear();
         }
 
-        public int Count
-        { get { return _dict1.Count; } }
-
-        public bool IsReadOnly
-        { get { return IDict1.IsReadOnly || IDict2.IsReadOnly; } }
-
-        public IEnumerator<KeyValuePair<T, T>> GetEnumerator()
-        { return _dict1.GetEnumerator(); }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        { return this.GetEnumerator(); }
-
-        public bool TryGetValue(T key, out T value)
-        {
-            if (!_dict1.TryGetValue(key, out value))
-                return _dict2.TryGetValue(key, out value);
-            
-            return true;
-        }
-
-        public void CopyTo(KeyValuePair<T, T>[] array, int arrayIndex)
-        {
-            IDict1.CopyTo(array, arrayIndex);
-        }
+        public int Count => _dict1.Count;
+        public bool IsReadOnly => IDict1.IsReadOnly || IDict2.IsReadOnly;
+        public IEnumerator<KeyValuePair<T, T>> GetEnumerator() => _dict1.GetEnumerator();
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => this.GetEnumerator();
+        public bool TryGetValue(T key, out T value) => _dict1.TryGetValue(key, out value);
+        public void CopyTo(KeyValuePair<T, T>[] array, int arrayIndex) => IDict1.CopyTo(array, arrayIndex);
         #endregion IDictionary<T1, T2> implementation
 
-        IDictionary<T, T> IDict1
-        { get { return (IDictionary<T, T>)_dict1; } }
+        public bool ContainsValue(T value) => _dict2.ContainsKey(value);
+        public bool ContainsValue(KeyValuePair<T, T> item) => _dict2.Contains(item);
+        public bool RemoveValue(T value) => Remove(value);
 
-        IDictionary<T, T> IDict2
-        { get { return (IDictionary<T, T>)_dict2; } }
+        IDictionary<T, T> IDict1 => (IDictionary<T, T>)_dict1;
+        IDictionary<T, T> IDict2 => (IDictionary<T, T>)_dict2;
 
         string GetTypeName(bool getFullName = false)
         {
             Func<Type, string> getName = t => getFullName ? t.FullName : t.Name;
-
             var type = GetType();
             var typeArgs = type.GetGenericArguments();
-            return string.Format("{0}<{1}>", getName(type).Remove(getName(type).IndexOf('`')), getName(typeArgs[0]));
+            return $"{getName(type).Remove(getName(type).IndexOf('`'))}<{getName(typeArgs[0])},{getName(typeArgs[1])}>";
         }
+
+        readonly Dictionary<T, T> _dict1 = new Dictionary<T, T>();
+        readonly Dictionary<T, T> _dict2 = new Dictionary<T, T>();
     }
     #endregion BiMap<T>
 
     #region BiMap<T1, T2>
-    public class BiMap<T1, T2> : IDictionary<T1, T2>
+    public class BiMap<T1, T2> : IBiMap<T1, T2>
     {
         public BiMap()
         {
@@ -238,9 +216,9 @@ namespace HisRoyalRedness.com
         }
 
         #region IDictionary<T1, T2> implementation
+        [DebuggerStepThrough]
         public void Add(T1 key, T2 value)
         {
-
             _dict1.Add(key, value);
             try
             {
@@ -253,8 +231,10 @@ namespace HisRoyalRedness.com
             }
         }
 
+        [DebuggerStepThrough]
         public void Add(KeyValuePair<T1, T2> item) => Add(item.Key, item.Value);
 
+        [DebuggerStepThrough]
         public bool Remove(T1 key)
         {
 
@@ -271,11 +251,14 @@ namespace HisRoyalRedness.com
             return true;
         }
 
+        [DebuggerStepThrough]
         public bool Remove(KeyValuePair<T1, T2> item) => Remove(item.Key);
 
         public T2 this[T1 key]
         {
+            [DebuggerStepThrough]
             get { return _dict1[key]; }
+            [DebuggerStepThrough]
             set
             {
                 // Key exists, but value points to a different key
@@ -284,19 +267,18 @@ namespace HisRoyalRedness.com
                 //    3 = C
                 //
                 // dict[1] = C or dict[4] = C
-                if (ContainsKey(key) && ContainsKey(value) && !_dict2[value].Equals(key))
+                if (ContainsKey(key) && ContainsValue(value) && !_dict2[value].Equals(key))
                     throw new ArgumentException($"An element with the same value already exists in the {GetTypeName()}.");
 
                 // Existing key
                 if (ContainsKey(key))
                 {
-                    Debug.Assert(Remove(_dict1[key]));
+                    Debug.Assert(RemoveValue(_dict1[key]));
                     Remove(key);
-
                 }
 
                 // Different key, but existing value
-                else if (ContainsKey(value))
+                else if (ContainsValue(value))
                 {
                     // Key exists, but value points to a different key
                     // eg 1 = A
@@ -311,10 +293,13 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public bool ContainsKey(T1 key) => _dict1.ContainsKey(key); 
+        [DebuggerStepThrough]
+        public bool ContainsKey(T1 key) => _dict1.ContainsKey(key);
+        [DebuggerStepThrough]
         public bool Contains(KeyValuePair<T1, T2> item)=> _dict1.Contains(item);
         public ICollection<T1> Keys => _dict1.Keys;
-        public ICollection<T2> Values => _dict1.Values; 
+        public ICollection<T2> Values => _dict1.Values;
+        [DebuggerStepThrough]
         public void Clear()
         {
             _dict1.Clear();
@@ -326,86 +311,12 @@ namespace HisRoyalRedness.com
         public IEnumerator<KeyValuePair<T1, T2>> GetEnumerator() => _dict1.GetEnumerator();
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => this.GetEnumerator();
         public bool TryGetValue(T1 key, out T2 value) => _dict1.TryGetValue(key, out value);
-        public void CopyTo(KeyValuePair<T1, T2>[] array, int arrayIndex) => IDict1.CopyTo(array, arrayIndex);        
+        public void CopyTo(KeyValuePair<T1, T2>[] array, int arrayIndex) => IDict1.CopyTo(array, arrayIndex);
         #endregion IDictionary<T1, T2> implementation
 
-        #region IDictionary<T2, T1> implementation
-        public void Add(T2 key, T1 value)
-        {
-            _dict2.Add(key, value);
-            try
-            {
-                _dict1.Add(value, key);
-            }
-            catch (Exception)
-            {
-                _dict2.Remove(key);
-                throw;
-            }
-        }
-
-        public void Add(KeyValuePair<T2, T1> item) => Add(item.Key, item.Value);
-
-        public bool Remove(T2 key)
-        {
-            if (!_dict2.ContainsKey(key))
-                return false;
-
-            var value = _dict2[key];
-            if (!_dict2.Remove(key))
-                return false;
-
-            if (!_dict1.Remove(value))
-                throw new ApplicationException($"The {GetTypeName()} is in an inconsistent state after attempting to remove an item.");
-
-            return true;
-        }
-
-        public bool Remove(KeyValuePair<T2, T1> item) => Remove(item.Key);
-
-        public T1 this[T2 key]
-        {
-            get { return _dict2[key]; }
-            set
-            {
-                // Key exists, but value points to a different key
-                // eg 1 = A
-                //    2 = B
-                //    3 = C
-                //
-                // dict[1] = C or dict[4] = C
-                if (ContainsKey(key) && ContainsKey(value) && !_dict1[value].Equals(key))
-                    throw new ArgumentException($"An element with the same value already exists in the {GetTypeName()}.");
-
-                // Existing key
-                if (ContainsKey(key))
-                {
-                    Debug.Assert(Remove(_dict2[key]));
-                    Remove(key);
-
-                }
-
-                // Different key, but existing value
-                else if (ContainsKey(value))
-                {
-                    // Key exists, but value points to a different key
-                    // eg 1 = A
-                    //    2 = B
-                    //    3 = C
-                    //
-                    // dict[4] = C
-                    throw new ArgumentException("An element with the same value already exists in the Dictionary.");
-                }
-
-                Add(key, value);
-            }
-        }
-
-        public bool ContainsKey(T2 key) => _dict2.ContainsKey(key);
-        public bool Contains(KeyValuePair<T2, T1> item) => _dict2.Contains(item);
-        public bool TryGetValue(T2 key, out T1 value) => _dict2.TryGetValue(key, out value);
-        public void CopyTo(KeyValuePair<T2, T1>[] array, int arrayIndex) => IDict2.CopyTo(array, arrayIndex);
-        #endregion IDictionary<T2, T1> implementation
+        public bool ContainsValue(T2 value) => _dict2.ContainsKey(value);
+        public bool ContainsValue(KeyValuePair<T2, T1> item) => _dict2.Contains(item);
+        public bool RemoveValue(T2 value) => ContainsValue(value) ? Remove(_dict2[value]) : false;        
 
         IDictionary<T1, T2> IDict1 => (IDictionary<T1, T2>)_dict1;
         IDictionary<T2, T1> IDict2 => (IDictionary<T2, T1>)_dict2;
