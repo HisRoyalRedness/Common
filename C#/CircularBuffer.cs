@@ -66,9 +66,9 @@ namespace HisRoyalRedness.com
         /// </summary>
         /// <param name="capacity">The maximum number of elements that the
         /// <see cref="CircularBuffer{T}"/> can hold</param>
-        /// <param name="overwrite">If <paramref name="overwrite"/> is true, an <see cref="ArgumentException"/>
+        /// <param name="overwrite">If <paramref name="overwrite"/> is false, an <see cref="InvalidOperationException"/>
         /// is thrown if you exceed the buffer size. When <paramref name="overwrite"/>
-        /// is false, newer data overwrites the older elements in the buffer.</param>
+        /// is true, newer data overwrites the older elements in the buffer.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is not larger than 0.</exception>
         [DebuggerStepThrough]
         public CircularBuffer(int capacity, bool overwrite = false)
