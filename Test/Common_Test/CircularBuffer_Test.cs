@@ -193,6 +193,27 @@ namespace HisRoyalRedness.com.Tests
             remove = () => cb.Remove();
             remove.ShouldThrow<InvalidOperationException>("you shouldn't be able to remove from an empty buffer");
         }
+
+        [TestMethod]
+        public void Test_Remove_Count()
+        {
+            var capacity = 5;
+            var overwrite = true;
+            var cb = CreatePopulated(5, capacity, overwrite);
+
+            // Remove fewer elements than there are in the collection
+            var removed = cb.Remove(3);
+            removed.Should().Be(3, "3 item should be removed");
+            cb.Count().Should().Be(2, "Count should have decreased by 3");
+            cb.Should().Equal(4, 5);
+
+            // Remove more elements than there are in the collection
+            removed = cb.Remove(3);
+            removed.Should().Be(2, "2 item should be removed");
+            cb.Count().Should().Be(0, "Count should be 0");
+            cb.Should().BeEmpty();
+
+        }
         #endregion Test_Remove
 
         #region Test_Indexing
@@ -387,6 +408,32 @@ namespace HisRoyalRedness.com.Tests
             cb.Count.Should().Be(expectedCount - toRead);
 
         }
+
+        [TestMethod]
+        public void Test_Write()
+        {
+            // First try overwrite defaulted to true
+            var cb = new CircularBuffer<int>(capacity: 5, overwrite: true);
+            cb.Count.Should().Be(0, $"Count should start off at 0");
+
+            // Add a single item
+            cb.Write(new int[] { 1 }, 0, 1);
+            cb.Count.Should().Be(1);
+            cb.Should().Equal(new int[] { 1 });
+
+            // Add a subset from the given array
+            cb.Write(new int[] { 1, 2, 3, 4, 5 }, 1, 2);
+            cb.Count.Should().Be(3);
+            cb.Should().Equal(new int[] { 1, 2, 3 });
+
+            new Action(() => cb.Write(new int[] { 1, 2, 3, 4, 5 }, 6, 2)).ShouldThrow<ArgumentException>("offset is out of range of the input array");
+            new Action(() => cb.Write(new int[] { 1, 2, 3, 4, 5 }, 2, 9)).ShouldThrow<ArgumentException>("length is out of range of the input array");
+
+            cb.Write(new int[] { 6, 7, 8, 9, 10, 11, 12 }, 0, 7);
+            cb.Count.Should().Be(5);
+            cb.Should().Equal(new int[] { 8, 9, 10, 11, 12 });
+        }
+
 
         // Read - incomplete
         // Write

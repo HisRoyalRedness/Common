@@ -186,9 +186,9 @@ namespace HisRoyalRedness.com
         }
 
         /// <summary>
-        /// Creates an array from a <see cref="CircularBuffer{T}"/>.
+        /// Creates an array from a <see cref="FragmentBuffer{T}"/>.
         /// </summary>
-        /// <returns>An array that contains the elements of the <see cref="CircularBuffer{T}"/> instance.</returns>
+        /// <returns>An array that contains the elements of the <see cref="FragmentBuffer{T}"/> instance.</returns>
         [DebuggerStepThrough]
         public T[] ToArray()
         {

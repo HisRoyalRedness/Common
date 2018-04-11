@@ -275,6 +275,29 @@ namespace HisRoyalRedness.com
         }
 
         /// <summary>
+        /// Remove items from the <see cref="CircularBuffer{T}"/>.
+        /// </summary>
+        /// <param name="length">The number of items to remove.
+        /// Fewer then <paramref name="length"/> items may be removed if there aren't enough items in the
+        /// <see cref="CircularBuffer{T}"/>.
+        /// <returns>The number of items removed from <see cref="CircularBuffer{T}"/>.</returns>
+        [DebuggerStepThrough]
+        public int Remove(int length)
+        {
+            var len = length > Count ? Count : length;
+            if (len == Count)
+                _readIndex = _writeIndex;
+            else
+            {
+                _readIndex += len;
+                if (_readIndex >= _capacity)
+                    _readIndex -= _capacity;
+            }
+            _isFull = false;
+            return len;
+        }
+
+        /// <summary>
         /// Return a single item from the <see cref="CircularBuffer{T}"/>
         /// without removing it.
         /// </summary>
@@ -301,7 +324,7 @@ namespace HisRoyalRedness.com
         /// <summary>
         /// Remove items from the <see cref="CircularBuffer{T}"/>, and copies
         /// them into <paramref name="data"/>.
-        /// Use <see cref="CopyTo(T[], int, int)"/> is you want to copy items
+        /// Use <see cref="CopyTo(T[], int, int)"/> if you want to copy items
         /// without removing them from the <see cref="CircularBuffer{T}"/>.
         /// </summary>
         /// <param name="data">The array to copy the items into.</param>

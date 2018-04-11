@@ -22,7 +22,17 @@ namespace HisRoyalRedness.com.Tests
             //var srgb = new SRGBColour(12, 34, 56, 78);
             //var hsv = srgb.ToHSV();
 
-            var gg = new SRGBColour(0x0C, 0x66, 0xEE).ToHSL();
+            //var gg = new SRGBColour(0x0C, 0x66, 0xEE).ToHSL();
+
+            var biMap = new BiMap<int, int>()
+            {
+                { 1, (short)1 },
+                { 2, (short)2 },
+                { 3, (short)3 },
+            };
+
+            biMap[3] = 1;
+
         }
     }
 }
