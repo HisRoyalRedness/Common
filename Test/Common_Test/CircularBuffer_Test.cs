@@ -173,7 +173,7 @@ namespace HisRoyalRedness.com.Tests
 
             // Test the ICollection implementation.
             Action remove = () => ((ICollection<int>)cb).Remove(2);
-            remove.ShouldThrow<NotSupportedException>();
+            remove.Should().Throw<NotSupportedException>();
 
             // Test the regular implementation
             var item = cb.Remove();
@@ -191,7 +191,7 @@ namespace HisRoyalRedness.com.Tests
 
             // Test exceptions
             remove = () => cb.Remove();
-            remove.ShouldThrow<InvalidOperationException>("you shouldn't be able to remove from an empty buffer");
+            remove.Should().Throw<InvalidOperationException>("you shouldn't be able to remove from an empty buffer");
         }
 
         [TestMethod]
@@ -426,8 +426,8 @@ namespace HisRoyalRedness.com.Tests
             cb.Count.Should().Be(3);
             cb.Should().Equal(new int[] { 1, 2, 3 });
 
-            new Action(() => cb.Write(new int[] { 1, 2, 3, 4, 5 }, 6, 2)).ShouldThrow<ArgumentException>("offset is out of range of the input array");
-            new Action(() => cb.Write(new int[] { 1, 2, 3, 4, 5 }, 2, 9)).ShouldThrow<ArgumentException>("length is out of range of the input array");
+            new Action(() => cb.Write(new int[] { 1, 2, 3, 4, 5 }, 6, 2)).Should().Throw<ArgumentException>("offset is out of range of the input array");
+            new Action(() => cb.Write(new int[] { 1, 2, 3, 4, 5 }, 2, 9)).Should().Throw<ArgumentException>("length is out of range of the input array");
 
             cb.Write(new int[] { 6, 7, 8, 9, 10, 11, 12 }, 0, 7);
             cb.Count.Should().Be(5);

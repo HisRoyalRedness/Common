@@ -25,21 +25,21 @@ namespace HisRoyalRedness.com.Tests
             where TException : Exception
         {
             Action simpleAction = () => action(value);
-            return simpleAction.ShouldThrow<TException>(because, reasonArgs);
+            return simpleAction.Should().Throw<TException>(because, reasonArgs);
         }
 
         public static FluentAssertions.Specialized.ExceptionAssertions<TException> ShouldThrow<TException, TValue1, TValue2>(this Action<TValue1, TValue2> action, TValue1 value1, TValue2 value2, string because = "", params object[] reasonArgs)
             where TException : Exception
         {
             Action simpleAction = () => action(value1, value2);
-            return simpleAction.ShouldThrow<TException>(because, reasonArgs);
+            return simpleAction.Should().Throw<TException>(because, reasonArgs);
         }
 
         public static FluentAssertions.Specialized.ExceptionAssertions<TException> ShouldThrow<TException, TValue1, TValue2, TValue3>(this Action<TValue1, TValue2, TValue3> action, TValue1 value1, TValue2 value2, TValue3 value3, string because = "", params object[] reasonArgs)
             where TException : Exception
         {
             Action simpleAction = () => action(value1, value2, value3);
-            return simpleAction.ShouldThrow<TException>(because, reasonArgs);
+            return simpleAction.Should().Throw<TException>(because, reasonArgs);
         }
     }
     #endregion Test Extensions

@@ -23,7 +23,7 @@ namespace HisRoyalRedness.com.Tests
             Subject = value;
         }
 
-        protected override string Context => nameof(ColourMatrix);
+        protected override string Identifier => nameof(ColourMatrix);
 
         public AndConstraint<ColourMatrixAssertions> Be(ColourMatrix expected, string because = "", params object[] becauseArgs)
         {
@@ -67,7 +67,7 @@ namespace HisRoyalRedness.com.Tests
             Subject = value;
         }
 
-        protected override string Context => nameof(ColourVector);
+        protected override string Identifier => nameof(ColourVector);
 
         public AndConstraint<ColourVectorAssertions> Be(ColourVector expected, string because = "", params object[] becauseArgs)
         {
@@ -99,7 +99,7 @@ namespace HisRoyalRedness.com.Tests
             Subject = value;
         }
 
-        protected override string Context => nameof(ByteColourComponent);
+        protected override string Identifier => nameof(ByteColourComponent);
 
         public AndConstraint<ByteColourComponentAssertions> Be(byte expected, string because = "", params object[] becauseArgs)
         {
@@ -127,7 +127,7 @@ namespace HisRoyalRedness.com.Tests
             Subject = value;
         }
 
-        protected override string Context => nameof(UnitColourComponent);
+        protected override string Identifier => nameof(UnitColourComponent);
 
         public AndConstraint<UnitColourComponentAssertions> Be(ColourPrimitive expected, string because = "", params object[] becauseArgs)
         {
@@ -155,7 +155,7 @@ namespace HisRoyalRedness.com.Tests
             Subject = value;
         }
 
-        protected override string Context => nameof(DegreeColourComponent);
+        protected override string Identifier => nameof(DegreeColourComponent);
 
         public AndConstraint<DegreeColourComponentAssertions> Be(ColourPrimitive expected, string because = "", params object[] becauseArgs)
         {
@@ -183,7 +183,7 @@ namespace HisRoyalRedness.com.Tests
             Subject = value;
         }
 
-        protected override string Context => nameof(SRGBColour);
+        protected override string Identifier => nameof(SRGBColour);
 
         public AndConstraint<SRGBColourAssertions> Be(SRGBColour expected, string because = "", params object[] becauseArgs)
         {
@@ -237,7 +237,7 @@ namespace HisRoyalRedness.com.Tests
             Subject = value;
         }
 
-        protected override string Context => nameof(HSVColour);
+        protected override string Identifier => nameof(HSVColour);
 
         public AndConstraint<HSVColourAssertions> Be(HSVColour expected, string because = "", params object[] becauseArgs)
         {
@@ -291,7 +291,7 @@ namespace HisRoyalRedness.com.Tests
             Subject = value;
         }
 
-        protected override string Context => nameof(HSLColour);
+        protected override string Identifier => nameof(HSLColour);
 
         public AndConstraint<HSLColourAssertions> Be(HSLColour expected, string because = "", params object[] becauseArgs)
         {
