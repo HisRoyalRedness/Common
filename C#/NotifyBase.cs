@@ -269,10 +269,14 @@ namespace HisRoyalRedness.com
         /// </summary>
         bool HasChanged<TValue>(TValue propertyMember, TValue newValue)
         {
-            if (propertyMember == null && newValue == null)
-                return false;
-            if (propertyMember == null || newValue == null)
-                return true;
+            if (typeof(TValue).IsClass)
+            {
+                if (propertyMember == null && newValue == null)
+                    return false;
+
+                if (propertyMember == null || (object)newValue == null)
+                    return true;
+            }
 
             return (propertyMember is IEquatable<TValue> propEquatable)
                 ? !propEquatable.Equals(newValue)
