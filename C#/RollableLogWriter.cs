@@ -163,15 +163,39 @@ namespace HisRoyalRedness.com
         /// <summary>
         /// Manually roll to a new log file, regardless of the current log file size.
         /// </summary>
-        public void RollLogFile() => CreateNewLogFile();
+        public void RollLogFile()
+        {
+            _semaphore.Wait();
+            try
+            {
+                CreateNewLogFile();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         /// <summary>
         /// Manually roll to a new log file, regardless of the current log file size.
         /// </summary>
-        public Task RollLogFileAsync() => CreateNewLogFileAsync();
+        public Task RollLogFileAsync() => RollLogFileAsync(CancellationToken.None);
+
         /// <summary>
         /// Manually roll to a new log file, regardless of the current log file size.
         /// </summary>
-        public Task RollLogFileAsync(CancellationToken token) => CreateNewLogFileAsync(token);
+        public async Task RollLogFileAsync(CancellationToken token)
+        {
+            await _semaphore.WaitAsync(token);
+            try
+            {
+                await CreateNewLogFileAsync(token);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
         #region Write overrides
         public override void Write(char value) => WriteInternal(ToByteArray(value));
@@ -200,62 +224,41 @@ namespace HisRoyalRedness.com
         #region CreateNewLogFile
         void CreateNewLogFile()
         {
-            _semaphore.Wait();
-            try
+            if (_baseStream != null)
             {
-                if (_baseStream != null)
-                {
-                    if (!string.IsNullOrWhiteSpace(FooterLine))
-                        WriteLine(FooterLine);
-                    _baseStream.Flush();
-                    _baseStream.Close();
-                    _baseStream = null;
-                    _fileName = string.Empty;
-                }
-                var fileName = _fileNameGenerator(BasePath);
-                _baseStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 1024 * 1024, FileOptions.WriteThrough);
-                _fileName = fileName;
-                _currentSize = 0;
-                if (!string.IsNullOrWhiteSpace(HeaderLine))
-                    WriteLine(HeaderLine);
-
+                if (!string.IsNullOrWhiteSpace(FooterLine))
+                    WriteLine(FooterLine);
+                _baseStream.Flush();
+                _baseStream.Close();
+                _baseStream = null;
+                _fileName = string.Empty;
             }
-            finally
-            {
-                _semaphore.Release();
-            }
+            var fileName = _fileNameGenerator(BasePath);
+            _baseStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 1024 * 1024, FileOptions.WriteThrough);
+            _fileName = fileName;
+            _currentSize = 0;
+            if (!string.IsNullOrWhiteSpace(HeaderLine))
+                WriteInternalNoLock(ToByteArray(HeaderLine), true); // We should already be inside a semaphore lock
         }
 
         Task CreateNewLogFileAsync() => CreateNewLogFileAsync(CancellationToken.None);
         async Task CreateNewLogFileAsync(CancellationToken token)
         {
-            await _semaphore.WaitAsync();
-            try
+            if (_baseStream != null)
             {
-                if (_baseStream != null)
-                {
-                    if (!string.IsNullOrWhiteSpace(FooterLine))
-                        await WriteLineAsync(FooterLine, token);
-                    await _baseStream.FlushAsync(token);
-                    _baseStream.Close();
-                    _baseStream = null;
-                    _fileName = string.Empty;
-                }
-                var fileName = _fileNameGenerator(BasePath);
-                _baseStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 1024 * 1024, FileOptions.WriteThrough);
-                _fileName = fileName;
-                _currentSize = 0;
-                if (!string.IsNullOrWhiteSpace(HeaderLine))
-                    await WriteLineAsync(HeaderLine, token);
+                if (!string.IsNullOrWhiteSpace(FooterLine))
+                    await WriteLineAsync(FooterLine, token);
+                await _baseStream.FlushAsync(token);
+                _baseStream.Close();
+                _baseStream = null;
+                _fileName = string.Empty;
             }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+            var fileName = _fileNameGenerator(BasePath);
+            _baseStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 1024 * 1024, FileOptions.WriteThrough);
+            _fileName = fileName;
+            _currentSize = 0;
+            if (!string.IsNullOrWhiteSpace(HeaderLine))
+                await WriteLineAsync(HeaderLine, token);
         }
         #endregion CreateNewLogFile
 
@@ -306,7 +309,7 @@ namespace HisRoyalRedness.com
         #endregion Byte array conversions
 
         #region WriteInternal
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         int WriteInternal(byte[] buffer, bool newLine = false)
         {
             var bytesWritten = 0;
@@ -315,26 +318,36 @@ namespace HisRoyalRedness.com
                 _semaphore.Wait();
                 try
                 {
-                    if (_currentSize + buffer.Length > MaxLogFileSize || _baseStream == null)
-                        CreateNewLogFile();
-                    if (buffer.Length > 0)
-                    {
-                        _baseStream.Write(buffer, 0, buffer.Length);
-                        bytesWritten = buffer.Length;
-                    }
-                    if (newLine)
-                    {
-                        _baseStream.Write(_newLine, 0, _newLine.Length);
-                        bytesWritten += _newLine.Length;
-                    }
-                    if (AutoFlush)
-                        _baseStream.Flush();
-                    _currentSize += bytesWritten;
+                    bytesWritten = WriteInternalNoLock(buffer, newLine);
                 }
                 finally
                 {
                     _semaphore.Release();
                 }
+            }
+            return 0;
+        }
+
+        int WriteInternalNoLock(byte[] buffer, bool newLine = false)
+        {
+            var bytesWritten = 0;
+            if (buffer.Length > 0 || newLine)
+            {
+                if (_currentSize + buffer.Length > MaxLogFileSize || _baseStream == null)
+                    CreateNewLogFile();
+                if (buffer.Length > 0)
+                {
+                    _baseStream.Write(buffer, 0, buffer.Length);
+                    bytesWritten = buffer.Length;
+                }
+                if (newLine)
+                {
+                    _baseStream.Write(_newLine, 0, _newLine.Length);
+                    bytesWritten += _newLine.Length;
+                }
+                if (AutoFlush)
+                    _baseStream.Flush();
+                _currentSize += bytesWritten;
             }
             return bytesWritten;
         }
@@ -383,7 +396,7 @@ namespace HisRoyalRedness.com
         readonly string _basePath;
         readonly Encoding _encoding = Encoding.UTF8;
         string _fileName = string.Empty;
-        readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0, 1);
+        readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
         readonly byte[] _newLine;
         FileStream _baseStream = null;
