@@ -1,33 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4A6E1E2B-1B64-4C35-9327-04A6E2818424}"
-	ProjectSection(SolutionItems) = preProject
-		LICENSE = LICENSE
-		README.md = README.md
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpCommon.Test", "Test\Common_Test\CSharpCommon.Test.csproj", "{724031D2-E99F-436D-B3EF-1ADBA86B9265}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Snippets", "Snippets", "{F42D6C85-822A-4ABB-A5BB-B16B2F3132B6}"
-	ProjectSection(SolutionItems) = preProject
-		C#\Snippets\Personal.snippet = C#\Snippets\Personal.snippet
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CSharp", "CSharp", "{AD68E645-1495-4129-8207-E660C2945C84}"
-	ProjectSection(SolutionItems) = preProject
-		C#\CommandLine.cs = C#\CommandLine.cs
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Test", "Test\Common.Test\Common.Test.csproj", "{D6BFF211-8DE3-41DA-AF35-95730F731DA6}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CSharpCommon", "C#\CSharpCommon.shproj", "{78A169B1-D3FF-429D-B081-FB65DC11C637}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemplatedTypes", "C#\TemplatedTypes.csproj", "{7D39FFF7-6914-4E79-BEBD-C2B8DB84BB01}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		C#\CSharpCommon.projitems*{724031d2-e99f-436d-b3ef-1adba86b9265}*SharedItemsImports = 4
 		C#\CSharpCommon.projitems*{78a169b1-d3ff-429d-b081-fb65dc11c637}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,23 +16,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{724031D2-E99F-436D-B3EF-1ADBA86B9265}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{724031D2-E99F-436D-B3EF-1ADBA86B9265}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{724031D2-E99F-436D-B3EF-1ADBA86B9265}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{724031D2-E99F-436D-B3EF-1ADBA86B9265}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7D39FFF7-6914-4E79-BEBD-C2B8DB84BB01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7D39FFF7-6914-4E79-BEBD-C2B8DB84BB01}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7D39FFF7-6914-4E79-BEBD-C2B8DB84BB01}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7D39FFF7-6914-4E79-BEBD-C2B8DB84BB01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6BFF211-8DE3-41DA-AF35-95730F731DA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6BFF211-8DE3-41DA-AF35-95730F731DA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6BFF211-8DE3-41DA-AF35-95730F731DA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6BFF211-8DE3-41DA-AF35-95730F731DA6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{F42D6C85-822A-4ABB-A5BB-B16B2F3132B6} = {AD68E645-1495-4129-8207-E660C2945C84}
-		{AD68E645-1495-4129-8207-E660C2945C84} = {4A6E1E2B-1B64-4C35-9327-04A6E2818424}
-	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {7F422706-3E9B-47E4-8E8A-A3DAAEE1847E}
+		SolutionGuid = {AF5F5288-ADF8-405F-80A4-1820CD11CFCC}
 	EndGlobalSection
 EndGlobal
