@@ -388,6 +388,8 @@ namespace HisRoyalRedness.com
                 throw new ArgumentNullException(nameof(data));
             if (offset < 0)
                 throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} must be larger or equal to zero.");
+            if (length < 0)
+                throw new ArgumentOutOfRangeException(nameof(length), $"{nameof(length)} must be larger or equal to zero.");
             if (data.Length < length)
                 throw new ArgumentException($"{nameof(data)} is smaller than {nameof(length)}.");
             if (data.Length - offset < length)
@@ -397,6 +399,12 @@ namespace HisRoyalRedness.com
                 _WriteNotLocked(data, offset, length);
         }
 
+        public void Write(Memory<T> memory)
+        {
+            lock (_lockObj)
+                _WriteNotLocked(memory);
+        }
+
         void _WriteNotLocked(T[] data, int offset, int length)
         {
             if (length + _CountNotLocked > Capacity && !Overwrite)
@@ -404,10 +412,14 @@ namespace HisRoyalRedness.com
 
             _isFull = length + _CountNotLocked >= Capacity;
 
+            // We're way over capacity.
+            // Just throw it all away and copy from the start
             if (length > Capacity)
             {
-                offset += length - Capacity;
-                length = Capacity;
+                Array.Copy(data, offset + length - Capacity, _buffer, 0, Capacity);
+                _writeIndex = 0;
+                _readIndex = 0;
+                return;
             }
 
             if (_writeIndex + length >= Capacity)
@@ -424,6 +436,47 @@ namespace HisRoyalRedness.com
             if (length > 0)
             {
                 Array.Copy(data, offset, _buffer, _writeIndex, length);
+                _writeIndex += length;
+            }
+
+            if (_isFull)
+                _readIndex = _writeIndex;
+
+            if (_signal.CurrentCount == 0)
+                _signal.Release(1);
+        }
+
+        void _WriteNotLocked(Memory<T> memory)
+        {
+            if (memory.Length + _CountNotLocked > Capacity && !Overwrite)
+                throw new ArgumentException($"Not enough space in the {nameof(ConcurrentCircularBuffer<T>)} for the length of {nameof(memory)} provided.");
+
+            _isFull = memory.Length + _CountNotLocked >= Capacity;
+
+            // We're way over capacity.
+            // Just throw it all away and copy from the start
+            if (memory.Length > Capacity)
+            {
+                memory.Slice(memory.Length - Capacity).CopyTo(_memBuffer);
+                _writeIndex = 0;
+                _readIndex = 0;
+                return;
+            }
+
+            var firstPortion = Capacity - _writeIndex;
+            var length = memory.Length;
+            if (_writeIndex + length >= Capacity)
+            {
+                memory.Slice(0, firstPortion).CopyTo(_memBuffer.Slice(_writeIndex));
+                _writeIndex += firstPortion;
+                if (_writeIndex == Capacity)
+                    _writeIndex = 0;
+                length -= firstPortion;
+            }
+
+            if (length > 0)
+            {
+                memory.Slice(firstPortion).CopyTo(_memBuffer);
                 _writeIndex += length;
             }
 

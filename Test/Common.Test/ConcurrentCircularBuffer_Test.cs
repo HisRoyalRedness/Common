@@ -320,14 +320,6 @@ namespace HisRoyalRedness.com
         }
         #endregion Remove
 
-        #region BlockedRemove
-        [TestMethod]
-        public void Blah()
-        {
-
-        }
-        #endregion BlockedRemove
-
         #region Clear
         [TestMethod]
         public void ClearBuffer()
@@ -703,6 +695,183 @@ namespace HisRoyalRedness.com
         }
         #endregion Read
 
+        #region Write
+        [TestMethod]
+        public void Write_Array()
+        {
+            var cb = new IntBuffer(5);
+
+            var arr = new[] { 1, 2, 3 };
+            cb.Write(arr, 0, arr.Length);
+
+            cb.Count.Should().Be(3);
+            cb.ToArray().Should().Equal(new[] { 1, 2, 3 });
+        }
+
+        [TestMethod]
+        public void WriteAtCapacity_Array()
+        {
+            var cb = new IntBuffer(5);
+
+            var arr = new[] { 1, 2, 3, 4, 5 };
+            cb.Write(arr, 0, arr.Length);
+
+            cb.Count.Should().Be(5);
+            cb.ToArray().Should().Equal(new[] { 1, 2, 3, 4, 5 });
+        }
+
+        [TestMethod]
+        public void WriteOverCapacityWithOverwrite_Array()
+        {
+            var cb = new IntBuffer(5, true);
+
+            var arr = new[] { 1, 2, 3, 4, 5, 6, 7 };
+            cb.Write(arr, 0, arr.Length);
+
+            cb.Count.Should().Be(5);
+            cb.ToArray().Should().Equal(new[] { 3, 4, 5, 6, 7 });
+        }
+
+        [TestMethod]
+        public void WriteOverCapacityWithoutOverwrite_Array()
+        {
+            var cb = new IntBuffer(5);
+
+            var arr = new[] { 1, 2, 3, 4, 5, 6, 7 };
+            new Action(() => cb.Write(arr, 0, arr.Length)).Should().Throw<ArgumentException>();
+        }
+
+        [TestMethod]
+        public void WriteAnEmptyArray()
+        {
+            var cb = new IntBuffer(new int[] { -1, -1, }, 5);
+
+            var arr = new int[0];
+            cb.Write(arr, 0, arr.Length);
+
+            cb.Count.Should().Be(2);
+            cb.ToArray().Should().Equal(new[] { -1, -1 });
+        }
+
+        [TestMethod]
+        public void WriteWithNull_Array()
+        {
+            var cb = new IntBuffer(5);
+            new Action(() => cb.Write(null, 0, 1)).Should().Throw<ArgumentNullException>();
+        }
+
+        [TestMethod]
+        public void WriteWithANegativeOffset_Array()
+        {
+            var cb = new IntBuffer(5);
+            new Action(() => cb.Write(new[] { 1 }, -1, 1)).Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
+        public void WriteAnInvalidLength_Array()
+        {
+            var cb = new IntBuffer(5);
+            new Action(() => cb.Write(new[] { 1 }, 0, 2)).Should().Throw<ArgumentException>();
+        }
+
+        [TestMethod]
+        public void WriteWithANegativeLength_Array()
+        {
+            var cb = new IntBuffer(5);
+            new Action(() => cb.Write(new[] { 1 }, 0, -2)).Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [TestMethod]
+        public void WriteWithAnInvalidLengthAndOffset_Array()
+        {
+            var cb = new IntBuffer(5);
+            new Action(() => cb.Write(new[] { 1, 2, 3 }, 2, 2)).Should().Throw<ArgumentException>();
+        }
+
+        [TestMethod]
+        public void WriteWithWrap_Array()
+        {
+            var cb = new IntBuffer(new[] { 1, 2, 3 }, 5);
+            cb.Remove();
+            cb.Remove();
+            cb.Remove();
+
+            var arr = new [] { 4, 5, 6, 7 };
+            cb.Write(arr, 0, arr.Length);
+            cb.Count.Should().Be(4);
+            cb.ToArray().Should().Equal(new[] { 4, 5, 6, 7 });
+        }
+
+        [TestMethod]
+        public void WriteWithLengthOverCapacity_Array()
+        {
+            var cb = new IntBuffer(new[] { 1, 2, 3 }, 5, true);
+            cb.Remove();
+            cb.Remove();
+            cb.Remove();
+
+            var arr = new[] { 4, 5, 6, 7, 8, 9, 10, 11 };
+            cb.Write(arr, 1, 6);
+            cb.Count.Should().Be(5);
+            cb.ToArray().Should().Equal(new[] { 6, 7, 8, 9, 10 });
+        }
+
+        [TestMethod]
+        public void WriteWithLengthOverCapacity_Memory()
+        {
+            var cb = new IntBuffer(new[] { 1, 2, 3 }, 5, true);
+            cb.Remove();
+            cb.Remove();
+            cb.Remove();
+
+            var arr = new[] { 5, 6, 7, 8, 9, 10 };
+            cb.Write(new Memory<int>(arr));
+            cb.Count.Should().Be(5);
+            cb.ToArray().Should().Equal(new[] { 6, 7, 8, 9, 10 });
+        }
+
+        [TestMethod]
+        public void WriteOverCapacity_Memory()
+        {
+            var cb = new IntBuffer(new[] { 1, 2, 3 }, 5);
+
+            new Action(() => cb.Write(new Memory<int>(new[] { 1, 2, 3, 4 }))).Should().Throw<ArgumentException>();
+        }
+
+        [TestMethod]
+        public void WriteOverCapacityWithOverwrite_Memory()
+        {
+            var cb = new IntBuffer(new[] { 1, 2, 3 }, 5, true);
+
+            cb.Write(new Memory<int>(new[] { 1, 2, 3, 4 })); 
+        }
+
+        [TestMethod]
+        public void WriteWithWrap_Memory()
+        {
+            var cb = new IntBuffer(new[] { 1, 2, 3 }, 5);
+            cb.Remove();
+            cb.Remove();
+            cb.Remove();
+
+            var arr = new[] { 4, 5, 6, 7 };
+            cb.Write(new Memory<int>(arr));
+            cb.Count.Should().Be(4);
+            cb.ToArray().Should().Equal(new[] { 4, 5, 6, 7 });
+        }
+        #endregion Write
+
+
+        //if (length == 0)
+        //    return;
+        //if (data == null)
+        //    throw new ArgumentNullException(nameof(data));
+        //if (offset< 0)
+        //    throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} must be larger or equal to zero.");
+        //if (data.Length<length)
+        //    throw new ArgumentException($"{nameof(data)} is smaller than {nameof(length)}.");
+        //if (data.Length - offset<length)
+        //    throw new ArgumentException($"{nameof(data)} is smaller than {nameof(length)} with the provided {nameof(offset)}.");
 
 
         // ToArray is implicitly tested through the other tests
