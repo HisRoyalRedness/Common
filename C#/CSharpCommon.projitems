@@ -20,6 +20,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Colour\ColourMatrix.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\HSL.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CommandLineParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConcurrentCircularBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EnumerableExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FragmentBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\HSV.cs" />

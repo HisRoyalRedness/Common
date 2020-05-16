@@ -3,14 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Test", "Test\Common.Test\Common.Test.csproj", "{D6BFF211-8DE3-41DA-AF35-95730F731DA6}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CSharpCommon", "C#\CSharpCommon.shproj", "{78A169B1-D3FF-429D-B081-FB65DC11C637}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Test", "Common.Test.csproj", "{D6BFF211-8DE3-41DA-AF35-95730F731DA6}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		C#\CSharpCommon.projitems*{78a169b1-d3ff-429d-b081-fb65dc11c637}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

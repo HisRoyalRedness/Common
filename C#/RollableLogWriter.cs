@@ -264,9 +264,13 @@ namespace HisRoyalRedness.com
 
         protected override void Dispose(bool disposing)
         {
-            if (_baseStream != null)
-                _baseStream.Dispose();
-            _semaphore.Dispose();
+            try
+            {
+                _baseStream?.Dispose();
+                _semaphore.Dispose();
+            }
+            catch (Exception)
+            { }
             _baseStream = null;
             _fileName = string.Empty;
             base.Dispose(disposing);
