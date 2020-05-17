@@ -424,7 +424,7 @@ namespace HisRoyalRedness.com
                 _WriteNotLocked(data, offset, length);
         }
 
-        public void Write(Memory<T> memory)
+        public void Write(ReadOnlyMemory<T> memory)
         {
             lock (_lockObj)
                 _WriteNotLocked(memory);
@@ -471,7 +471,7 @@ namespace HisRoyalRedness.com
                 _signal.Release(1);
         }
 
-        void _WriteNotLocked(Memory<T> memory)
+        void _WriteNotLocked(ReadOnlyMemory<T> memory)
         {
             if (memory.Length + _CountNotLocked > Capacity && !Overwrite)
                 throw new ArgumentException($"Not enough space in the {nameof(ConcurrentCircularBuffer<T>)} for the length of {nameof(memory)} provided.");
