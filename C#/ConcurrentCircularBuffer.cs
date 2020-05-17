@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -19,7 +19,7 @@ using System.Threading;
 
 namespace HisRoyalRedness.com
 {
-    public class ConcurrentCircularBuffer<T> : ICollection<T>
+    public class ConcurrentCircularBuffer<T> : ICollection<T>, IProducerConsumerCollection<T>
     {
         #region Construction
         public ConcurrentCircularBuffer()
@@ -97,6 +97,12 @@ namespace HisRoyalRedness.com
         #endregion IEnumerable<T> and IEnumerable implementation
 
         #region Add
+        public bool TryAdd(T item)
+        {
+            Add(item);
+            return true;
+        }
+
         public void Add(T item) => Add(item, Overwrite);
 
         public void Add(T item, bool overwrite)
@@ -123,7 +129,7 @@ namespace HisRoyalRedness.com
         }
         #endregion Add
 
-        #region Remove
+        #region Remove / Take
         public bool Remove(T item) => throw new NotSupportedException("Removing by item is not supported");
 
         public T Remove()
@@ -139,6 +145,23 @@ namespace HisRoyalRedness.com
             lock (_lockObj)
             {
                 return _RemoveNotLocked(length);
+            }
+        }
+
+        public bool TryTake(out T item)
+        {
+            lock (_lockObj)
+            {
+                if (_CountNotLocked == 0)
+                {
+                    item = default;
+                    return false;
+                }
+                else
+                {
+                    item = _RemoveNotLocked();
+                    return true;
+                }
             }
         }
 
@@ -165,7 +188,7 @@ namespace HisRoyalRedness.com
             }
             return len;
         }
-        #endregion Remove
+        #endregion Remove / Take
 
         #region Clear
         public void Clear()
@@ -197,6 +220,8 @@ namespace HisRoyalRedness.com
 
         #region Copy
         public void CopyTo(T[] array, int offset) => CopyTo(array, offset, Count);
+        
+        public void CopyTo(Array array, int offset) => CopyTo((T[])array, offset, Count);
 
         public void CopyTo(T[] array, int offset, int length)
         {
@@ -523,6 +548,8 @@ namespace HisRoyalRedness.com
         public int Capacity { get; } = DEFAULT_CAPACITY;
         public bool Overwrite { get; set; } = DEFAULT_OVERWRITE;
         public bool IsReadOnly => false;
+        bool ICollection.IsSynchronized => false;
+        object ICollection.SyncRoot => _lockObj;
 
         #region Internal index manipulation
         /// <summary>
