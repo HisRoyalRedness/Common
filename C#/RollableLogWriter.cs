@@ -161,99 +161,90 @@ namespace HisRoyalRedness.com
         /// <summary>
         /// Manually roll to a new log file, regardless of the current log file size.
         /// </summary>
-        public void RollLogFile() => CreateNewLogFile();
+        public void RollLogFile()
+        {
+            lock (_lockObject)
+                _CreateNewLogFile_Unlocked();
+        }
         /// <summary>
         /// Manually roll to a new log file, regardless of the current log file size.
         /// </summary>
-        public Task RollLogFileAsync() => CreateNewLogFileAsync();
+        public Task RollLogFileAsync()
+        {
+            lock (_lockObject)
+                return _CreateNewLogFileAsync_Unlocked(CancellationToken.None);
+        }
         /// <summary>
         /// Manually roll to a new log file, regardless of the current log file size.
         /// </summary>
-        public Task RollLogFileAsync(CancellationToken token) => CreateNewLogFileAsync(token);
+        public Task RollLogFileAsync(CancellationToken token)
+        {
+            lock (_lockObject)
+                return _CreateNewLogFileAsync_Unlocked(token);
+        }
 
         #region Write overrides
-        public override void Write(char value) => WriteInternal(ToByteArray(value));
-        public override void Write(char[] buffer) => WriteInternal(ToByteArray(buffer));
-        public override void Write(char[] buffer, int index, int count) => WriteInternal(ToByteArray(buffer, index, count));
-        public override void Write(string value) => WriteInternal(ToByteArray(value));
-        public override void WriteLine(string value) => WriteInternal(ToByteArray(value), true);
+        public override void Write(char value) => _WriteInternal_Locked(ToByteArray(value));
+        public override void Write(char[] buffer) => _WriteInternal_Locked(ToByteArray(buffer));
+        public override void Write(char[] buffer, int index, int count) => _WriteInternal_Locked(ToByteArray(buffer, index, count));
+        public override void Write(string value) => _WriteInternal_Locked(ToByteArray(value));
+        public override void WriteLine(string value) => _WriteInternal_Locked(ToByteArray(value), true);
 
-        public override Task WriteAsync(char value) => WriteInternalAsync(ToByteArray(value));
-        public override Task WriteAsync(char[] buffer, int index, int count) => WriteInternalAsync(ToByteArray(buffer, index, count));
-        public override Task WriteAsync(string value) => WriteInternalAsync(ToByteArray(value));
-        public override Task WriteLineAsync() => WriteInternalAsync(new byte[] { }, true);
-        public override Task WriteLineAsync(char value) => WriteInternalAsync(ToByteArray(value), true);
-        public override Task WriteLineAsync(char[] buffer, int index, int count) => WriteInternalAsync(ToByteArray(buffer, index, count), true);
-        public override Task WriteLineAsync(string value) => WriteInternalAsync(ToByteArray(value), true);
+        public override Task WriteAsync(char value) => _WriteInternalAsync_Locked(ToByteArray(value));
+        public override Task WriteAsync(char[] buffer, int index, int count) => _WriteInternalAsync_Locked(ToByteArray(buffer, index, count));
+        public override Task WriteAsync(string value) => _WriteInternalAsync_Locked(ToByteArray(value));
+        public override Task WriteLineAsync() => _WriteInternalAsync_Locked(new byte[] { }, CancellationToken.None, true);
+        public override Task WriteLineAsync(char value) => _WriteInternalAsync_Locked(ToByteArray(value), CancellationToken.None, true);
+        public override Task WriteLineAsync(char[] buffer, int index, int count) => _WriteInternalAsync_Locked(ToByteArray(buffer, index, count), CancellationToken.None, true);
+        public override Task WriteLineAsync(string value) => _WriteInternalAsync_Locked(ToByteArray(value), CancellationToken.None, true);
 
-        public Task WriteAsync(char value, CancellationToken token) => WriteInternalAsync(ToByteArray(value), token);
-        public Task WriteAsync(char[] buffer, int index, int count, CancellationToken token) => WriteInternalAsync(ToByteArray(buffer, index, count), token);
-        public Task WriteAsync(string value, CancellationToken token) => WriteInternalAsync(ToByteArray(value), token);
-        public Task WriteLineAsync(CancellationToken token) => WriteInternalAsync(new byte[] { }, token, true);
-        public Task WriteLineAsync(char value, CancellationToken token) => WriteInternalAsync(ToByteArray(value), token, true);
-        public Task WriteLineAsync(char[] buffer, int index, int count, CancellationToken token) => WriteInternalAsync(ToByteArray(buffer, index, count), token, true);
-        public Task WriteLineAsync(string value, CancellationToken token) => WriteInternalAsync(ToByteArray(value), token, true);
+        public Task WriteAsync(char value, CancellationToken token) => _WriteInternalAsync_Locked(ToByteArray(value), token);
+        public Task WriteAsync(char[] buffer, int index, int count, CancellationToken token) => _WriteInternalAsync_Locked(ToByteArray(buffer, index, count), token);
+        public Task WriteAsync(string value, CancellationToken token) => _WriteInternalAsync_Locked(ToByteArray(value), token);
+        public Task WriteLineAsync(CancellationToken token) => _WriteInternalAsync_Locked(new byte[] { }, token, true);
+        public Task WriteLineAsync(char value, CancellationToken token) => _WriteInternalAsync_Locked(ToByteArray(value), token, true);
+        public Task WriteLineAsync(char[] buffer, int index, int count, CancellationToken token) => _WriteInternalAsync_Locked(ToByteArray(buffer, index, count), token, true);
+        public Task WriteLineAsync(string value, CancellationToken token) => _WriteInternalAsync_Locked(ToByteArray(value), token, true);
         #endregion Write overrides
 
         #region CreateNewLogFile
-        void CreateNewLogFile()
-        {
-            _semaphore.Wait();
-            try
-            {
-                if (_baseStream != null)
-                {
-                    if (!string.IsNullOrWhiteSpace(FooterLine))
-                        WriteLine(FooterLine);
-                    _baseStream.Flush();
-                    _baseStream.Close();
-                    _baseStream = null;
-                    _fileName = string.Empty;
-                }
-                var fileName = _fileNameGenerator(BasePath);
-                _baseStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 1024 * 1024, FileOptions.WriteThrough);
-                _fileName = fileName;
-                _currentSize = 0;
-                if (!string.IsNullOrWhiteSpace(HeaderLine))
-                    WriteLine(HeaderLine);
 
-            }
-            finally
+        void _CreateNewLogFile_Unlocked()
+        {
+            if (_baseStream != null)
             {
-                _semaphore.Release();
+                if (!string.IsNullOrWhiteSpace(FooterLine))
+                    WriteLine(FooterLine);
+                _baseStream.Flush();
+                _baseStream.Close();
+                _baseStream = null;
+                _fileName = string.Empty;
             }
+            var fileName = _fileNameGenerator(BasePath);
+            _baseStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 1024 * 1024, FileOptions.WriteThrough);
+            _fileName = fileName;
+            _currentSize = 0;
+            if (!string.IsNullOrWhiteSpace(HeaderLine))
+                WriteLine(HeaderLine);
         }
 
-        Task CreateNewLogFileAsync() => CreateNewLogFileAsync(CancellationToken.None);
-        async Task CreateNewLogFileAsync(CancellationToken token)
+        async Task _CreateNewLogFileAsync_Unlocked(CancellationToken token)
         {
-            await _semaphore.WaitAsync();
-            try
+            if (_baseStream != null)
             {
-                if (_baseStream != null)
-                {
-                    if (!string.IsNullOrWhiteSpace(FooterLine))
-                        await WriteLineAsync(FooterLine, token);
-                    await _baseStream.FlushAsync(token);
-                    _baseStream.Close();
-                    _baseStream = null;
-                    _fileName = string.Empty;
-                }
-                var fileName = _fileNameGenerator(BasePath);
-                _baseStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 1024 * 1024, FileOptions.WriteThrough);
-                _fileName = fileName;
-                _currentSize = 0;
-                if (!string.IsNullOrWhiteSpace(HeaderLine))
-                    await WriteLineAsync(HeaderLine, token);
+                if (!string.IsNullOrWhiteSpace(FooterLine))
+                    await WriteLineAsync(FooterLine, token);
+                await _baseStream.FlushAsync(token);
+                _baseStream.Close();
+                _baseStream = null;
+                _fileName = string.Empty;
             }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+            var fileName = _fileNameGenerator(BasePath);
+            _baseStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 1024 * 1024, FileOptions.WriteThrough);
+            _fileName = fileName;
+            _currentSize = 0;
+            if (!string.IsNullOrWhiteSpace(HeaderLine))
+                await WriteLineAsync(HeaderLine, token);
         }
         #endregion CreateNewLogFile
 
@@ -261,7 +252,6 @@ namespace HisRoyalRedness.com
         {
             if (_baseStream != null)
                 _baseStream.Dispose();
-            _semaphore.Dispose();
             _baseStream = null;
             _fileName = string.Empty;
             base.Dispose(disposing);
@@ -305,69 +295,68 @@ namespace HisRoyalRedness.com
 
         #region WriteInternal
         [DebuggerStepThrough]
-        int WriteInternal(byte[] buffer, bool newLine = false)
+        int _WriteInternal_Locked(byte[] buffer, bool newLine = false)
+        {
+            lock (_lockObject)
+                return _WriteInternal_Unlocked(buffer, newLine);
+        }
+
+        [DebuggerStepThrough]
+        int _WriteInternal_Unlocked(byte[] buffer, bool newLine = false)
         {
             var bytesWritten = 0;
             if (buffer.Length > 0 || newLine)
             {
-                _semaphore.Wait();
-                try
+                if (_currentSize + buffer.Length > MaxLogFileSize || _baseStream == null)
+                    _CreateNewLogFile_Unlocked();
+                if (buffer.Length > 0)
                 {
-                    if (_currentSize + buffer.Length > MaxLogFileSize || _baseStream == null)
-                        CreateNewLogFile();
-                    if (buffer.Length > 0)
-                    {
-                        _baseStream.Write(buffer, 0, buffer.Length);
-                        bytesWritten = buffer.Length;
-                    }
-                    if (newLine)
-                    {
-                        _baseStream.Write(_newLine, 0, _newLine.Length);
-                        bytesWritten += _newLine.Length;
-                    }
-                    if (AutoFlush)
-                        _baseStream.Flush();
-                    _currentSize += bytesWritten;
+                    _baseStream.Write(buffer, 0, buffer.Length);
+                    bytesWritten = buffer.Length;
                 }
-                finally
+                if (newLine)
                 {
-                    _semaphore.Release();
+                    _baseStream.Write(_newLine, 0, _newLine.Length);
+                    bytesWritten += _newLine.Length;
                 }
+                if (AutoFlush)
+                    _baseStream.Flush();
+                _currentSize += bytesWritten;
             }
             return bytesWritten;
         }
 
+        //[DebuggerStepThrough]
+        //Task<int> WriteInternalAsync(byte[] buffer, bool newLine = false) => WriteInternalAsync(buffer, CancellationToken.None, newLine);
+
         [DebuggerStepThrough]
-        Task<int> WriteInternalAsync(byte[] buffer, bool newLine = false) => WriteInternalAsync(buffer, CancellationToken.None, newLine);
+        Task<int> _WriteInternalAsync_Locked(byte[] buffer, CancellationToken token = default, bool newLine = false)
+        {
+            lock (_lockObject)
+                return _WriteInternalAsync_Unlocked(buffer, token, newLine);
+        }
+
         [DebuggerStepThrough]
-        async Task<int> WriteInternalAsync(byte[] buffer, CancellationToken token, bool newLine = false)
+        async Task<int> _WriteInternalAsync_Unlocked(byte[] buffer, CancellationToken token, bool newLine = false)
         {
             var bytesWritten = 0;
             if (buffer.Length > 0 || newLine)
             {
-                await _semaphore.WaitAsync(token);
-                try
+                if (_currentSize + buffer.Length > MaxLogFileSize || _baseStream == null)
+                    await _CreateNewLogFileAsync_Unlocked(token);
+                if (buffer.Length > 0)
                 {
-                    if (_currentSize + buffer.Length > MaxLogFileSize || _baseStream == null)
-                        await CreateNewLogFileAsync(token);
-                    if (buffer.Length > 0)
-                    {
-                        await _baseStream.WriteAsync(buffer, 0, buffer.Length, token);
-                        bytesWritten = buffer.Length;
-                    }
-                    if (newLine)
-                    {
-                        await _baseStream.WriteAsync(_newLine, 0, _newLine.Length, token);
-                        bytesWritten += _newLine.Length;
-                    }
-                    if (AutoFlush)
-                        await _baseStream.FlushAsync(token);
-                    _currentSize += bytesWritten;
+                    await _baseStream.WriteAsync(buffer, 0, buffer.Length, token);
+                    bytesWritten = buffer.Length;
                 }
-                finally
+                if (newLine)
                 {
-                    _semaphore.Release();
+                    await _baseStream.WriteAsync(_newLine, 0, _newLine.Length, token);
+                    bytesWritten += _newLine.Length;
                 }
+                if (AutoFlush)
+                    await _baseStream.FlushAsync(token);
+                _currentSize += bytesWritten;
             }
             return bytesWritten;
         }
@@ -381,8 +370,9 @@ namespace HisRoyalRedness.com
         readonly string _basePath;
         readonly Encoding _encoding = Encoding.UTF8;
         string _fileName = string.Empty;
-        readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0, 1);
 
+
+        object _lockObject = new object();
         readonly byte[] _newLine;
         FileStream _baseStream = null;
         int _maxLogSize = DEFAULT_MAX_SIZE;
