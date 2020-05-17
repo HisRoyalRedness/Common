@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 /*
     File description (short)
@@ -541,6 +542,21 @@ namespace HisRoyalRedness.com
                         return _ReadNotLocked(data, offset, length);
                 }
                 _signal.Wait(token);
+            }
+        }
+
+        public Task<int> BlockedReadAsync(T[] data, int offset, int length) => BlockedReadAsync(data, offset, length, CancellationToken.None);
+
+        public async Task<int> BlockedReadAsync(T[] data, int offset, int length, CancellationToken token)
+        {
+            while (true)
+            {
+                lock (_lockObj)
+                {
+                    if (_CountNotLocked > 0)
+                        return _ReadNotLocked(data, offset, length);
+                }
+                await _signal.WaitAsync(token);
             }
         }
         #endregion Blocking methods
