@@ -559,6 +559,36 @@ namespace HisRoyalRedness.com
                 await _signal.WaitAsync(token);
             }
         }
+
+        public int BlockedRead(Memory<T> memory) => BlockedRead(memory, CancellationToken.None);
+
+        public int BlockedRead(Memory<T> memory, CancellationToken token)
+        {
+            while (true)
+            {
+                lock (_lockObj)
+                {
+                    if (_CountNotLocked > 0)
+                        return _ReadNotLocked(memory);
+                }
+                _signal.Wait(token);
+            }
+        }
+
+        public Task<int> BlockedReadAsync(Memory<T> memory) => BlockedReadAsync(memory, CancellationToken.None);
+
+        public async Task<int> BlockedReadAsync(Memory<T> memory, CancellationToken token)
+        {
+            while (true)
+            {
+                lock (_lockObj)
+                {
+                    if (_CountNotLocked > 0)
+                        return _ReadNotLocked(memory);
+                }
+                await _signal.WaitAsync(token);
+            }
+        }
         #endregion Blocking methods
 
         public int Capacity { get; } = DEFAULT_CAPACITY;
