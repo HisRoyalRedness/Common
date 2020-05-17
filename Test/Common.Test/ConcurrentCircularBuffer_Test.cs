@@ -859,22 +859,17 @@ namespace HisRoyalRedness.com
             cb.Count.Should().Be(4);
             cb.ToArray().Should().Equal(new[] { 4, 5, 6, 7 });
         }
+
+        [TestMethod]
+        public void Write_Memory()
+        {
+            var cb = new IntBuffer(5);
+            var arr = new[] { 1, 2, 3 };
+            cb.Write(new Memory<int>(arr));
+            cb.Count.Should().Be(3);
+            cb.ToArray().Should().Equal(new[] { 1, 2, 3 });
+        }
         #endregion Write
-
-
-        //if (length == 0)
-        //    return;
-        //if (data == null)
-        //    throw new ArgumentNullException(nameof(data));
-        //if (offset< 0)
-        //    throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} must be larger or equal to zero.");
-        //if (data.Length<length)
-        //    throw new ArgumentException($"{nameof(data)} is smaller than {nameof(length)}.");
-        //if (data.Length - offset<length)
-        //    throw new ArgumentException($"{nameof(data)} is smaller than {nameof(length)} with the provided {nameof(offset)}.");
-
-
-        // ToArray is implicitly tested through the other tests
 
     }
 }

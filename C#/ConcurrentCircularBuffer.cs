@@ -491,6 +491,7 @@ namespace HisRoyalRedness.com
 
             var firstPortion = Capacity - _writeIndex;
             var length = memory.Length;
+            var offset = 0;
             if (_writeIndex + length >= Capacity)
             {
                 memory.Slice(0, firstPortion).CopyTo(_memBuffer.Slice(_writeIndex));
@@ -498,11 +499,12 @@ namespace HisRoyalRedness.com
                 if (_writeIndex == Capacity)
                     _writeIndex = 0;
                 length -= firstPortion;
+                offset = firstPortion;
             }
 
             if (length > 0)
             {
-                memory.Slice(firstPortion).CopyTo(_memBuffer);
+                memory.Slice(offset).CopyTo(_memBuffer);
                 _writeIndex += length;
             }
 
