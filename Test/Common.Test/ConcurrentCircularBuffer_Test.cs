@@ -871,5 +871,24 @@ namespace HisRoyalRedness.com
         }
         #endregion Write
 
+        #region ToArray
+        [TestMethod]
+        public void ToArrayBasic()
+        {
+            var cb = new IntBuffer(new int[] { 1, 2, 3 }, 5);
+            cb.ToArray().Should().Equal(new[] { 1, 2, 3 });
+        }
+
+        [TestMethod]
+        public void ToArrayShouldNotRemoveItems()
+        {
+            var cb = new IntBuffer(new int[] { 1, 2, 3 }, 5);
+
+            cb.Count.Should().Be(3);
+            cb.ToArray().Should().Equal(new[] { 1, 2, 3 });
+            cb.Count.Should().Be(3, "no items should have been removed.");
+            cb[0].Should().Be(1, "should still point to the first item");
+        }
+        #endregion ToArray
     }
 }
