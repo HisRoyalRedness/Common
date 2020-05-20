@@ -34,6 +34,8 @@ using System.Threading.Tasks;
     Keith Fletcher
     May 2020
 
+    https://github.com/HisRoyalRedness/Common/blob/master/C%23/ConcurrentCircularBuffer.cs
+
     This file is Unlicensed.
     See the foot of the file, or refer to <http://unlicense.org>
 */
