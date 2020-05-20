@@ -27,8 +27,8 @@ using System.Threading.Tasks;
         under an internal lock, so these operations should be atomic.
 
         BlockedRemove and BlockedRead methods will block until there are
-        items in the buffer that can be removed. This is usefull for 
-        Producser / Consumer patterns.
+        items in the buffer that can be removed. This is useful for 
+        Producer / Consumer patterns.
 
 
     Keith Fletcher
