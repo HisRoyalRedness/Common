@@ -27,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)NotifyBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RollableLogWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colour\sRGB.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StateMachine.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" />
