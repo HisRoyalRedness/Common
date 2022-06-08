@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\C#\ConcurrentCircularBuffer.cs" Link="ConcurrentCircularBuffer.cs" />
+    <Compile Include="..\..\C#\IntelHex.cs" Link="IntelHex.cs" />
     <Compile Include="..\..\C#\StateMachine.cs" Link="StateMachine.cs" />
   </ItemGroup>
 
